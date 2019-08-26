@@ -5,6 +5,7 @@
 #include<string>
 #include<sstream>
 #include<chrono>
+
 /*OPENGL--> is an implementation that runs & works on your GPU
 
 OPENGL works as a state machine.
@@ -12,10 +13,13 @@ OPENGL works as a state machine.
 example for drawing a triangle:
 
 1. generate a buffer
+1.1 load data(anticlockwise)
+1.2 generate an index buffer
 2. select a shader 
 3. draw a triangle with that data.
 */
-
+int WIDTH = 1080;
+int HEIGHT = 720;
 //DEBUGGER 
 #define ASSERT(x) if(!(x)) __debugbreak();
 #ifdef _DEBUG
@@ -42,19 +46,16 @@ static bool LogCallErrors(const char* functionName, const char* filename, int li
 }
 
 
-
-
-
-
-static void ParseShader(const std::string& filepath, std::string& out_vertex, std::string& out_fragment)
+static std::pair<std::string, std::string> ParseShader(const std::string& filepath)
 {
 	std::ifstream inputFile;
 	inputFile.open(filepath);
 	if (inputFile.fail())
 	{
 		perror("ERROR CANNOT OPEN SHADER FILE");
-		return;
+		return { 0, 0 };
 	}
+
 	//read the file, change mode, send data corresponding to mode
 	enum class ShaderType{ NONE =-1, VERTEX, FRAGMENT};
 	std::string grabber;
@@ -75,8 +76,7 @@ static void ParseShader(const std::string& filepath, std::string& out_vertex, st
 	}
 	inputFile.close();
 
-	out_vertex	= stream[(int)ShaderType::VERTEX].str();
-	out_fragment  = stream[(int)ShaderType::FRAGMENT].str();
+	return { stream[(int)ShaderType::VERTEX].str(), stream[(int)ShaderType::FRAGMENT].str() };
 }
 
 static unsigned int CompileShader(const std::string& source, unsigned int type)
@@ -143,7 +143,14 @@ static unsigned int CreateShader(const std::string& vertexShader, const std::str
 	return program;
 }
 
-void keyCallBack(GLFWwindow* win, int key, int scanCode, int action, int mode)
+
+static void changeBufferSizeCallBack(GLFWwindow* win, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
+
+static void keyCallBack(GLFWwindow* win, int key, int scanCode, int action, int mode)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(win, GL_TRUE);
@@ -152,8 +159,29 @@ void keyCallBack(GLFWwindow* win, int key, int scanCode, int action, int mode)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	if (key ==  GLFW_KEY_2 && action == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
 
+	/*if (key == GLFW_KEY_D && action == GLFW_PRESS)
+	{
+		WIDTH += 5;
+		changeBufferSizeCallBack(win, WIDTH, HEIGHT);
+	}
+	if (key == GLFW_KEY_A && action == GLFW_PRESS)
+	{
+		WIDTH -= 5;
+		changeBufferSizeCallBack(win, WIDTH, HEIGHT);
+	}
+	if (key == GLFW_KEY_W && action == GLFW_PRESS)
+	{
+		HEIGHT+=5;
+		changeBufferSizeCallBack(win, WIDTH, HEIGHT);
+	}
+	if (key == GLFW_KEY_S && action == GLFW_PRESS)
+	{
+		HEIGHT -= 5;
+		changeBufferSizeCallBack(win, WIDTH, HEIGHT);
+	}*/
+
+}
 
 
 int main(void)
@@ -167,7 +195,7 @@ int main(void)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,4);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 
-	mainWindow = glfwCreateWindow(1080, 720, "Practica con OpenGL", NULL, NULL);
+	mainWindow = glfwCreateWindow(WIDTH, HEIGHT, "Practica con OpenGL", NULL, NULL);
 
 	if (!mainWindow)
 	{
@@ -220,12 +248,12 @@ int main(void)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6* sizeof(int), indices, GL_STATIC_DRAW);
 
 
-	//shader code YEAH!!
-	std::string VertexShader, FragShader;
-	ParseShader("shaders/Base.shader", VertexShader, FragShader);
+	//shader code YEAH!!//c++17 structured binding	
+	auto [VertexShader, FragShader] = ParseShader("shaders/Base.shader");
+	
 	//start all the shader data process
 	unsigned int shader = CreateShader(VertexShader, FragShader);
-
+	
 	//bind all the shader to OPENGL
 	glUseProgram(shader);
 
@@ -278,13 +306,14 @@ int main(void)
 		r += addRed * deltaTime;
 		g += addGreen * deltaTime;
 		b += addBlue * deltaTime;
-		glClearColor(0.5f, 0.0f, 0.12f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		
 		//draw call
 		//glDrawArrays(GL_TRIANGLES, 0, 3*2);
+		
 		GLCALL(glUniform4f(location, r, g, b, 1.0f));
-		GLCALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+		GLCALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0));
 		
 		//swap buffers before draw 
 		glfwSwapBuffers(mainWindow);
