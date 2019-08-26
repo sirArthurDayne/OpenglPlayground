@@ -159,28 +159,6 @@ static void keyCallBack(GLFWwindow* win, int key, int scanCode, int action, int 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	if (key ==  GLFW_KEY_2 && action == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	/*if (key == GLFW_KEY_D && action == GLFW_PRESS)
-	{
-		WIDTH += 5;
-		changeBufferSizeCallBack(win, WIDTH, HEIGHT);
-	}
-	if (key == GLFW_KEY_A && action == GLFW_PRESS)
-	{
-		WIDTH -= 5;
-		changeBufferSizeCallBack(win, WIDTH, HEIGHT);
-	}
-	if (key == GLFW_KEY_W && action == GLFW_PRESS)
-	{
-		HEIGHT+=5;
-		changeBufferSizeCallBack(win, WIDTH, HEIGHT);
-	}
-	if (key == GLFW_KEY_S && action == GLFW_PRESS)
-	{
-		HEIGHT -= 5;
-		changeBufferSizeCallBack(win, WIDTH, HEIGHT);
-	}*/
-
 }
 
 
@@ -193,7 +171,7 @@ int main(void)
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,4);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	mainWindow = glfwCreateWindow(WIDTH, HEIGHT, "Practica con OpenGL", NULL, NULL);
 
@@ -222,6 +200,14 @@ int main(void)
 		3,2,1//down triangle
 	};
 
+	/*Core OpenGL requires that we use a VAO so it knows what to do with our vertex inputs.
+	If we fail to bind a VAO, OpenGL will most likely refuse to draw anything.*/
+	unsigned int vao;
+
+	GLCALL(glGenVertexArrays(1, &vao));
+	GLCALL(glBindVertexArray(vao));
+
+
 
 	//generates an ID for vertex buffer object 
 	unsigned int tri_buffer;
@@ -234,54 +220,53 @@ int main(void)
 	glBufferData(GL_ARRAY_BUFFER, 4*2* sizeof(float), tri_coord, GL_STATIC_DRAW);
 
 
-	
+	//tell opengl how to work the specify buffer layout. ALWAYS HAS TO BE SET BEFORE DRAWING A BUFFER OBJECT 
+	GLCALL(glEnableVertexAttribArray(0));
+	//This function links the tri_buffer and his attributes (indices_buffer) with the current bound VAO
+	GLCALL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, (void*)0));
 
-	//tell opengl how to work the buffer. ALWAYS HAS TO BE SET BEFORE DRAWING A BUFFER OBJECT 
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);//stride: sizeof(float)*2
-	glEnableVertexAttribArray(0);
-
-
+	//same way, the indices or elements needs a buffer to work, so generate a index buffer
 	unsigned int index_buffer_obj;
 	glGenBuffers(1, &index_buffer_obj);
 	std::cout << "ibo id: " << index_buffer_obj<< std::endl;
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_obj);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6* sizeof(int), indices, GL_STATIC_DRAW);
 
-
-	//shader code YEAH!!//c++17 structured binding	
+	//shader code HELL YEAH!
+	
+	//c++17 structured binding	
 	auto [VertexShader, FragShader] = ParseShader("shaders/Base.shader");
-	
+
 	//start all the shader data process
-	unsigned int shader = CreateShader(VertexShader, FragShader);
-	
+	unsigned int shaderProgram = CreateShader(VertexShader, FragShader);
+
 	//bind all the shader to OPENGL
-	glUseProgram(shader);
-
-
-	//alous to unbound everything
-	/*GLCALL(glBindBuffer(GL_ARRAY_BUFFER,0));
-	GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-	GLCALL(glUseProgram(0));
-	*/
-
+	glUseProgram(shaderProgram);
 
 
 
 
 	//to set uniform first you have to bound a shader before
-	unsigned int location = glGetUniformLocation(shader, "u_color");
+	unsigned int location = glGetUniformLocation(shaderProgram, "u_color");
 	ASSERT(location != -1)
 	
 	//colors
-	float r = 0.0f,g=0.0f, b = 0.0f;
+	float r = 1.0f,g=1.0f, b = 1.0f;
 	float addRed = 0.05f;
 	float addGreen = 0.01f;
 	float addBlue = 0.025f;
-	
+	float alfa = 1.0f;
 	//smoth
 	auto t1 = std::chrono::system_clock::now();
 	auto t2 = std::chrono::system_clock::now();
 
+
+	//UNBOUND EVERYTHING
+	GLCALL(glBindVertexArray(0));
+	GLCALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+	GLCALL(glUseProgram(0));
+	
 	while (!glfwWindowShouldClose(mainWindow))
 	{
 		//update clock
@@ -290,7 +275,7 @@ int main(void)
 		//time per frame coefficient
 		float deltaTime = elapsedTime.count();
 
-		//render stuff
+		//update colors base on framerate
 		if		(r > 1.0f) addRed = -0.05f;
 		else if	(r < 0.0f) addRed = 0.05f;
 		
@@ -299,20 +284,25 @@ int main(void)
 
 		if	   (b > 1.0f) addBlue = -0.025f;
 		else if (b < 0.0f)addBlue = 0.025f;
-		
+
 		if (deltaTime > 1.0f)
 			deltaTime = 0.10f;
 		
 		r += addRed * deltaTime;
 		g += addGreen * deltaTime;
 		b += addBlue * deltaTime;
+
+		//CLEAR SCREEN
 		glClearColor(0.0f, 0.0f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		
-		//draw call
-		//glDrawArrays(GL_TRIANGLES, 0, 3*2);
+		//shaders binding and uniform sending data
+		GLCALL(glUseProgram(shaderProgram));
+		GLCALL(glUniform4f(location, r, g, b, alfa));
 		
-		GLCALL(glUniform4f(location, r, g, b, 1.0f));
+		//the benefit of VAO are that we dont need to bind the buffer object or their attributes again, only their indices
+		GLCALL(glBindVertexArray(vao));
+		
 		GLCALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0));
 		
 		//swap buffers before draw 
@@ -325,7 +315,7 @@ int main(void)
 	}
 
 	//clean all data related to the shader
-	glDeleteProgram(shader);
+	glDeleteProgram(shaderProgram);
 	
 	glfwTerminate();
 	return EXIT_SUCCESS;
