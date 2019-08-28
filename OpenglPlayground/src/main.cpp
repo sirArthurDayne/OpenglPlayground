@@ -5,7 +5,10 @@
 #include<string>
 #include<sstream>
 #include<chrono>
-
+#include"Renderer.h"
+#include"VertexArray.h"
+#include"VertexBuffer.h"
+#include"IndexBuffer.h"
 /*OPENGL--> is an implementation that runs & works on your GPU
 
 OPENGL works as a state machine.
@@ -20,30 +23,7 @@ example for drawing a triangle:
 */
 int WIDTH = 1080;
 int HEIGHT = 720;
-//DEBUGGER 
-#define ASSERT(x) if(!(x)) __debugbreak();
-#ifdef _DEBUG
-#define GLCALL(x) ClearErrors();x;ASSERT(LogCallErrors(#x, __FILE__, __LINE__))
-#else 
-#define GLCALL(x) x
-#endif //_DEBUG
 
-
-static void ClearErrors()
-{//clean error buffer
-	while (glGetError() != GL_NO_ERROR);
-}
-
-static bool LogCallErrors(const char* functionName, const char* filename, int line)
-{
-	while (GLenum error_code = glGetError())
-	{
-		std::cout << "[OPENGL ERROR] (" << std::hex<< error_code <<std::dec << ")\nfunName: " << functionName <<"\nfile:"<< filename 
-			<<" : " <<line << std::endl;
-		return false;//not succesfull
-	}
-	return true;
-}
 
 
 static std::pair<std::string, std::string> ParseShader(const std::string& filepath)
@@ -53,7 +33,7 @@ static std::pair<std::string, std::string> ParseShader(const std::string& filepa
 	if (inputFile.fail())
 	{
 		perror("ERROR CANNOT OPEN SHADER FILE");
-		return { 0, 0 };
+		return { };
 	}
 
 	//read the file, change mode, send data corresponding to mode
@@ -186,54 +166,34 @@ int main(void)
 	if (glewInit() != GLEW_OK) std::cout << "GLEW FAILED\n";
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
-	float tri_coord[] =
+	float tri_pos[] =
 	{
-		-0.9f,  0.9f,//0
-		-0.9f, 0.0f,//1
-		0.0f,  0.9f,//2
-		//second tri
-		0.0f,  0.0f,//3
+		-1.0f,  1.0f,//0
+		 0.0f, 0.0f,//1
+		 1.0f,  1.0f,//2
+		-1.0f, -1.0f,//3
+		 1.0f, -1.0f,//4
 	};
-	unsigned int indices[] =
+	unsigned int tri_indices[] =
 	{
 		0,1,2,//top triangle
-		3,2,1//down triangle
+		3,1,4,//down triangle
 	};
 
 	/*Core OpenGL requires that we use a VAO so it knows what to do with our vertex inputs.
 	If we fail to bind a VAO, OpenGL will most likely refuse to draw anything.*/
-	unsigned int vao;
-
-	GLCALL(glGenVertexArrays(1, &vao));
-	GLCALL(glBindVertexArray(vao));
-
-
-
+	//VAO stores all of the state needed to supply vertex data
+	VertexArray* vao = new VertexArray();
+	VertexLayout* vl = new VertexLayout();
 	//generates an ID for vertex buffer object 
-	unsigned int tri_buffer;
-	glGenBuffers(1, &tri_buffer);
-	std::cout << "triangle id: " << tri_buffer << std::endl;
-
-	//select the buffer to work with
-	glBindBuffer(GL_ARRAY_BUFFER, tri_buffer);
-	//send the data to the buffer
-	glBufferData(GL_ARRAY_BUFFER, 4*2* sizeof(float), tri_coord, GL_STATIC_DRAW);
-
-
-	//tell opengl how to work the specify buffer layout. ALWAYS HAS TO BE SET BEFORE DRAWING A BUFFER OBJECT 
-	GLCALL(glEnableVertexAttribArray(0));
-	//This function links the tri_buffer and his attributes (indices_buffer) with the current bound VAO
-	GLCALL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, (void*)0));
+	VertexBuffer* vertexBuffer = new VertexBuffer(tri_pos, 5 * 2 * sizeof(float));
+	vl->Push<float>(2);
+	vao->AddBuffer(*vertexBuffer, *vl);
 
 	//same way, the indices or elements needs a buffer to work, so generate a index buffer
-	unsigned int index_buffer_obj;
-	glGenBuffers(1, &index_buffer_obj);
-	std::cout << "ibo id: " << index_buffer_obj<< std::endl;
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_obj);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6* sizeof(int), indices, GL_STATIC_DRAW);
-
-	//shader code HELL YEAH!
+	IndexBuffer* indexBuffer = new IndexBuffer(tri_indices, 6);
 	
+	//shader code HELL YEAH!
 	//c++17 structured binding	
 	auto [VertexShader, FragShader] = ParseShader("shaders/Base.shader");
 
@@ -262,9 +222,9 @@ int main(void)
 
 
 	//UNBOUND EVERYTHING
-	GLCALL(glBindVertexArray(0));
-	GLCALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
-	GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+	vao->Unbind();
+	vertexBuffer->Unbind();
+	indexBuffer->Unbind();
 	GLCALL(glUseProgram(0));
 	
 	while (!glfwWindowShouldClose(mainWindow))
@@ -300,9 +260,8 @@ int main(void)
 		GLCALL(glUseProgram(shaderProgram));
 		GLCALL(glUniform4f(location, r, g, b, alfa));
 		
-		//the benefit of VAO are that we dont need to bind the buffer object or their attributes again, only their indices
-		GLCALL(glBindVertexArray(vao));
-		
+		//the benefit of VAO are that we dont need to bind the buffer object or their attributes again
+		vao->Bind();
 		GLCALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0));
 		
 		//swap buffers before draw 
@@ -317,6 +276,10 @@ int main(void)
 	//clean all data related to the shader
 	glDeleteProgram(shaderProgram);
 	
+	delete vertexBuffer;
+	delete indexBuffer;
+	delete vl;
+	delete vao;
 	glfwTerminate();
 	return EXIT_SUCCESS;
 }

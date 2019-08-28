@@ -14,7 +14,8 @@ void main()
 
 layout(location = 0) out vec4 color;
 
-//uniforms: allous to change shader code in the CPU side
+/*uniforms: allous to change shader code in
+the CPU side*/
 uniform vec4 u_color;
 
 void main()
