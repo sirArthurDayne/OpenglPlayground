@@ -2,7 +2,7 @@
 #include"Renderer.h"
 #include<iostream>
 
-IndexBuffer::IndexBuffer(const unsigned int* index_data, unsigned int count)
+IndexBuffer::IndexBuffer(const unsigned int* index_data, unsigned int count): m_count(count)
 {
 	GLCALL(glGenBuffers(1, &m_rendererId));
 	GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_rendererId));

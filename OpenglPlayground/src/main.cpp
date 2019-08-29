@@ -4,6 +4,7 @@
 #include<chrono>
 #include"Renderer.h"
 #include"VertexArray.h"
+#include"VertexLayout.h"
 #include"VertexBuffer.h"
 #include"IndexBuffer.h"
 #include"Shader.h"
@@ -118,6 +119,8 @@ int main(void)
 	indexBuffer->Unbind();
 	tri_shader->Unbind();
 	
+
+	Renderer renderer;
 	while (!glfwWindowShouldClose(mainWindow))
 	{
 		//update clock
@@ -143,17 +146,13 @@ int main(void)
 		tri_rgba[1] += addGreen * deltaTime;
 		tri_rgba[2] += addBlue * deltaTime;
 
-		//CLEAR SCREEN
-		glClearColor(0.0f, 0.0f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		renderer.Clear(0.0f, 0.0f, 0.3f);
 		
 		//shaders binding and uniform sending data
 		tri_shader->Bind();
 		tri_shader->SetUniform4f("u_color", tri_rgba);
-		
-		//the benefit of VAO are that we dont need to bind the buffer object or their attributes again
-		vao->Bind();
-		GLCALL(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0));
+
+		renderer.Draw(vao, indexBuffer);
 		
 		//swap buffers before draw 
 		glfwSwapBuffers(mainWindow);

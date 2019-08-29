@@ -16,3 +16,26 @@ bool LogCallErrors(const char* functionName, const char* filename, int line)
 	}
 	return true;
 }
+
+
+Renderer::Renderer()
+{
+}
+
+void Renderer::Clear(float r, float g, float b, float a)
+{
+	glClearColor(r, g, b, a);
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void Renderer::Draw(const VertexArray* vao, const IndexBuffer* ibo) const
+{
+	vao->Bind();
+	GLCALL(glDrawElements(GL_TRIANGLES, ibo->GetCount(), GL_UNSIGNED_INT, (void*)0));
+}
+
+Renderer::~Renderer()
+{
+
+}
+
