@@ -1,5 +1,6 @@
 #include<GL/glew.h>
 #include <GLFW/glfw3.h>
+#include<glm.hpp>
 #include<iostream>
 #include<chrono>
 #include"Renderer.h"
@@ -8,9 +9,9 @@
 #include"VertexBuffer.h"
 #include"IndexBuffer.h"
 #include"Shader.h"
-/*OPENGL--> is an implementation that runs & works on your GPU
-
-OPENGL works as a state machine.
+#include"Texture.h"
+/*openGL--> is an implementation that runs & works on your GPU
+openGL works as a state machine.
 
 example for drawing a triangle:
 
@@ -20,14 +21,8 @@ example for drawing a triangle:
 2. select a shader 
 3. draw a triangle with that data.
 */
-int WIDTH = 1080;
-int HEIGHT = 720;
-
-
-static void changeBufferSizeCallBack(GLFWwindow* win, int width, int height)
-{
-	glViewport(0, 0, width, height);
-}
+int WIDTH = 1920;
+int HEIGHT = 1080;
 
 
 static void keyCallBack(GLFWwindow* win, int key, int scanCode, int action, int mode)
@@ -41,16 +36,19 @@ static void keyCallBack(GLFWwindow* win, int key, int scanCode, int action, int 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-
+static void mousecallBack(GLFWwindow*  win, double& x, double& y)
+{
+	GLCALL(glfwGetCursorPos(win, &x, &y));
+}
 int main(void)
 {
 	GLFWwindow* mainWindow;
 	//if doesnt work
 	if (!glfwInit())
 		return EXIT_FAILURE;
-
+	
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	mainWindow = glfwCreateWindow(WIDTH, HEIGHT, "Practica con OpenGL", NULL, NULL);
@@ -68,16 +66,16 @@ int main(void)
 
 	float tri_pos[] =
 	{
-		-1.0f,  1.0f,//0
-		 0.0f, 0.0f,//1
-		 1.0f,  1.0f,//2
-		-1.0f, -1.0f,//3
-		 1.0f, -1.0f,//4
+		//POSITION			//TEXTURE
+		-1.0f, 1.0f,			0.0f, 1.0f,//0
+		-1.0f, -1.0f,		0.0f, 0.0f,//1
+		 1.0f,  1.0f,		1.0f, 1.0f,//2
+		 1.0f,  -1.0f,		1.0f, 0.0f//3
 	};
 	unsigned int tri_indices[] =
 	{
-		0,1,2,//top triangle
-		3,1,4,//down triangle
+		2,0,1,//top triangle
+		3,2,1,//down triangle
 	};
 
 	/*Core OpenGL requires that we use a VAO so it knows what to do with our vertex inputs.
@@ -85,9 +83,10 @@ int main(void)
 	//VAO stores all of the state needed to supply vertex data
 	VertexArray* vao = new VertexArray();
 	VertexLayout* vl = new VertexLayout();
-	vl->Push<float>(2);
+	vl->Push<float>(2);//pos
+	vl->Push<float>(2);//texture
 	//generates an ID for vertex buffer object 
-	VertexBuffer* vertexBuffer = new VertexBuffer(tri_pos, 5 * 2 * sizeof(float));
+	VertexBuffer* vertexBuffer = new VertexBuffer(tri_pos, 4 * 4 * sizeof(float));
 	vao->AddBuffer(*vertexBuffer, *vl);
 
 	//same way, the indices or elements needs a buffer to work, so generate a index buffer
@@ -96,30 +95,40 @@ int main(void)
 	//shader code HELL YEAH!
 	//c++17 structured binding	
 	Shader* tri_shader = new Shader("shaders/Base.shader");
-
-	//colors
-	float* tri_rgba = new float[4];
-	tri_rgba[0] = 1.0f;
-	tri_rgba[1] = 1.0f;
-	tri_rgba[2] = 1.0f;
-	tri_rgba[3] = 1.0f;
+	tri_shader->SetUniform1i("u_texture", 0);
 	
-	float addRed = 0.05f;
-	float addGreen = 0.01f;
-	float addBlue = 0.025f;
+	//colors %
+	float* rgba = new float[4];
+	rgba[0] = 1.0f;
+	rgba[1] = 1.0f;
+	rgba[2] = 1.0f;
+	rgba[3] = 1.0f;//alpha
 	
 	//smoth
 	auto t1 = std::chrono::system_clock::now();
 	auto t2 = std::chrono::system_clock::now();
 
-
+	//TEXTURES
+	Texture* texture = new Texture("piratelogo.png");
+	texture->Bind();
+	
 	//UNBOUND EVERYTHING
 	vao->Unbind();
 	vertexBuffer->Unbind();
 	indexBuffer->Unbind();
 	tri_shader->Unbind();
 	
-
+	
+	//BLENDING FOR TEXTURING
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	/*ALPHA ECUATION
+	 * out_alpha = src_alpha + dest_alpha * (1 - src_alpha)
+	   If dest_alpha equals 1, then out_alpha also equals 1
+	 */
+	double mouseX = 0.0f, mouseY = 0.0f;
+	//RENDERER
 	Renderer renderer;
 	while (!glfwWindowShouldClose(mainWindow))
 	{
@@ -127,31 +136,16 @@ int main(void)
 		t2= std::chrono::system_clock::now();
 		std::chrono::duration<float> elapsedTime = t2 - t1;
 		//time per frame coefficient
-		float deltaTime = elapsedTime.count();
-
-		//update colors base on framerate
-		if		(tri_rgba[0] > 1.0f) addRed = -0.05f;
-		else if	(tri_rgba[0] < 0.0f) addRed = 0.05f;
+		const float delta_time = elapsedTime.count();
 		
-		if	   (tri_rgba[1] > 1.0f) addGreen= -0.01f;
-		else if (tri_rgba[1] < 0.0f)addGreen = 0.01f;
-
-		if	   (tri_rgba[2] > 1.0f) addBlue = -0.025f;
-		else if (tri_rgba[2] < 0.0f)addBlue = 0.025f;
-
-		if (deltaTime > 1.0f)
-			deltaTime = 0.10f;
+		renderer.Clear(0.40f, 0.0f, 0.3f);
 		
-		tri_rgba[0] += addRed * deltaTime;
-		tri_rgba[1] += addGreen * deltaTime;
-		tri_rgba[2] += addBlue * deltaTime;
-
-		renderer.Clear(0.0f, 0.0f, 0.3f);
-		
-		//shaders binding and uniform sending data
+		//shader binding and uniform sending data
 		tri_shader->Bind();
-		tri_shader->SetUniform4f("u_color", tri_rgba);
-
+		tri_shader->SetUniform1f("u_time", delta_time);
+		tri_shader->SetUniform4f("u_colorBase", rgba);
+		tri_shader->SetUniform2f("u_resolution", (float)WIDTH, (float)HEIGHT);
+		tri_shader->SetUniform2f("u_mouse", (float)mouseX, (float)mouseY);
 		renderer.Draw(vao, indexBuffer);
 		
 		//swap buffers before draw 
@@ -159,7 +153,7 @@ int main(void)
 		//event manager
 		glfwPollEvents();
 		glfwSetKeyCallback(mainWindow, keyCallBack);
-		
+		mousecallBack(mainWindow, mouseX, mouseY);
 		t2 = t1;
 	}
 	delete vertexBuffer;
@@ -167,6 +161,8 @@ int main(void)
 	delete vl;
 	delete vao;
 	delete tri_shader;
+	delete texture;
+	
 	glfwTerminate();
 	return EXIT_SUCCESS;
 }

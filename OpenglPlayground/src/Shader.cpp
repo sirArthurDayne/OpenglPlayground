@@ -13,7 +13,7 @@ Shader::Shader(const std::string& filepath): m_filePath(filepath), m_rendererID(
 	//create program
 	GLCALL(CreateShader(VertexShader, FragmentShader));
 
-	//bind all the shader to OPENGL
+	//bind all the shader to openGL
 	Bind();
 }
 
@@ -88,10 +88,25 @@ void Shader::SetUniform4f(const std::string& name, float* data)
 	GLCALL(glUniform4f(GetUniformLocation(name), *data, *(data + 1), *(data + 2), *(data + 3) ));
 }
 
+void Shader::SetUniform1i(const std::string& name, int value)
+{
+	glUniform1i(GetUniformLocation(name), value);
+}
+
+void Shader::SetUniform1f(const std::string& name, float value)
+{
+	glUniform1f(GetUniformLocation(name), value);
+}
+
+void Shader::SetUniform2f(const std::string& name, float data, float data2)
+{
+	glUniform2f(GetUniformLocation(name), data, data2);
+}
+
 unsigned int Shader::CompileShader(const std::string& source, unsigned int type)
 {
 	//Holds the memory of the data need to create a shader object 
-	unsigned int typeID = glCreateShader(type);
+	const unsigned int typeID = glCreateShader(type);
 
 	//get the pointer of the shader file
 	const char* src = &source[0];
@@ -109,12 +124,12 @@ unsigned int Shader::CompileShader(const std::string& source, unsigned int type)
 	
 	if (!error)
 	{
-		int error_lenght;
-		glGetShaderiv(typeID, GL_INFO_LOG_LENGTH, &error_lenght);
+		int error_length;
+		glGetShaderiv(typeID, GL_INFO_LOG_LENGTH, &error_length);
 
 		//char* outMessage = (char*)alloca(sizeof(char) * error_lenght);
-		char* outMessage = new char[error_lenght];
-		glGetShaderInfoLog(typeID, error_lenght, &error_lenght, outMessage);
+		char* outMessage = new char[error_length];
+		glGetShaderInfoLog(typeID, error_length, &error_length, outMessage);
 
 		std::cout << "ERROR!!, Failed To Compile " << ((type == GL_VERTEX_SHADER) ? "VERTEX_SHADER\n" : "FRAG_SHADER\n")
 			<< outMessage << std::endl;
@@ -127,15 +142,15 @@ unsigned int Shader::CompileShader(const std::string& source, unsigned int type)
 	return typeID;	
 }
 
-unsigned int Shader::GetUniformLocation(const std::string& name)
+int Shader::GetUniformLocation(const std::string& name)
 {
 	if (m_locationsCache.find(name) != m_locationsCache.end()) return m_locationsCache[name];
 
 	//to set uniform first you have to bound a shader before
-	GLCALL(int location = glGetUniformLocation(m_rendererID, name.c_str()));
+	GLCALL(const int location = glGetUniformLocation(m_rendererID, name.c_str()));
 
-	ASSERT(location != -1);
-
+	if (location == -1)
+		std::cout << "WARNING uniform '" << name << "' doesn't exit\n";
 	m_locationsCache[name] = location;
 
 	return location;

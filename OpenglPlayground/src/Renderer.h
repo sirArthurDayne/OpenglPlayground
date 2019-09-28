@@ -2,7 +2,6 @@
 #include<GL/glew.h>
 #include"VertexArray.h"
 #include"IndexBuffer.h"
-#include"Shader.h"
 
 //DEBUGGER 
 #define ASSERT(x) if(!(x)) __debugbreak();
