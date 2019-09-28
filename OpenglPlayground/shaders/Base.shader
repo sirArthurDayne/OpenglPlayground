@@ -34,6 +34,7 @@ max: can be use for finding intersection
 min: can be use for finding union
 mod: allous to make recursive solution
 polar cood: make for simplify calculations. vector becomes: v = (magnitude, angle)
+discard: allows to ignore a pixel color output
 */
 
 #define PI 3.141592
@@ -51,6 +52,12 @@ vec2 ConvertToRect(vec2 polarCoord)
 	return vec2(polarCoord.x * cos(polarCoord.y), polarCoord.x * sin(polarCoord.y));
 }
 
+vec4 ColorTransition(vec3 colorA, vec3 colorB)
+{
+	float pct = abs(sin(u_time)) / 2.0f;
+
+	return vec4(mix (colorA, colorB, pct), 1.0f);
+}
 
 // Repeat in two dimensions
 vec2 pMod2(inout vec2 p, vec2 size) 
@@ -94,7 +101,7 @@ float DrawMotionOne(vec2 position)
 	return distanceThree;
 }
 
-float DrawCaleidoscope(vec2 position, float times)
+float DrawCaleidoscopeSimple(vec2 position, float times)
 {
 	vec2 p_pos = ConvertToPolar(position);
 	p_pos.y = mod(p_pos.y, TAU / times);
@@ -106,11 +113,36 @@ float DrawCaleidoscope(vec2 position, float times)
 	return min(d1, d2);
 }
 
+float DrawCaleidoscopeEffect(vec2 position, float times, vec2 size)
+{
+	vec2 p_pos = ConvertToPolar(position);
+	float beta = TAU / times;
+	float np = p_pos.y / beta;
+	p_pos.y = mod(p_pos.y, beta);
+	float m2 = mod(np, 2.0f);
+	if (m2 > 1.0f)
+	{
+		p_pos.y = beta - p_pos.y;
+	}
+	p_pos.y += u_time;
+	position = ConvertToRect(p_pos);
+
+	pMod2(position, size);
+
+	float d1 = DistanceCircle(0.1f, position);
+	float d2 = DistanceBox(vec2(0.1f), position - vec2(0.1f));
+	return min(d1, d2);
+}
+
 
 void main()
 {
 	vec4 texColor = texture(u_texture, v_textureCoord);
 	vec4 outputColor = vec4(0.0f);
+
+	vec3 crimson = vec3(0.7f, 0.0f, 0.23f);
+	vec3 elecgreen = vec3(0.0f, 1.0f, 0.16f);
+
 	//setup scaling and origin pos
 	vec2 uv = 2.0f* v_textureCoord.xy - 1.0f;
 	uv.x *= u_resolution.x / u_resolution.y;
@@ -118,21 +150,20 @@ void main()
 	
 
 	//float distance = DrawMotionOne(uv) + DistanceCircle(0.1f, vec2(0.4f, 0.2f));
-	float distance = DrawCaleidoscope(uv, 9);
+	float distance = DrawCaleidoscopeEffect(uv, 9, vec2(0.5f));
 	float md = mod(distance, 0.1f);
 	float nd = abs(distance / 0.3f) ;
 
 	if (abs(distance) < 0.1f)
 	{
-		outputColor = vec4(0.5f);
-		//discard;
+		outputColor = ColorTransition(crimson, elecgreen);
 	}
 	if (abs(md) < 0.01f)
 	{
 		if (distance < 0.0f)
-		outputColor = vec4(1.0f, 0.0f, 0.0f, 1.0f)/nd;
+		outputColor = vec4(crimson, 1.0f)/nd;
 		else
-		outputColor = vec4(0.0f, 1.0f, 0.0f, 1.0f)/nd;
+		outputColor = vec4(elecgreen, 1.0f)/nd;
 	}
 	color = outputColor;	
 }

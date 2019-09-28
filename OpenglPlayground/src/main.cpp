@@ -138,7 +138,7 @@ int main(void)
 		//time per frame coefficient
 		const float delta_time = elapsedTime.count();
 		
-		renderer.Clear(0.40f, 0.0f, 0.3f);
+		renderer.Clear(0.0f, 0.0f, 0.0f);
 		
 		//shader binding and uniform sending data
 		tri_shader->Bind();
