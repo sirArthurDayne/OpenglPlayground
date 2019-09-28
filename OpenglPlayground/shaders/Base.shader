@@ -52,11 +52,11 @@ vec2 ConvertToRect(vec2 polarCoord)
 	return vec2(polarCoord.x * cos(polarCoord.y), polarCoord.x * sin(polarCoord.y));
 }
 
-vec4 ColorTransition(vec3 colorA, vec3 colorB)
+vec3 ColorTransition(vec3 colorA, vec3 colorB)
 {
-	float pct = abs(sin(u_time)) / 2.0f;
+	float pct = abs(sin(u_time))/2.0f;
 
-	return vec4(mix (colorA, colorB, pct), 1.0f);
+	return vec3(mix (colorA, colorB, pct));
 }
 
 // Repeat in two dimensions
@@ -133,15 +133,27 @@ float DrawCaleidoscopeEffect(vec2 position, float times, vec2 size)
 	float d2 = DistanceBox(vec2(0.1f), position - vec2(0.1f));
 	return min(d1, d2);
 }
+//post processing methods
+void Rotation(inout vec2 position, float angle)
+{
+	position = vec2(position.x * cos(angle) + position.y * sin(angle), 
+		-position.x * sin(angle) + position.y * cos(angle));
+}
 
+vec3 ChangeSaturation(vec3 color, vec2 position)
+{
+	Rotation(position, u_time);
+	color = clamp(color, 0.0f, 1.0f);
+	return pow(color, vec3(abs(position.x), abs(position.y),length(position)));
+}
 
 void main()
 {
 	vec4 texColor = texture(u_texture, v_textureCoord);
-	vec4 outputColor = vec4(0.0f);
 
-	vec3 crimson = vec3(0.7f, 0.0f, 0.23f);
-	vec3 elecgreen = vec3(0.0f, 1.0f, 0.16f);
+	vec3 crimson = vec3(0.7f, 0.02f, 0.23f);
+	vec3 elecgreen = vec3(0.02f, 1.0f, 0.16f);
+	vec3 outputColor = vec3(0.0f);
 
 	//setup scaling and origin pos
 	vec2 uv = 2.0f* v_textureCoord.xy - 1.0f;
@@ -150,7 +162,7 @@ void main()
 	
 
 	//float distance = DrawMotionOne(uv) + DistanceCircle(0.1f, vec2(0.4f, 0.2f));
-	float distance = DrawCaleidoscopeEffect(uv, 9, vec2(0.5f));
+	float distance = DrawCaleidoscopeEffect(uv, 25, vec2(0.5f));
 	float md = mod(distance, 0.1f);
 	float nd = abs(distance / 0.3f) ;
 
@@ -161,10 +173,11 @@ void main()
 	if (abs(md) < 0.01f)
 	{
 		if (distance < 0.0f)
-		outputColor = vec4(crimson, 1.0f)/nd;
+		outputColor = crimson / nd;
 		else
-		outputColor = vec4(elecgreen, 1.0f)/nd;
+		outputColor = elecgreen / nd;
 	}
-	color = outputColor;	
+	//apply postProccessing before outputing 
+	
+	color = vec4(ChangeSaturation(outputColor, uv), 1.0f);
 }
-
