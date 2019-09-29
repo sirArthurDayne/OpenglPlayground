@@ -66,8 +66,8 @@ void Shader::CreateShader(const std::string& vertexShader, const std::string& fr
 	m_rendererID = glCreateProgram();
 
 	//starts prepares and return the id of the shader compilation base on the type and string data
-	unsigned int vertex_shader = CompileShader(vertexShader, GL_VERTEX_SHADER);
-	unsigned int frag_shader = CompileShader(fragmentShader, GL_FRAGMENT_SHADER);
+	const unsigned int vertex_shader = CompileShader(vertexShader, GL_VERTEX_SHADER);
+	const unsigned int frag_shader = CompileShader(fragmentShader, GL_FRAGMENT_SHADER);
 
 	//unify all shader object data inside one program before send it to GPU
 	GLCALL(glAttachShader(m_rendererID, vertex_shader));

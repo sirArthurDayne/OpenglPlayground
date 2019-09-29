@@ -67,6 +67,14 @@ vec2 pMod2(inout vec2 p, vec2 size)
 	return c;
 }
 
+vec2 pModMirror2(inout vec2 p, vec2 size) {
+	vec2 halfsize = size * 0.5;
+	vec2 c = floor((p + halfsize) / size);
+	p = mod(p + halfsize, size) - halfsize;
+	p *= mod(c, vec2(2)) * 2 - vec2(1);
+	return c;
+}
+
 
 float DistanceCircle(float radius, vec2 origin)
 {
@@ -127,6 +135,7 @@ float DrawCaleidoscopeEffect(vec2 position, float times, vec2 size)
 	p_pos.y += u_time;
 	position = ConvertToRect(p_pos);
 
+	//make repeating patron
 	pMod2(position, size);
 
 	float d1 = DistanceCircle(0.1f, position);
@@ -144,15 +153,18 @@ vec3 ChangeSaturation(vec3 color, vec2 position)
 {
 	Rotation(position, u_time);
 	color = clamp(color, 0.0f, 1.0f);
-	return pow(color, vec3(abs(position.x), abs(position.y),length(position)));
+	//return pow(color, vec3(1.0f /length(position)));//more saturate at center
+	//return pow(color, vec3(length(position)));//more saturate at borders
+	//saturate roullete
+	return pow(color, vec3(abs(position.x)/ length(position), abs(position.y)/ length(position),length(position)));
 }
 
 void main()
 {
 	vec4 texColor = texture(u_texture, v_textureCoord);
-
-	vec3 crimson = vec3(0.7f, 0.02f, 0.23f);
-	vec3 elecgreen = vec3(0.02f, 1.0f, 0.16f);
+	
+	vec3 crimson =  vec3(0.7f, 0.02f, 0.23f);
+	vec3 elecgreen = vec3(0.04f, 1.0f, 0.16f);
 	vec3 outputColor = vec3(0.0f);
 
 	//setup scaling and origin pos
@@ -162,9 +174,12 @@ void main()
 	
 
 	//float distance = DrawMotionOne(uv) + DistanceCircle(0.1f, vec2(0.4f, 0.2f));
-	float distance = DrawCaleidoscopeEffect(uv, 25, vec2(0.5f));
+	vec2 offset = uv;
+	Rotation(offset, u_time);
+
+	float distance = DrawCaleidoscopeEffect(uv-offset, 30, vec2(0.5f));
 	float md = mod(distance, 0.1f);
-	float nd = abs(distance / 0.3f) ;
+	float nd = abs(distance / 0.1f) ;
 
 	if (abs(distance) < 0.1f)
 	{
