@@ -1,6 +1,5 @@
 #include<GL/glew.h>
 #include <GLFW/glfw3.h>
-#include<glm.hpp>
 #include<iostream>
 #include<chrono>
 #include"Renderer.h"
@@ -10,6 +9,11 @@
 #include"IndexBuffer.h"
 #include"Shader.h"
 #include"Texture.h"
+
+#include<glm.hpp>
+#include<gtc/matrix_transform.hpp>
+
+
 /*openGL--> is an implementation that runs & works on your GPU
 openGL works as a state machine.
 
@@ -21,8 +25,8 @@ example for drawing a triangle:
 2. select a shader 
 3. draw a triangle with that data.
 */
-int WIDTH = 1920;
-int HEIGHT = 1080;
+int WIDTH = 640;
+int HEIGHT = 480;
 
 
 static void keyCallBack(GLFWwindow* win, int key, int scanCode, int action, int mode)
@@ -66,8 +70,8 @@ int main(void)
 
 	float tri_pos[] =
 	{
-		//POSITION			//TEXTURE
-		-1.0f, 1.0f,			0.0f, 1.0f,//0
+		//POSITION		//TEXTURE
+		-1.0f, 1.0f,		0.0f, 1.0f,//0
 		-1.0f, -1.0f,		0.0f, 0.0f,//1
 		 1.0f,  1.0f,		1.0f, 1.0f,//2
 		 1.0f,  -1.0f,		1.0f, 0.0f//3
@@ -109,7 +113,7 @@ int main(void)
 	auto t2 = std::chrono::system_clock::now();
 
 	//TEXTURES
-	Texture* texture = new Texture("piratelogo.png");
+	Texture* texture = new Texture("character.png");
 	texture->Bind();
 	
 	//UNBOUND EVERYTHING
@@ -120,8 +124,8 @@ int main(void)
 	
 	
 	//BLENDING FOR TEXTURING
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	/*ALPHA ECUATION
 	 * out_alpha = src_alpha + dest_alpha * (1 - src_alpha)
