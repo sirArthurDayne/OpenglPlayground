@@ -25,8 +25,8 @@ example for drawing a triangle:
 2. select a shader 
 3. draw a triangle with that data.
 */
-int WIDTH = 640;
-int HEIGHT = 480;
+int WIDTH = 1080;
+int HEIGHT = 720;
 
 
 static void keyCallBack(GLFWwindow* win, int key, int scanCode, int action, int mode)
@@ -71,10 +71,10 @@ int main(void)
 	float tri_pos[] =
 	{
 		//POSITION		//TEXTURE
-		-1.0f, 1.0f,		0.0f, 1.0f,//0
-		-1.0f, -1.0f,		0.0f, 0.0f,//1
-		 1.0f,  1.0f,		1.0f, 1.0f,//2
-		 1.0f,  -1.0f,		1.0f, 0.0f//3
+		400.0f, 200.0f,		1.0f, 0.0f,//0
+		400.0f, 400.0f,		1.0f, 1.0f,//1
+		200.0f, 200.0f,		0.0f, 0.0f,//2
+		200.0f, 400.0f,		0.0f, 1.0f//3
 	};
 	unsigned int tri_indices[] =
 	{
@@ -82,6 +82,8 @@ int main(void)
 		3,2,1,//down triangle
 	};
 
+	glm::mat4 proy = glm::ortho(0.0f, float(WIDTH), 0.0f, float(HEIGHT), -1.0f, 1.0f);
+	
 	/*Core OpenGL requires that we use a VAO so it knows what to do with our vertex inputs.
 	If we fail to bind a VAO, OpenGL will most likely refuse to draw anything.*/
 	//VAO stores all of the state needed to supply vertex data
@@ -100,7 +102,7 @@ int main(void)
 	//c++17 structured binding	
 	Shader* tri_shader = new Shader("shaders/Base.shader");
 	tri_shader->SetUniform1i("u_texture", 0);
-	
+	tri_shader->SetUniformMat4f("u_mvp", proy);
 	//colors %
 	float* rgba = new float[4];
 	rgba[0] = 1.0f;

@@ -3,13 +3,15 @@
 
 layout(location = 0) in vec4 position;
 layout(location = 1) in vec2 textureCoord;
+
+uniform mat4 u_mvp;
 /*varying: allows to send data from Vertex to Fragment Shader*/
 out vec2 v_textureCoord;
 out vec4 v_position;
 void main()
 {
-  gl_Position = position;
-  v_textureCoord = textureCoord;  
+  gl_Position = u_mvp * position;
+  v_textureCoord = textureCoord;
   v_position = position;
 }
 
@@ -29,13 +31,6 @@ uniform vec2 u_mouse;
 uniform sampler2D u_texture;
 in vec2 v_textureCoord;
 in vec4 v_position;
-/*
-max: can be use for finding intersection
-min: can be use for finding union
-mod: allous to make recursive solution
-polar cood: make for simplify calculations. vector becomes: v = (magnitude, angle)
-discard: allows to ignore a pixel color output
-*/
 
 void main()
 {

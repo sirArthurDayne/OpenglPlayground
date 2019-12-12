@@ -1,5 +1,5 @@
 #pragma once
-#include<iostream>
+#include"glm.hpp"
 #include<string>
 #include<unordered_map>
 class Shader
@@ -13,6 +13,7 @@ public:
 	void SetUniform1i(const std::string& name, int value);
 	void SetUniform1f(const std::string& name, float value);
 	void SetUniform2f(const std::string& name, float data, float data2);
+	void SetUniformMat4f(const std::string& name, const glm::mat4& data);
 private:
 	std::pair<std::string, std::string> ParseShader(const std::string& filepath);
 	void CreateShader(const std::string& vertexShader, const std::string& fragmentShader);

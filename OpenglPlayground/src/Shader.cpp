@@ -2,7 +2,7 @@
 #include"Renderer.h"
 #include<fstream>
 #include<sstream>
-
+#include<iostream>
 
 Shader::Shader(const std::string& filepath): m_filePath(filepath), m_rendererID(0)
 {
@@ -101,6 +101,12 @@ void Shader::SetUniform1f(const std::string& name, float value)
 void Shader::SetUniform2f(const std::string& name, float data, float data2)
 {
 	glUniform2f(GetUniformLocation(name), data, data2);
+}
+
+
+void Shader::SetUniformMat4f(const std::string& name, const glm::mat4& data)
+{
+	GLCALL(glUniformMatrix4fv(GetUniformLocation(name),1, GL_FALSE, &data[0][0]));
 }
 
 unsigned int Shader::CompileShader(const std::string& source, unsigned int type)
