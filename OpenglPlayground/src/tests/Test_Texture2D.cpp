@@ -6,7 +6,7 @@ test::Texture2D::Texture2D()
 }
 
 
-void test::Texture2D::OnRenderer()
+void test::Texture2D::OnRenderer() 
 {
 	
 }

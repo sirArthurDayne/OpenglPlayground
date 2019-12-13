@@ -11,6 +11,5 @@ namespace test
 		void OnRenderer() override;	
 		void OnUserUpdate(float deltaTime) override;
 		void OnGuiRenderer() override;
-	private:
 	};
 }
