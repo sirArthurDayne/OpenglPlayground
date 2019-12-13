@@ -67,6 +67,9 @@
     <ClCompile Include="src\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\tests\Test_Texture2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\IndexBuffer.h">
@@ -118,6 +121,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\imgui\imstb_truetype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tests\Test.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tests\Test_Texture2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

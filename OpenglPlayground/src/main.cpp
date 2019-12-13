@@ -48,6 +48,10 @@ static void mousecallBack(GLFWwindow*  win, double& x, double& y)
 {
 	GLCALL(glfwGetCursorPos(win, &x, &y));
 }
+
+
+
+
 int main(void)
 {
 	GLFWwindow* mainWindow;
@@ -71,6 +75,16 @@ int main(void)
 
 	if (glewInit() != GLEW_OK) std::cout << "GLEW FAILED\n";
 	std::cout << glGetString(GL_VERSION) << std::endl;
+
+
+	//BLENDING FOR TEXTURING
+	/*ALPHA ECUATION
+	 * out_alpha = src_alpha + dest_alpha * (1 - src_alpha)
+	   If dest_alpha equals 1, then out_alpha also equals 1
+	 */
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
 	float tri_pos[] =
 	{
@@ -132,14 +146,8 @@ int main(void)
 	tri_shader->Unbind();
 	
 	
-	//BLENDING FOR TEXTURING
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
-	/*ALPHA ECUATION
-	 * out_alpha = src_alpha + dest_alpha * (1 - src_alpha)
-	   If dest_alpha equals 1, then out_alpha also equals 1
-	 */
+	
 	double mouseX = 0.0f, mouseY = 0.0f;
 	//RENDERER
 	Renderer renderer;
