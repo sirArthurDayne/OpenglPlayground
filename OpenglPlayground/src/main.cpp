@@ -75,10 +75,10 @@ int main(void)
 	float tri_pos[] =
 	{
 		//POSITION		//TEXTURE
-		400.0f, 200.0f,		1.0f, 0.0f,//0
-		400.0f, 400.0f,		1.0f, 1.0f,//1
-		200.0f, 200.0f,		0.0f, 0.0f,//2
-		200.0f, 400.0f,		0.0f, 1.0f//3
+		100.0f, -100.0f,		1.0f, 0.0f,//0
+		100.0f, 100.0f,		1.0f, 1.0f,//1
+		-100.0f, -100.0f,		0.0f, 0.0f,//2
+		-100.0f, 100.0f,		0.0f, 1.0f//3
 	};
 	unsigned int tri_indices[] =
 	{
@@ -88,7 +88,8 @@ int main(void)
 
 	glm::mat4 proy = glm::ortho(0.0f, float(WIDTH), 0.0f, float(HEIGHT), -1.0f, 1.0f);
 	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0));
-	glm::vec3 translation(0.0);
+	glm::vec3 translationA(0.0f, 0.0f, 0.0f);
+	glm::vec3 translationB(220.0f, 110.0f, 0.0f);
 	
 	/*Core OpenGL requires that we use a VAO so it knows what to do with our vertex inputs.
 	If we fail to bind a VAO, OpenGL will most likely refuse to draw anything.*/
@@ -149,8 +150,6 @@ int main(void)
 	// Setup Platform/Renderer bindings
 	ImGui_ImplGlfw_InitForOpenGL(mainWindow, true);
 	ImGui_ImplOpenGL3_Init("#version 330 core");
-	// Our state
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);	
 
 	while (!glfwWindowShouldClose(mainWindow))
 	{
@@ -161,11 +160,7 @@ int main(void)
 		const float delta_time = elapsedTime.count();
 		
 		renderer.Clear(0.0f, 0.0f, 0.0f);
-
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
-		glm::mat4 mvp = proy * view * model;
-
-
+		
 		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -173,20 +168,30 @@ int main(void)
 
 
 		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-		ImGui::Begin("Move Character!");
-		ImGui::SliderFloat3("coordenadas", &translation.x, 0.0f, float(WIDTH));
+		ImGui::Begin("Move Characters!");
+		ImGui::SliderFloat3("coordenadas A", &translationA.x, 0.0f, float(WIDTH));
+		ImGui::SliderFloat3("coordenadas B", &translationB.x, 0.0f, float(WIDTH));
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
 		
 		//shader binding and uniform sending data
 		tri_shader->Bind();
 		tri_shader->SetUniform1f("u_time", delta_time);
-		tri_shader->SetUniform4f("u_colorBase", rgba);
 		tri_shader->SetUniform2f("u_resolution", (float)WIDTH, (float)HEIGHT);
 		tri_shader->SetUniform2f("u_mouse", (float)mouseX, (float)mouseY);
+
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), translationA);
+		glm::mat4 mvp = proy * view * model;
 		tri_shader->SetUniformMat4f("u_mvp", mvp);
 		renderer.Draw(vao, indexBuffer);
-
+		//second draw call
+		{
+			glm::mat4 model = glm::translate(glm::mat4(1.0f), translationB);
+			glm::mat4 mvp = proy * view * model;
+			tri_shader->SetUniformMat4f("u_mvp", mvp);
+			renderer.Draw(vao, indexBuffer);
+		}
+		
 		// Rendering
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
