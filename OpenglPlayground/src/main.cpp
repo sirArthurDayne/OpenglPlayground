@@ -83,6 +83,9 @@ int main(void)
 	};
 
 	glm::mat4 proy = glm::ortho(0.0f, float(WIDTH), 0.0f, float(HEIGHT), -1.0f, 1.0f);
+	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0));
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0));
+	glm::mat4 mvp = proy * view * model;
 	
 	/*Core OpenGL requires that we use a VAO so it knows what to do with our vertex inputs.
 	If we fail to bind a VAO, OpenGL will most likely refuse to draw anything.*/
@@ -102,7 +105,7 @@ int main(void)
 	//c++17 structured binding	
 	Shader* tri_shader = new Shader("shaders/Base.shader");
 	tri_shader->SetUniform1i("u_texture", 0);
-	tri_shader->SetUniformMat4f("u_mvp", proy);
+	tri_shader->SetUniformMat4f("u_mvp", mvp);
 	//colors %
 	float* rgba = new float[4];
 	rgba[0] = 1.0f;
