@@ -13,6 +13,10 @@
 #include<glm.hpp>
 #include<gtc/matrix_transform.hpp>
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 
 /*openGL--> is an implementation that runs & works on your GPU
 openGL works as a state machine.
@@ -84,8 +88,7 @@ int main(void)
 
 	glm::mat4 proy = glm::ortho(0.0f, float(WIDTH), 0.0f, float(HEIGHT), -1.0f, 1.0f);
 	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0));
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0));
-	glm::mat4 mvp = proy * view * model;
+	glm::vec3 translation(0.0);
 	
 	/*Core OpenGL requires that we use a VAO so it knows what to do with our vertex inputs.
 	If we fail to bind a VAO, OpenGL will most likely refuse to draw anything.*/
@@ -105,7 +108,7 @@ int main(void)
 	//c++17 structured binding	
 	Shader* tri_shader = new Shader("shaders/Base.shader");
 	tri_shader->SetUniform1i("u_texture", 0);
-	tri_shader->SetUniformMat4f("u_mvp", mvp);
+	
 	//colors %
 	float* rgba = new float[4];
 	rgba[0] = 1.0f;
@@ -139,6 +142,16 @@ int main(void)
 	double mouseX = 0.0f, mouseY = 0.0f;
 	//RENDERER
 	Renderer renderer;
+
+
+	ImGui::CreateContext();
+	ImGui::StyleColorsDark();
+	// Setup Platform/Renderer bindings
+	ImGui_ImplGlfw_InitForOpenGL(mainWindow, true);
+	ImGui_ImplOpenGL3_Init("#version 330 core");
+	// Our state
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);	
+
 	while (!glfwWindowShouldClose(mainWindow))
 	{
 		//update clock
@@ -148,6 +161,22 @@ int main(void)
 		const float delta_time = elapsedTime.count();
 		
 		renderer.Clear(0.0f, 0.0f, 0.0f);
+
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
+		glm::mat4 mvp = proy * view * model;
+
+
+		// Start the Dear ImGui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+
+		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+		ImGui::Begin("Move Character!");
+		ImGui::SliderFloat3("coordenadas", &translation.x, 0.0f, float(WIDTH));
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::End();
 		
 		//shader binding and uniform sending data
 		tri_shader->Bind();
@@ -155,7 +184,12 @@ int main(void)
 		tri_shader->SetUniform4f("u_colorBase", rgba);
 		tri_shader->SetUniform2f("u_resolution", (float)WIDTH, (float)HEIGHT);
 		tri_shader->SetUniform2f("u_mouse", (float)mouseX, (float)mouseY);
+		tri_shader->SetUniformMat4f("u_mvp", mvp);
 		renderer.Draw(vao, indexBuffer);
+
+		// Rendering
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		
 		//swap buffers before draw 
 		glfwSwapBuffers(mainWindow);
@@ -171,7 +205,13 @@ int main(void)
 	delete vao;
 	delete tri_shader;
 	delete texture;
+
+	// Cleanup Imgui
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 	
+	glfwDestroyWindow(mainWindow);
 	glfwTerminate();
 	return EXIT_SUCCESS;
 }
