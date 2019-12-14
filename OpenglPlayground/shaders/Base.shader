@@ -25,7 +25,7 @@ the CPU side*/
 
 uniform float u_time;
 uniform vec2 u_resolution;
-uniform vec2 u_mouse;
+//uniform vec2 u_mouse;
 
 uniform sampler2D u_texture0;
 uniform sampler2D u_texture1;
@@ -36,6 +36,6 @@ in vec4 v_position;
 void main()
 {
      vec4 texColor = texture(u_texture0, v_textureCoord);
-     vec4 texColor1 = texture(u_texture1, vec2(1.0 - v_textureCoord));
-     color = mix(texColor, texColor1, 0.5 * sin(u_time));
+     vec4 texColor1 = texture(u_texture1, vec2(v_textureCoord));
+     color = mix(texColor, texColor1, 0.5);
 }

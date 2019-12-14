@@ -172,6 +172,7 @@
     <ClCompile Include="src\stb_image.cpp" />
     <ClCompile Include="src\tests\Test.cpp" />
     <ClCompile Include="src\tests\Test_Texture2D.cpp" />
+    <ClCompile Include="src\tests\Texture3D.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\VertexArray.cpp" />
     <ClCompile Include="src\VertexBuffer.cpp" />
@@ -193,6 +194,7 @@
     <ClInclude Include="src\stb_image.h" />
     <ClInclude Include="src\tests\Test.h" />
     <ClInclude Include="src\tests\Test_Texture2D.h" />
+    <ClInclude Include="src\tests\Texture3D.h" />
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\VertexArray.h" />
     <ClInclude Include="src\VertexBuffer.h" />

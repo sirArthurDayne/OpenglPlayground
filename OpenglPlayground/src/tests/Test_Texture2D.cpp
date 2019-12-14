@@ -79,7 +79,6 @@ void test::Texture2D::OnRenderer()
 	m_shader->Bind();
 	
 	m_shader->SetUniform2f("u_resolution", (float)WIDTH, (float)HEIGHT);
-	//m_shader->SetUniform2f("u_mouse", (float)mouseX, (float)mouseY);
 	m_shader->SetUniform1f("u_time", float(glfwGetTime()));
 	m_scale = glm::scale(glm::mat4(1.0f), m_scaleVec);
 	m_rotate = glm::rotate(glm::mat4(1.0f), -float(glfwGetTime()), glm::vec3(0.0f, 0.0f, 1.0f));
