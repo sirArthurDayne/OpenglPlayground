@@ -83,7 +83,7 @@ int main(void)
 	test::Test* currentTest = nullptr;
 	test::TestMenu* test_menu = new test::TestMenu(currentTest);
 	currentTest = test_menu;
-	test_menu->AddTest <test::Texture2D>("Create a 2d texture");
+	test_menu->AddTest <test::Texture2D>("2D Texture Example");
 	Renderer renderer;
 	while (!glfwWindowShouldClose(mainWindow))
 	{
@@ -126,9 +126,6 @@ int main(void)
 	delete currentTest;
 	if (currentTest != test_menu)
 		delete test_menu;
-	
-	
-
 	// Cleanup Imgui
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();

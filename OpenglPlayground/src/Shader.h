@@ -18,12 +18,12 @@ private:
 	std::pair<std::string, std::string> ParseShader(const std::string& filepath);
 	void CreateShader(const std::string& vertexShader, const std::string& fragmentShader);
 	unsigned int CompileShader(const std::string& source, unsigned int type);
-	int GetUniformLocation(const std::string& name);
+	int GetUniformLocation(const std::string& name) const;
 public:
 	~Shader();
 private:
 	unsigned int m_rendererID;
-	std::unordered_map<std::string, int> m_locationsCache;
+	mutable std::unordered_map<std::string, int> m_locationsCache;
 	std::string m_filePath;
 };
 

@@ -12,7 +12,8 @@ namespace test
 	public:
 		Texture2D();
 		~Texture2D();
-		void OnRenderer() override;	
+		void OnRenderer() override;
+		void OnUserUpdate(float deltaTime) override;
 		void OnGuiRenderer() override;
 	private:
 		VertexArray* m_VAO;
@@ -20,8 +21,9 @@ namespace test
 		VertexBuffer* m_VBO;
 		IndexBuffer* m_IBO;
 		Shader* m_shader;
-		Texture* m_texture;
-		glm::mat4 m_proy, m_view;
+		Texture* m_texture,* m_texture2;
+		glm::mat4 m_proy, m_view, m_rotate, m_scale;
 		glm::vec3 m_translationA, m_translationB;
+		glm::vec3 m_scaleVec;
 	};
 }
