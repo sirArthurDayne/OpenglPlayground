@@ -22,7 +22,7 @@ Renderer::Renderer()
 {
 }
 
-void Renderer::Clear(float r, float g, float b, float a)
+void Renderer::Clear(const float r, const float g, const float b, float a)
 {
 	glClearColor(r, g, b, a);
 	glClear(GL_COLOR_BUFFER_BIT);
