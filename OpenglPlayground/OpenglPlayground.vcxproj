@@ -196,6 +196,7 @@
     <ClInclude Include="src\tests\Test_Texture2D.h" />
     <ClInclude Include="src\tests\Texture3D.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\Vertex.h" />
     <ClInclude Include="src\VertexArray.h" />
     <ClInclude Include="src\VertexBuffer.h" />
     <ClInclude Include="src\VertexLayout.h" />

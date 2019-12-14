@@ -4,6 +4,7 @@
 #include "../VertexLayout.h"
 #include "../imgui/imgui.h"
 #include <GLFW/glfw3.h>
+#include"../Vertex.h"
 
 
 test::Texture3D::Texture3D():
@@ -15,27 +16,25 @@ test::Texture3D::Texture3D():
 	m_scale(glm::scale(glm::mat4(1.0f), glm::vec3(1.0f))),
 	m_translationA(glm::vec3(0.0f)), m_scaleVec(1.0f, 1.0f, 1.0f)
 {
-	float tri_pos[] =
+	Vertex tri_pos[] =
 	{
-		//POSITION		//TEXTURE
-		 1.0f, -1.0f,		1.0f, 0.0f,//0
-		 1.0f, 1.0f,		1.0f, 1.0f,//1
-		-1.0f, -1.0f,		0.0f, 0.0f,//2
-		-1.0f, 1.0f,		0.0f, 1.0f//3
+		{glm::vec3(1.0f, -1.0f, -1.0f), glm::vec2(1.0f, 0.0f)},//0
+		{glm::vec3(1.0f, 1.0f, - 1.0f), glm::vec2(1.0f, 1.0f)},//1
+		{glm::vec3(-1.0f, -1.0f,-1.0f), glm::vec2(0.0f, 0.0f)},//2
+		{glm::vec3(-1.0f, 1.0f, - 1.0f), glm::vec2(0.0f, 1.0f)},//3
 	};
 	unsigned int tri_indices[] =
 	{
 		2,0,1,//top triangle
 		3,2,1,//down triangle
 	};
-	
-	
+
 	m_VAO = new VertexArray();
 	m_VL = new VertexLayout();
-	m_VL->Push<float>(2);//pos
+	m_VL->Push<float>(3);//pos
 	m_VL->Push<float>(2);//texture
 
-	m_VBO = new VertexBuffer(tri_pos, 4 * 4 * sizeof(float));
+	m_VBO = new VertexBuffer(tri_pos,  4 * sizeof(Vertex));
 	m_VAO->AddBuffer(*m_VBO, *m_VL);
 
 	m_IBO = new IndexBuffer(tri_indices, 6);

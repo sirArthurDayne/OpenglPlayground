@@ -138,5 +138,8 @@
     <ClInclude Include="src\tests\Texture3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
