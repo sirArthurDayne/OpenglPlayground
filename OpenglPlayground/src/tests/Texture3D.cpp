@@ -16,49 +16,95 @@ test::Texture3D::Texture3D():
 	m_scale(glm::scale(glm::mat4(1.0f), glm::vec3(1.0f))),
 	m_translationA(glm::vec3(0.0f)), m_scaleVec(1.0f, 1.0f, 1.0f)
 {
-	Vertex tri_pos[] =
+	glm::vec3 tri_pos[] =
 	{
-		{glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec2(0.0f, 1.0f)},//0
-		{glm::vec3(-1.0f, 1.0f, -1.0f), glm::vec2(1.0f, 0.0f)},//1
-		{glm::vec3(1.0f, 1.0f,-1.0f), glm::vec2(1.0f, 0.0f)},//2
-		{glm::vec3(1.0f, -1.0f, -1.0f), glm::vec2(1.0f, 1.0f)},//3
-		
-		{glm::vec3(-1.0f, -1.0f,1.0f), glm::vec2(0.0f, 0.0f)},//4
-		{glm::vec3(-1.0f,1.0f,1.0f),glm::vec2(1.0f, 0.0f)},//5
-		{glm::vec3(1.0f,1.0f,1.0f),glm::vec2(1.0f, 1.0f)},//6
-		{glm::vec3(1.0f,-1.0f,1.0f),glm::vec2(1.0f, .0f)},//7
+		{glm::vec3(-1.0f, -1.0f, -1.0f)	},//0
+		{glm::vec3(-1.0f, 1.0f, -1.0f)	},//1
+		{glm::vec3(1.0f, 1.0f,-1.0f)		},//2
+		{glm::vec3(1.0f, -1.0f, -1.0f)	},//3
+									  
+		{glm::vec3(-1.0f, -1.0f,1.0f)	},//4
+		{glm::vec3(-1.0f,1.0f,1.0f)		},//5
+		{glm::vec3(1.0f,1.0f,1.0f)		},//6
+		{glm::vec3(1.0f,-1.0f,1.0f)		},//7
 	};
-	unsigned int tri_indices[] =
+	glm::vec2 tex_pos[] =
+	{
+		{glm::vec2(0.0f, 0.0f)},//0
+		{glm::vec2(1.0f, 0.0f)},//1
+		{glm::vec2(0.0f, 1.0f)},//2
+		{glm::vec2(1.0f, 1.0f)},//3
+	};
+
+	Vertex cube[] = 
+	{
+		//bottom
+		{tri_pos[0],tex_pos[2]},//0
+		{tri_pos[1],tex_pos[0]},//1
+		{tri_pos[2],tex_pos[1]},//2
+		{tri_pos[3],tex_pos[3]},//3
+		//left
+		{tri_pos[0],tex_pos[2]},//4
+		{tri_pos[4],tex_pos[0]},//5
+		{tri_pos[5],tex_pos[1]},//6
+		{tri_pos[1],tex_pos[3]},//7
+		//right
+		{tri_pos[2],tex_pos[2]},//8
+		{tri_pos[6],tex_pos[0]},//9
+		{tri_pos[7],tex_pos[1]},//10
+		{tri_pos[3],tex_pos[3]},//11
+		//back
+		{tri_pos[1],tex_pos[2]},//12
+		{tri_pos[5],tex_pos[0]},//13
+		{tri_pos[6],tex_pos[1]},//14
+		{tri_pos[2],tex_pos[3]},//15
+		//front
+		{tri_pos[0],tex_pos[2]},//16
+		{tri_pos[4],tex_pos[0]},//17
+		{tri_pos[7],tex_pos[1]},//18
+		{tri_pos[3],tex_pos[3]},//19
+		//top
+		//{tri_pos[4],tex_pos[2]},//20
+		//{tri_pos[5],tex_pos[0]},//21
+		//{tri_pos[6],tex_pos[1]},//22
+		//{tri_pos[7],tex_pos[3]},//23
+	};
+	unsigned int indices[] =
 	{
 		//bottom
 		0,1,2,
-		3,2,0,
+		3,0,2,
 		//left
-		0,4,5,
-		0,5,1,
-		//right
-		3,7,6,
-		2,6,3,
-		//back
-		1,5,6,
-		6,1,2,
-		//front
-		0,4,7,
-		7,0,3,
-		//top
 		4,5,6,
-		7,4,6
+		7,4,6,
+		//right
+		8,9,10,
+		11,8,10,
+		//back
+		12,13,14,
+		15,12,14,
+		//front
+		16,17,18,
+		19,16,18,
+		//top
+		/*20,21,22,
+		23,20,22*/
 	};
+
+	//enable all features
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CW);
+	//glEnable(GL_CULL_FACE);
+	
 	m_VAO = new VertexArray();
 	m_VL = new VertexLayout();
 	m_VL->Push<float>(3);//pos
 	m_VL->Push<float>(2);//texture
 
-	m_VBO = new VertexBuffer(tri_pos,  8 * sizeof(Vertex));
+	m_VBO = new VertexBuffer(cube,  5 * 4 * sizeof(Vertex));
 	m_VAO->AddBuffer(*m_VBO, *m_VL);
 
-	m_IBO = new IndexBuffer(tri_indices, 36);
+	m_IBO = new IndexBuffer(indices, 30);
 
 	m_shader = new Shader("shaders/Base.shader");
 	m_shader->SetUniform1i("u_texture0", 0);
@@ -84,6 +130,11 @@ test::Texture3D::~Texture3D()
 	delete m_shader;
 	delete m_texture;
 	delete m_texture2;
+	//disable all features
+	glDisable(GL_DEPTH_TEST);
+	//glDisable(GL_CULL_FACE);
+	glFrontFace(GL_CCW);
+
 }
 
 void test::Texture3D::OnRenderer()
