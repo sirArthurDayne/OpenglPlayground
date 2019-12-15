@@ -5,6 +5,7 @@
 #include "../IndexBuffer.h"
 #include "../Shader.h"
 #include "../Texture.h"
+#include<array>
 namespace test
 {
 	class Texture3D : public Test
@@ -25,5 +26,6 @@ namespace test
 		float m_FOV, m_rotation;
 		glm::vec3 m_translationA, m_camera;
 		glm::vec3 m_scaleVec;
+		std::array<glm::vec3, 5> m_cubePos;
 	};
 }
