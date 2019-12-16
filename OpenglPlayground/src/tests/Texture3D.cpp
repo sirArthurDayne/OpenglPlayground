@@ -9,24 +9,26 @@
 
 test::Texture3D::Texture3D():
 	m_FOV(45.0f), m_rotation(-55.0f),
-	m_camera(glm::vec3(0.0f, 0.0f, -6.0f)),
+	m_cameraPos(glm::vec3(0.0f, 0.0f, -12.0f)),
 	m_proy(glm::perspective(glm::radians(m_FOV), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f)),
-	m_view(glm::translate(glm::mat4(1.0f), m_camera)),
+	m_view(glm::lookAt(glm::vec3(0.0f, 0.0f, -12.0f),//def cameraPos
+		glm::vec3(0.0f, 0.0f, 0.0f),//def target
+		glm::vec3(0.0f, 1.0f, 0.0f))),//def up vec
 	m_rotate(glm::rotate(glm::mat4(1.0), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f))),
 	m_scale(glm::scale(glm::mat4(1.0f), glm::vec3(1.0f))),
-	m_translationA(glm::vec3(0.0f)), m_scaleVec(1.0f, 1.0f, 1.0f)
+	m_translationVec(glm::vec3(0.0f)), m_scaleVec(1.0f, 1.0f, 1.0f)
 {
 	glm::vec3 tri_pos[] =
 	{
-		{glm::vec3(-1.0f, -1.0f, -1.0f)	},//0
-		{glm::vec3(-1.0f, 1.0f, -1.0f)	},//1
-		{glm::vec3(1.0f, 1.0f,-1.0f)		},//2
-		{glm::vec3(1.0f, -1.0f, -1.0f)	},//3
+		{glm::vec3(-1.0f, -1.0f, -1.0f)	/2.0f},//0
+		{glm::vec3(-1.0f, 1.0f, -1.0f)	/2.0f},//1
+		{glm::vec3(1.0f, 1.0f,-1.0f)		/2.0f},//2
+		{glm::vec3(1.0f, -1.0f, -1.0f)	/2.0f},//3
 									  
-		{glm::vec3(-1.0f, -1.0f,1.0f)	},//4
-		{glm::vec3(-1.0f,1.0f,1.0f)		},//5
-		{glm::vec3(1.0f,1.0f,1.0f)		},//6
-		{glm::vec3(1.0f,-1.0f,1.0f)		},//7
+		{glm::vec3(-1.0f, -1.0f,1.0f)	/2.0f},//4
+		{glm::vec3(-1.0f,1.0f,1.0f)	/2.0f	},//5
+		{glm::vec3(1.0f,1.0f,1.0f)	/2.0f	},//6
+		{glm::vec3(1.0f,-1.0f,1.0f)	/2.0f	},//7
 	};
 	glm::vec2 tex_pos[] =
 	{
@@ -92,12 +94,27 @@ test::Texture3D::Texture3D():
 	};
 
 	m_cubePos = {
-  //m_translationA,
-  glm::vec3(2.0f,  5.0f, -15.0f),
-  glm::vec3(-1.5f, -2.2f, -32.5f),
-  glm::vec3(3.8f, -2.0f, -12.3f),
-  glm::vec3(3.4f, -0.4f, -32.5f),
-  glm::vec3(1.7f,  3.0f, -27.5f),
+  glm::vec3(0.0f, 0.0f, 0.0f),//main obj
+glm::vec3(0.0f, 1.0f, 0.0f),
+glm::vec3(0.0f, 2.0f, 0.0f),
+glm::vec3(1.0f, 3.0f, 0.0f),
+glm::vec3(2.0f, 3.0f, 0.0f),
+glm::vec3(3.0f, 2.0f, 0.0f),
+glm::vec3(0.0f, -1.0f, 0.0f),
+glm::vec3(0.0f, -2.0f, 0.0f),
+glm::vec3(1.0f, -3.0f, 0.0f),
+glm::vec3(2.0f, -3.0f, 0.0f),
+glm::vec3(3.0f, -2.0f, 0.0f),
+glm::vec3(5.0f, 0.0f, 0.0f),
+glm::vec3(6.0f, 0.0f, 0.0f),
+glm::vec3(7.0f, 0.0f, 0.0f),
+glm::vec3(6.0f, 1.0f, 0.0f),
+glm::vec3(6.0f, -1.0f, 0.0f),
+glm::vec3(9.0f, 0.0f, 0.0f),
+glm::vec3(10.0f, 0.0f, 0.0f),
+glm::vec3(11.0f, 0.0f, 0.0f),
+glm::vec3(10.0f, 1.0f, 0.0f),
+glm::vec3(10.0f, -1.0f, 0.0f)
 	};
 	
 	//enable all features
@@ -149,7 +166,7 @@ test::Texture3D::~Texture3D()
 void test::Texture3D::OnRenderer()
 {
 	Renderer renderer;
-	renderer.Clear(0.80f, 0.30f, 0.50f);
+	renderer.Clear(0.10f, 0.10f, 0.80f);
 	glClear( GL_DEPTH_BUFFER_BIT);
 	//shader binding and uniform sending data
 	m_texture->Bind();
@@ -160,17 +177,25 @@ void test::Texture3D::OnRenderer()
 	m_shader->SetUniform2f("u_resolution", (float)WIDTH, (float)HEIGHT);
 	m_shader->SetUniform1f("u_time", float(glfwGetTime()));
 
+
+	//calculate camera view
+	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 cameraDirection = glm::normalize(m_cameraPos - cameraTarget);
+	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+	glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
+	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
+	
+	m_view = glm::lookAt(m_cameraPos, m_cameraPos + cameraFront, cameraUp);
+
 	for (int i = 0; i < m_cubePos.size(); i++)
 	{
 		float angle = 20.0f * i + 5.0f;
-		if (i % 3 == 0)  // every 3rd iteration (including the first) we set the angle using GLFW's time function.
-			angle = float(glfwGetTime()) * 25.0f;
 		m_proy = glm::perspective(glm::radians(m_FOV), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 		m_scale = glm::scale(glm::mat4(1.0f), m_scaleVec);
-		m_view = glm::translate(glm::mat4(1.0f), m_camera);
 		m_rotate = glm::rotate(glm::mat4(1.0f), glm::radians(angle) * float(glfwGetTime()), glm::vec3(1.0f, 0.30f, 0.50f));
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), m_cubePos[i]);
-		glm::mat4 trans = glm::translate(glm::mat4(1.0), m_translationA);
+		glm::mat4 trans = glm::translate(glm::mat4(1.0), m_translationVec);
 		model *=  trans * m_rotate * m_scale;
 		glm::mat4 mvp = m_proy * m_view * model;
 		m_shader->SetUniformMat4f("u_mvp", mvp);
@@ -184,10 +209,10 @@ void test::Texture3D::OnGuiRenderer()
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	ImGui::Begin("Move Cube!");
 	ImGui::SliderFloat("FOV", &m_FOV, 30.0f, 120.0f);
-	ImGui::SliderFloat3("camera X", &m_camera.x, -20.0f, 20.0f);
-	ImGui::SliderFloat3("coordenadas", &m_translationA.x, -10.0f, 10.0f);
+	ImGui::SliderFloat3("world camera", &m_cameraPos.x, -20.0f, 20.0f);
+	ImGui::SliderFloat3("translacion", &m_translationVec.x, -10.0f, 10.0f);
 	ImGui::SliderFloat3("escala", &m_scaleVec.x, 0.50f, 3.0);
-	ImGui::SliderFloat("rotacion", &m_rotation, -180.0f, 180.0f);
+	//ImGui::SliderFloat("rotacion", &m_rotation, -180.0f, 180.0f);
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
 }

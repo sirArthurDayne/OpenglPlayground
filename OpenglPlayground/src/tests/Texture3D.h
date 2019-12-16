@@ -24,8 +24,8 @@ namespace test
 		Texture* m_texture, *m_texture2;
 		glm::mat4 m_proy, m_view, m_rotate, m_scale;
 		float m_FOV, m_rotation;
-		glm::vec3 m_translationA, m_camera;
+		glm::vec3 m_translationVec, m_cameraPos;
 		glm::vec3 m_scaleVec;
-		std::array<glm::vec3, 5> m_cubePos;
+		std::array<glm::vec3, 21> m_cubePos;
 	};
 }
