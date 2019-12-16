@@ -17,6 +17,8 @@ namespace test
 		void OnUserUpdate(float deltaTime, GLFWwindow* win) override;
 		void OnGuiRenderer() override;
 		void Movement(const glm::vec3& camFront, const glm::vec3& camUp);
+		friend void MouseCallBack(GLFWwindow* win, double& x, double& y);
+		void MoveRotation(glm::vec3& camFront, const double& x, const double& y);
 	private:
 		VertexArray* m_VAO;
 		VertexLayout* m_VL;
@@ -32,5 +34,6 @@ namespace test
 		GLFWwindow* m_win;
 		float m_deltaTime;
 		float m_cameraSpeed;
+		glm::vec3 m_LastPos, m_EulerRotation;
 	};
 }

@@ -17,7 +17,9 @@ test::Texture3D::Texture3D():
 	m_rotate(glm::rotate(glm::mat4(1.0), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f))),
 	m_scale(glm::scale(glm::mat4(1.0f), glm::vec3(1.0f))),
 	m_translationVec(glm::vec3(0.0f)), m_scaleVec(1.0f, 1.0f, 1.0f),
-	m_win(nullptr), m_deltaTime(0.0f), m_cameraSpeed(5.0f)
+	m_win(nullptr), m_deltaTime(0.0f), m_cameraSpeed(5.0f),
+	m_LastPos(glm::vec3(float(WIDTH) / 2.0f, float(HEIGHT) / 2.0f,0.0f)),
+	m_EulerRotation(glm::vec3(0.0f, -90.0f, 0.0f))
 {
 	glm::vec3 tri_pos[] =
 	{
@@ -161,14 +163,25 @@ test::Texture3D::~Texture3D()
 	glDisable(GL_DEPTH_TEST);
 	//glDisable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
-
+	glfwSetInputMode(m_win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
+
+
+void MouseCallBack(GLFWwindow* win, double& x, double& y)
+{
+	GLCALL(glfwGetCursorPos(win, &x, &y));
+}
+
 
 void test::Texture3D::OnRenderer()
 {
 	Renderer renderer;
 	renderer.Clear(0.10f, 0.10f, 0.80f);
 	glClear( GL_DEPTH_BUFFER_BIT);
+	GLCALL(glfwSetInputMode(m_win, GLFW_CURSOR, GLFW_CURSOR_DISABLED));
+	double mouseX = 0.0f;
+	double mouseY = 0.0f;
+	MouseCallBack(m_win, mouseX, mouseY);
 	//shader binding and uniform sending data
 	m_texture->Bind();
 	m_texture2->Bind(1);
@@ -188,6 +201,7 @@ void test::Texture3D::OnRenderer()
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 
 	//camera input
+	MoveRotation(cameraFront, mouseX, mouseY);
 	Movement(cameraFront, cameraUp);
 	//set camera view
 	m_view = glm::lookAt(m_cameraPos, m_cameraPos + cameraFront, cameraUp);
@@ -220,8 +234,9 @@ void test::Texture3D::OnGuiRenderer()
 	ImGui::Begin("Move Cube!");
 	ImGui::SliderFloat("FOV", &m_FOV, 30.0f, 120.0f);
 	ImGui::SliderFloat3("world camera", &m_cameraPos.x, -20.0f, 20.0f);
-	ImGui::SliderFloat3("translacion", &m_translationVec.x, -10.0f, 10.0f);
-	ImGui::SliderFloat3("escala", &m_scaleVec.x, 0.50f, 3.0);
+	ImGui::SliderFloat3("translation", &m_translationVec.x, -10.0f, 10.0f);
+	ImGui::SliderFloat3("scale", &m_scaleVec.x, 0.50f, 3.0);
+	ImGui::SliderFloat3("pitch-yaw-roll", &m_EulerRotation.x, 0.0f, 90.0f);
 	ImGui::SliderFloat("cameraSpeed", &m_cameraSpeed, 0.0f, 10.0f);
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
@@ -231,7 +246,48 @@ void test::Texture3D::Movement(const glm::vec3& camFront, const glm::vec3& camUp
 {
 	float speed = m_cameraSpeed * m_deltaTime;
 	if (glfwGetKey(m_win, GLFW_KEY_W) == GLFW_PRESS) m_cameraPos += speed *camFront;
-	if (glfwGetKey(m_win, GLFW_KEY_S) == GLFW_PRESS) m_cameraPos -= speed * camFront;
+	else if (glfwGetKey(m_win, GLFW_KEY_S) == GLFW_PRESS) m_cameraPos -= speed * camFront;
 	if (glfwGetKey(m_win, GLFW_KEY_A) == GLFW_PRESS) m_cameraPos -= glm::normalize(glm::cross(camFront, camUp)) * speed;
-	if (glfwGetKey(m_win, GLFW_KEY_D) == GLFW_PRESS) m_cameraPos += glm::normalize(glm::cross(camFront, camUp)) * speed;
+	else if (glfwGetKey(m_win, GLFW_KEY_D) == GLFW_PRESS) m_cameraPos += glm::normalize(glm::cross(camFront, camUp)) * speed;
+}
+
+void test::Texture3D::MoveRotation(glm::vec3& camFront, const double& x, const double& y)
+{
+	//output is a FPS camera
+	static bool firstMove = true;
+	if (firstMove)//remove sudden jump when mouse enter window
+	{
+		firstMove = false;
+		m_LastPos.x = float(x);
+		m_LastPos.y = float(y);
+	}
+	//get distance from last frames & update
+	float offsetX = float(x) - m_LastPos.x;
+	float offsetY = m_LastPos.y - float(y);
+	m_LastPos.x = float(x);
+	m_LastPos.y = float(y);
+
+	float sensitivity = 0.15f;
+	offsetX *= sensitivity;
+	offsetY *= sensitivity;
+
+	/*update rotations.
+	 *Euler Rotations are perpendicular to the axis
+	PITCH: x axis rotation
+	YAW: y axis rotation
+	ROLL: z axis rotation*/
+	m_EulerRotation.y += offsetX;
+	m_EulerRotation.x += offsetY;
+	
+	//limit the pitch(x rotation)
+	if      (m_EulerRotation.x > 89.0f) m_EulerRotation.x = 89.0f;
+	if (m_EulerRotation.x < -89.0f) m_EulerRotation.x = -89.0f;
+	
+	//calculate rotations
+	glm::vec3 front;
+	front.x = cos(glm::radians(m_EulerRotation.x)) * cos(glm::radians(m_EulerRotation.y));
+	front.y = sin(glm::radians(m_EulerRotation.x));
+	front.z = cos(glm::radians(m_EulerRotation.x)) * sin(glm::radians(m_EulerRotation.y));
+	//send to cameraFront
+	camFront = glm::normalize(front);
 }

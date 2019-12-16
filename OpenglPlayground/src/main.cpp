@@ -22,7 +22,7 @@ example for drawing a triangle:
 2. select a shader 
 3. draw a triangle with that data.
 */
-
+bool BACK = false;
 
 static void keyCallBack(GLFWwindow* win, int key, int scanCode, int action, int mode)
 {
@@ -33,15 +33,9 @@ static void keyCallBack(GLFWwindow* win, int key, int scanCode, int action, int 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	if (key ==  GLFW_KEY_2 && action == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	if (key == GLFW_KEY_BACKSPACE && action == GLFW_PRESS)
+		BACK = true;
 }
-
-static void mousecallBack(GLFWwindow*  win, double& x, double& y)
-{
-	GLCALL(glfwGetCursorPos(win, &x, &y));
-}
-
-
-
 
 int main(void)
 {
@@ -73,9 +67,6 @@ int main(void)
 	ImGui_ImplGlfw_InitForOpenGL(mainWindow, true);
 	ImGui_ImplOpenGL3_Init("#version 330 core");
 	
-	
-	double mouseX = 0.0f, mouseY = 0.0f;
-
 	float delta_time = 0.0f;
 	float lastFrame = 0.0f;
 
@@ -106,10 +97,11 @@ int main(void)
 			currentTest->OnRenderer();
 			currentTest->OnGuiRenderer();
 			ImGui::Begin("Tests List");
-			if (ImGui::Button("<-BACK") && currentTest != test_menu)
+			if ((ImGui::Button("<-BACK") || BACK) && currentTest != test_menu)
 			{
 				delete currentTest;
 				currentTest = test_menu;
+				BACK = false;
 			}
 			ImGui::End();
 		}		
@@ -122,7 +114,6 @@ int main(void)
 		//event manager
 		glfwPollEvents();
 		glfwSetKeyCallback(mainWindow, keyCallBack);
-		mousecallBack(mainWindow, mouseX, mouseY);
 	}
 	delete currentTest;
 	if (currentTest != test_menu)
