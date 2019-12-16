@@ -14,7 +14,9 @@ namespace test
 		Texture3D();
 		~Texture3D();
 		void OnRenderer() override;
+		void OnUserUpdate(float deltaTime, GLFWwindow* win) override;
 		void OnGuiRenderer() override;
+		void Movement(const glm::vec3& camFront, const glm::vec3& camUp);
 	private:
 		VertexArray* m_VAO;
 		VertexLayout* m_VL;
@@ -23,9 +25,12 @@ namespace test
 		Shader* m_shader;
 		Texture* m_texture, *m_texture2;
 		glm::mat4 m_proy, m_view, m_rotate, m_scale;
-		float m_FOV, m_rotation;
+		float m_FOV;
 		glm::vec3 m_translationVec, m_cameraPos;
 		glm::vec3 m_scaleVec;
 		std::array<glm::vec3, 21> m_cubePos;
+		GLFWwindow* m_win;
+		float m_deltaTime;
+		float m_cameraSpeed;
 	};
 }

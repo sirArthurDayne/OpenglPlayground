@@ -8,7 +8,7 @@
 
 
 test::Texture3D::Texture3D():
-	m_FOV(45.0f), m_rotation(-55.0f),
+	m_FOV(45.0f),
 	m_cameraPos(glm::vec3(0.0f, 0.0f, -12.0f)),
 	m_proy(glm::perspective(glm::radians(m_FOV), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f)),
 	m_view(glm::lookAt(glm::vec3(0.0f, 0.0f, -12.0f),//def cameraPos
@@ -16,7 +16,8 @@ test::Texture3D::Texture3D():
 		glm::vec3(0.0f, 1.0f, 0.0f))),//def up vec
 	m_rotate(glm::rotate(glm::mat4(1.0), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f))),
 	m_scale(glm::scale(glm::mat4(1.0f), glm::vec3(1.0f))),
-	m_translationVec(glm::vec3(0.0f)), m_scaleVec(1.0f, 1.0f, 1.0f)
+	m_translationVec(glm::vec3(0.0f)), m_scaleVec(1.0f, 1.0f, 1.0f),
+	m_win(nullptr), m_deltaTime(0.0f), m_cameraSpeed(5.0f)
 {
 	glm::vec3 tri_pos[] =
 	{
@@ -185,7 +186,10 @@ void test::Texture3D::OnRenderer()
 	glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
 	glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
-	
+
+	//camera input
+	Movement(cameraFront, cameraUp);
+	//set camera view
 	m_view = glm::lookAt(m_cameraPos, m_cameraPos + cameraFront, cameraUp);
 
 	for (int i = 0; i < m_cubePos.size(); i++)
@@ -204,6 +208,12 @@ void test::Texture3D::OnRenderer()
 
 }
 
+void test::Texture3D::OnUserUpdate(float deltaTime, GLFWwindow* win)
+{
+	m_deltaTime = deltaTime;
+	m_win = win;
+}
+
 void test::Texture3D::OnGuiRenderer()
 {
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
@@ -212,7 +222,16 @@ void test::Texture3D::OnGuiRenderer()
 	ImGui::SliderFloat3("world camera", &m_cameraPos.x, -20.0f, 20.0f);
 	ImGui::SliderFloat3("translacion", &m_translationVec.x, -10.0f, 10.0f);
 	ImGui::SliderFloat3("escala", &m_scaleVec.x, 0.50f, 3.0);
-	//ImGui::SliderFloat("rotacion", &m_rotation, -180.0f, 180.0f);
+	ImGui::SliderFloat("cameraSpeed", &m_cameraSpeed, 0.0f, 10.0f);
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
+}
+
+void test::Texture3D::Movement(const glm::vec3& camFront, const glm::vec3& camUp)
+{
+	float speed = m_cameraSpeed * m_deltaTime;
+	if (glfwGetKey(m_win, GLFW_KEY_W) == GLFW_PRESS) m_cameraPos += speed *camFront;
+	if (glfwGetKey(m_win, GLFW_KEY_S) == GLFW_PRESS) m_cameraPos -= speed * camFront;
+	if (glfwGetKey(m_win, GLFW_KEY_A) == GLFW_PRESS) m_cameraPos -= glm::normalize(glm::cross(camFront, camUp)) * speed;
+	if (glfwGetKey(m_win, GLFW_KEY_D) == GLFW_PRESS) m_cameraPos += glm::normalize(glm::cross(camFront, camUp)) * speed;
 }

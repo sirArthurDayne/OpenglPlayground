@@ -102,7 +102,7 @@ int main(void)
 		//changes in testFrame
 		if (currentTest != nullptr)
 		{
-			currentTest->OnUserUpdate(delta_time);
+			currentTest->OnUserUpdate(delta_time, mainWindow);
 			currentTest->OnRenderer();
 			currentTest->OnGuiRenderer();
 			ImGui::Begin("Tests List");

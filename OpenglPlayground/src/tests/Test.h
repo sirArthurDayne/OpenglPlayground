@@ -1,4 +1,6 @@
 #pragma once
+#include<GL/glew.h>
+#include <GLFW/glfw3.h>
 #include<functional>
 #include<iostream>
 
@@ -15,7 +17,7 @@ namespace test
 		Test() { }
 		virtual ~Test() {  }
 		virtual void OnRenderer() {};
-		virtual void OnUserUpdate(float deltaTime) {};
+		virtual void OnUserUpdate(float deltaTime, GLFWwindow* win) {};
 		virtual void OnGuiRenderer() {};
 	};
 
