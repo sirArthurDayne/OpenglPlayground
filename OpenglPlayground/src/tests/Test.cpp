@@ -1,8 +1,8 @@
 #include "Test.h"
 #include "../imgui/imgui.h"
 
-test::TestMenu::TestMenu(Test* & testPtr):
-	m_currentTestPtr(testPtr)
+test::TestMenu::TestMenu(Test* & testPtr, GLFWwindow*& win):
+	m_currentTestPtr(testPtr), m_win(win)
 {}
 
 void test::TestMenu::OnGuiRenderer()

@@ -17,23 +17,24 @@ namespace test
 		Test() { }
 		virtual ~Test() {  }
 		virtual void OnRenderer() {};
-		virtual void OnUserUpdate(float deltaTime, GLFWwindow* win) {};
+		virtual void OnUserUpdate(float deltaTime) {};
 		virtual void OnGuiRenderer() {};
 	};
 
 	class TestMenu : public Test
 	{
 	public:
-		TestMenu(Test* &testPtr);
+		TestMenu(Test* &testPtr, GLFWwindow*& win);
 		void OnGuiRenderer() override;
 		template<class T>
 		void AddTest(const std::string& name)
 		{
-			std::cout << "add test: " << name << std::endl;
-			m_TestList.push_back(std::make_pair(name, []() { return new T(); }));
+			std::cout << "add scene: " << name << std::endl;
+			m_TestList.push_back(std::make_pair(name, [&]() { return new T(this->m_win); }));
 		}
 	private:
 		Test* & m_currentTestPtr;
-		std::vector<std::pair<std::string, std::function<Test * ()>>> m_TestList;
+		GLFWwindow* & m_win;
+		std::vector<std::pair<std::string, std::function<Test * (void)>>> m_TestList;
 	};
 }

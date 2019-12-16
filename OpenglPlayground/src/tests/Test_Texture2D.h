@@ -10,11 +10,12 @@ namespace test
 	class Texture2D : public Test
 	{
 	public:
-		Texture2D();
+		Texture2D(GLFWwindow*& win);
 		~Texture2D();
 		void OnRenderer() override;
 		void OnGuiRenderer() override;
 	private:
+		GLFWwindow*& m_win;
 		VertexArray* m_VAO;
 		VertexLayout* m_VL;
 		VertexBuffer* m_VBO;

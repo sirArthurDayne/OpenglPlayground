@@ -7,7 +7,8 @@
 #include"../Vertex.h"
 
 
-test::Texture3D::Texture3D():
+test::Texture3D::Texture3D(GLFWwindow*& win):
+	m_win(win),
 	m_FOV(45.0f),
 	m_cameraPos(glm::vec3(0.0f, 0.0f, 15.0f)),
 	m_proy(glm::perspective(glm::radians(m_FOV), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f)),
@@ -17,7 +18,7 @@ test::Texture3D::Texture3D():
 	m_rotate(glm::rotate(glm::mat4(1.0), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f))),
 	m_scale(glm::scale(glm::mat4(1.0f), glm::vec3(1.0f))),
 	m_translationVec(glm::vec3(0.0f)), m_scaleVec(1.0f, 1.0f, 1.0f),
-	m_win(nullptr), m_deltaTime(0.0f), m_cameraSpeed(5.0f),
+	m_deltaTime(0.0f), m_cameraSpeed(5.0f),
 	m_LastPos(glm::vec3(float(WIDTH) / 2.0f, float(HEIGHT) / 2.0f,0.0f)),
 	m_EulerRotation(glm::vec3(0.0f, -90.0f, 0.0f))
 {
@@ -124,7 +125,7 @@ glm::vec3(10.0f, -1.0f, 0.0f)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CW);
 	//glEnable(GL_CULL_FACE);
-	
+	GLCALL(glfwSetInputMode(m_win, GLFW_CURSOR, GLFW_CURSOR_DISABLED));
 	m_VAO = new VertexArray();
 	m_VL = new VertexLayout();
 	m_VL->Push<float>(3);//pos
@@ -177,7 +178,7 @@ void test::Texture3D::OnRenderer()
 	Renderer renderer;
 	renderer.Clear(0.10f, 0.10f, 0.80f);
 	glClear( GL_DEPTH_BUFFER_BIT);
-	GLCALL(glfwSetInputMode(m_win, GLFW_CURSOR, GLFW_CURSOR_DISABLED));
+	
 	double mouseX = 0.0f;
 	double mouseY = 0.0f;
 	MouseCallBack(m_win, mouseX, mouseY);
@@ -221,10 +222,9 @@ void test::Texture3D::OnRenderer()
 
 }
 
-void test::Texture3D::OnUserUpdate(float deltaTime, GLFWwindow* win)
+void test::Texture3D::OnUserUpdate(float deltaTime)
 {
 	m_deltaTime = deltaTime;
-	m_win = win;
 }
 
 void test::Texture3D::OnGuiRenderer()

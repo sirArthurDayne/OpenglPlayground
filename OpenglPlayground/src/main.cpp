@@ -1,6 +1,4 @@
-#include<GL/glew.h>
-#include <GLFW/glfw3.h>
-#include<iostream>
+
 #include"Renderer.h"
 
 #include "imgui/imgui.h"
@@ -73,7 +71,7 @@ int main(void)
 	
 	//TEST FRAMEWORK SETUP
 	test::Test* currentTest = nullptr;
-	test::TestMenu* test_menu = new test::TestMenu(currentTest);
+	test::TestMenu* test_menu = new test::TestMenu(currentTest, mainWindow);
 	currentTest = test_menu;
 	test_menu->AddTest <test::Texture2D>("2D Texture Example");
 	test_menu->AddTest<test::Texture3D>("3D Texture Example");
@@ -93,7 +91,7 @@ int main(void)
 		//changes in testFrame
 		if (currentTest != nullptr)
 		{
-			currentTest->OnUserUpdate(delta_time, mainWindow);
+			currentTest->OnUserUpdate(delta_time);
 			currentTest->OnRenderer();
 			currentTest->OnGuiRenderer();
 			ImGui::Begin("Tests List");

@@ -11,15 +11,16 @@ namespace test
 	class Texture3D : public Test
 	{
 	public:
-		Texture3D();
+		Texture3D(GLFWwindow*& win);
 		~Texture3D();
 		void OnRenderer() override;
-		void OnUserUpdate(float deltaTime, GLFWwindow* win) override;
+		void OnUserUpdate(float deltaTime) override;
 		void OnGuiRenderer() override;
 		void Movement(const glm::vec3& camFront, const glm::vec3& camUp);
 		void MoveRotation(glm::vec3& camFront, const double& x, const double& y);
 		friend void MouseCallBack(GLFWwindow* win, double& x, double& y);
 	private:
+		GLFWwindow*& m_win;
 		VertexArray* m_VAO;
 		VertexLayout* m_VL;
 		VertexBuffer* m_VBO;
@@ -31,7 +32,6 @@ namespace test
 		glm::vec3 m_translationVec, m_cameraPos;
 		glm::vec3 m_scaleVec;
 		std::array<glm::vec3, 21> m_cubePos;
-		GLFWwindow* m_win;
 		float m_deltaTime;
 		float m_cameraSpeed;
 		glm::vec3 m_LastPos, m_EulerRotation;

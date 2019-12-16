@@ -5,7 +5,7 @@
 #include "../imgui/imgui.h"
 #include <GLFW/glfw3.h>
 
-test::Texture2D::Texture2D():
+test::Texture2D::Texture2D(GLFWwindow*& win): m_win(win),
 	m_proy(glm::ortho(0.0f, float(WIDTH), 0.0f, float(HEIGHT), -1.0f, 1.0f)),
 	m_view(glm::translate(glm::mat4(1.0f), glm::vec3(0.0))),
 	m_rotate(glm::rotate(glm::mat4(1.0), glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f))),
