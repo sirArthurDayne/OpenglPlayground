@@ -97,10 +97,7 @@ void test::Texture2D::OnRenderer()
 		renderer.Draw(m_VAO, m_IBO);
 	}
 }
-void test::Texture2D::OnUserUpdate(float deltaTime)
-{
-	
-}
+
 void test::Texture2D::OnGuiRenderer()
 {
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.

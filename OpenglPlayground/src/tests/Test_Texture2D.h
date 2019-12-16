@@ -13,7 +13,6 @@ namespace test
 		Texture2D();
 		~Texture2D();
 		void OnRenderer() override;
-		void OnUserUpdate(float deltaTime) override;
 		void OnGuiRenderer() override;
 	private:
 		VertexArray* m_VAO;

@@ -1,7 +1,6 @@
 #include<GL/glew.h>
 #include <GLFW/glfw3.h>
 #include<iostream>
-#include<chrono>
 #include"Renderer.h"
 
 #include "imgui/imgui.h"
@@ -74,11 +73,13 @@ int main(void)
 	ImGui_ImplGlfw_InitForOpenGL(mainWindow, true);
 	ImGui_ImplOpenGL3_Init("#version 330 core");
 	
-	//smoth
-	auto t1 = std::chrono::system_clock::now();
-	auto t2 = std::chrono::system_clock::now();
+	
 	double mouseX = 0.0f, mouseY = 0.0f;
 
+	float delta_time = 0.0f;
+	float lastFrame = 0.0f;
+
+	
 	//TEST FRAMEWORK SETUP
 	test::Test* currentTest = nullptr;
 	test::TestMenu* test_menu = new test::TestMenu(currentTest);
@@ -89,11 +90,11 @@ int main(void)
 	while (!glfwWindowShouldClose(mainWindow))
 	{
 		renderer.Clear(0.0f, 0.0f, 0.0f, 1.0f);
-		//update clock
-		t2= std::chrono::system_clock::now();
-		std::chrono::duration<float> elapsedTime = t2 - t1;
-		//time per frame coefficient
-		auto delta_time = elapsedTime.count();
+		//get dt
+		float currentFrame = float(glfwGetTime());
+		delta_time = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+		
 		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -122,7 +123,6 @@ int main(void)
 		glfwPollEvents();
 		glfwSetKeyCallback(mainWindow, keyCallBack);
 		mousecallBack(mainWindow, mouseX, mouseY);
-		t2 = t1;
 	}
 	delete currentTest;
 	if (currentTest != test_menu)
