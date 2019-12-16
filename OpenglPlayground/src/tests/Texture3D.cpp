@@ -97,7 +97,7 @@ test::Texture3D::Texture3D():
 	};
 
 	m_cubePos = {
-  glm::vec3(0.0f, 0.0f, 0.0f),//main obj
+  glm::vec3(0.0f, 0.0f, 0.0f),
 glm::vec3(0.0f, 1.0f, 0.0f),
 glm::vec3(0.0f, 2.0f, 0.0f),
 glm::vec3(1.0f, 3.0f, 0.0f),
@@ -171,7 +171,6 @@ void MouseCallBack(GLFWwindow* win, double& x, double& y)
 {
 	GLCALL(glfwGetCursorPos(win, &x, &y));
 }
-
 
 void test::Texture3D::OnRenderer()
 {
@@ -280,9 +279,7 @@ void test::Texture3D::MoveRotation(glm::vec3& camFront, const double& x, const d
 	m_EulerRotation.x += offsetY;
 	
 	//limit the pitch(x rotation)
-	if      (m_EulerRotation.x > 89.0f) m_EulerRotation.x = 89.0f;
-	if (m_EulerRotation.x < -89.0f) m_EulerRotation.x = -89.0f;
-	
+	std::clamp(m_EulerRotation.x, -89.0f, 89.0f);		
 	//calculate rotations
 	glm::vec3 front;
 	front.x = cos(glm::radians(m_EulerRotation.x)) * cos(glm::radians(m_EulerRotation.y));
@@ -291,3 +288,4 @@ void test::Texture3D::MoveRotation(glm::vec3& camFront, const double& x, const d
 	//send to cameraFront
 	camFront = glm::normalize(front);
 }
+
