@@ -9,9 +9,9 @@
 
 test::Texture3D::Texture3D():
 	m_FOV(45.0f),
-	m_cameraPos(glm::vec3(0.0f, 0.0f, -12.0f)),
+	m_cameraPos(glm::vec3(0.0f, 0.0f, 15.0f)),
 	m_proy(glm::perspective(glm::radians(m_FOV), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f)),
-	m_view(glm::lookAt(glm::vec3(0.0f, 0.0f, -12.0f),//def cameraPos
+	m_view(glm::lookAt(glm::vec3(0.0f, 0.0f, 15.0f),//def cameraPos
 		glm::vec3(0.0f, 0.0f, 0.0f),//def target
 		glm::vec3(0.0f, 1.0f, 0.0f))),//def up vec
 	m_rotate(glm::rotate(glm::mat4(1.0), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f))),
@@ -185,7 +185,7 @@ void test::Texture3D::OnRenderer()
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
 	glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
-	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
+	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 
 	//camera input
 	Movement(cameraFront, cameraUp);
