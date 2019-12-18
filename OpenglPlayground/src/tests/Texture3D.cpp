@@ -5,7 +5,7 @@
 #include "../imgui/imgui.h"
 #include <GLFW/glfw3.h>
 #include"../Vertex.h"
-
+float fov = 45.0f;
 
 test::Texture3D::Texture3D(GLFWwindow*& win):
 	m_win(win),
@@ -166,6 +166,7 @@ test::Texture3D::~Texture3D()
 	//glDisable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
 	glfwSetInputMode(m_win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	fov = 45.0f;
 }
 
 
@@ -174,6 +175,12 @@ void MouseCallBack(GLFWwindow* win, double& x, double& y)
 	GLCALL(glfwGetCursorPos(win, &x, &y));
 }
 
+void scrollCallback(GLFWwindow* win, double xoffset, double yoffset)
+{
+	if (fov >= 1.0f && fov <= 45.0f) fov -= yoffset;
+	if (fov > 45.0f) fov = 45.0f;
+	else if (fov < 1.0f) fov = 1.0f;
+}
 void test::Texture3D::OnRenderer()
 {
 	Renderer renderer;
@@ -183,6 +190,8 @@ void test::Texture3D::OnRenderer()
 	double mouseX = 0.0f;
 	double mouseY = 0.0f;
 	MouseCallBack(m_win, mouseX, mouseY);
+	glfwSetScrollCallback(m_win, scrollCallback);
+	
 	//shader binding and uniform sending data
 	m_texture->Bind();
 	m_texture2->Bind(1);
@@ -192,7 +201,7 @@ void test::Texture3D::OnRenderer()
 	m_shader->SetUniform2f("u_resolution", (float)WIDTH, (float)HEIGHT);
 	m_shader->SetUniform1f("u_time", float(glfwGetTime()));
 
-
+	m_FOV = fov;
 	//calculate camera view
 	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 cameraDirection = glm::normalize(m_cameraPos - cameraTarget);
@@ -233,7 +242,7 @@ void test::Texture3D::OnGuiRenderer()
 {
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	ImGui::Begin("Move Cube!");
-	ImGui::SliderFloat("FOV", &m_FOV, 30.0f, 120.0f);
+	ImGui::SliderFloat("FOV", &m_FOV, 1.0f, 45.0f);
 	ImGui::SliderFloat3("world camera", &m_cameraPos.x, -20.0f, 20.0f);
 	ImGui::SliderFloat3("translation", &m_translationVec.x, -10.0f, 10.0f);
 	ImGui::SliderFloat3("scale", &m_scaleVec.x, 0.50f, 3.0);

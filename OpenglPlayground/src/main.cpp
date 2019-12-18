@@ -73,8 +73,8 @@ int main(void)
 	test::Test* currentTest = nullptr;
 	test::TestMenu* test_menu = new test::TestMenu(currentTest, mainWindow);
 	currentTest = test_menu;
-	test_menu->AddTest <test::Texture2D>("2D Texture Example");
-	test_menu->AddTest<test::Texture3D>("3D Texture Example");
+	test_menu->AddTest <test::Texture2D>("2D Orthographic + Texture");
+	test_menu->AddTest<test::Texture3D>("3D Perspective + Texture");
 	Renderer renderer;
 	while (!glfwWindowShouldClose(mainWindow))
 	{
