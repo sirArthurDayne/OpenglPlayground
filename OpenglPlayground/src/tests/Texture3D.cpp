@@ -20,7 +20,7 @@ test::Texture3D::Texture3D(GLFWwindow*& win):
 	m_translationVec(glm::vec3(0.0f)), m_scaleVec(1.0f, 1.0f, 1.0f),
 	m_deltaTime(0.0f), m_cameraSpeed(5.0f),
 	m_LastPos(glm::vec3(float(WIDTH) / 2.0f, float(HEIGHT) / 2.0f,0.0f)),
-	m_EulerRotation(glm::vec3(0.0f, -90.0f, 0.0f))
+	m_EulerRotation(glm::vec3(0.0f, -90.0f, 90.0f))
 {
 	glm::vec3 tri_pos[] =
 	{
@@ -123,9 +123,9 @@ glm::vec3(10.0f, -1.0f, 0.0f)
 	
 	//enable all features
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CW);
 	//glEnable(GL_CULL_FACE);
-	GLCALL(glfwSetInputMode(m_win, GLFW_CURSOR, GLFW_CURSOR_DISABLED));
+	glEnable(GL_CW);
+	//GLCALL(glfwSetInputMode(m_win, GLFW_CURSOR, GLFW_CURSOR_DISABLED));
 	m_VAO = new VertexArray();
 	m_VL = new VertexLayout();
 	m_VL->Push<float>(3);//pos
@@ -201,17 +201,18 @@ void test::Texture3D::OnRenderer()
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 
 	//camera input
-	MoveRotation(cameraFront, mouseX, mouseY);
-	Movement(cameraFront, cameraUp);
+	float offsetZ = 0.0f;
+	Movement(cameraFront, cameraUp, offsetZ);
+	MoveRotation(cameraFront,cameraUp, mouseX, mouseY, offsetZ);
 	//set camera view
 	m_view = glm::lookAt(m_cameraPos, m_cameraPos + cameraFront, cameraUp);
-
+	
 	for (int i = 0; i < m_cubePos.size(); i++)
 	{
 		float angle = 20.0f * i + 5.0f;
 		m_proy = glm::perspective(glm::radians(m_FOV), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 		m_scale = glm::scale(glm::mat4(1.0f), m_scaleVec);
-		m_rotate = glm::rotate(glm::mat4(1.0f), glm::radians(angle) * float(glfwGetTime()), glm::vec3(1.0f, 0.30f, 0.50f));
+		m_rotate = glm::rotate(glm::mat4(1.0f), glm::radians(angle) * float(glfwGetTime()), glm::vec3(0.0f, 0.0f, 1.0f));
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), m_cubePos[i]);
 		glm::mat4 trans = glm::translate(glm::mat4(1.0), m_translationVec);
 		model *=  trans * m_rotate * m_scale;
@@ -235,22 +236,25 @@ void test::Texture3D::OnGuiRenderer()
 	ImGui::SliderFloat3("world camera", &m_cameraPos.x, -20.0f, 20.0f);
 	ImGui::SliderFloat3("translation", &m_translationVec.x, -10.0f, 10.0f);
 	ImGui::SliderFloat3("scale", &m_scaleVec.x, 0.50f, 3.0);
-	ImGui::SliderFloat3("pitch-yaw-roll", &m_EulerRotation.x, 0.0f, 90.0f);
+	ImGui::SliderFloat3("pitch-yaw-roll", &m_EulerRotation.x, -90.0f, 90.0f);
 	ImGui::SliderFloat("cameraSpeed", &m_cameraSpeed, 0.0f, 10.0f);
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
 }
 
-void test::Texture3D::Movement(const glm::vec3& camFront, const glm::vec3& camUp)
+void test::Texture3D::Movement(const glm::vec3& camFront, const glm::vec3& camUp, float& zOffset)
 {
 	float speed = m_cameraSpeed * m_deltaTime;
 	if (glfwGetKey(m_win, GLFW_KEY_W) == GLFW_PRESS) m_cameraPos += speed *camFront;
 	else if (glfwGetKey(m_win, GLFW_KEY_S) == GLFW_PRESS) m_cameraPos -= speed * camFront;
 	if (glfwGetKey(m_win, GLFW_KEY_A) == GLFW_PRESS) m_cameraPos -= glm::normalize(glm::cross(camFront, camUp)) * speed;
 	else if (glfwGetKey(m_win, GLFW_KEY_D) == GLFW_PRESS) m_cameraPos += glm::normalize(glm::cross(camFront, camUp)) * speed;
+	if (glfwGetKey(m_win, GLFW_KEY_LEFT) == GLFW_PRESS) zOffset -= 1.0f;
+	else if (glfwGetKey(m_win, GLFW_KEY_RIGHT) == GLFW_PRESS) zOffset += 1.0f;
+	
 }
 
-void test::Texture3D::MoveRotation(glm::vec3& camFront, const double& x, const double& y)
+void test::Texture3D::MoveRotation(glm::vec3& camFront, glm::vec3& cameraUp, const double& x, const double& y, float& z)
 {
 	//output is a FPS camera
 	static bool firstMove = true;
@@ -269,7 +273,7 @@ void test::Texture3D::MoveRotation(glm::vec3& camFront, const double& x, const d
 	float sensitivity = 0.15f;
 	offsetX *= sensitivity;
 	offsetY *= sensitivity;
-
+	float offSetZ = z * sensitivity;
 	/*update rotations.
 	 *Euler Rotations are perpendicular to the axis
 	PITCH: x axis rotation
@@ -277,10 +281,17 @@ void test::Texture3D::MoveRotation(glm::vec3& camFront, const double& x, const d
 	ROLL: z axis rotation*/
 	m_EulerRotation.y += offsetX;
 	m_EulerRotation.x += offsetY;
+	m_EulerRotation.z += offSetZ;
 	
-	//limit the pitch(x rotation)
+	//limit the pitch and roll
 	std::clamp(m_EulerRotation.x, -89.0f, 89.0f);		
+	std::clamp(m_EulerRotation.z, -89.0f, 89.0f);		
 	//calculate rotations
+	cameraUp.x = cos(glm::radians(m_EulerRotation.z));
+	cameraUp.y = sin(glm::radians(m_EulerRotation.z));
+	//send to cameraUp
+	cameraUp = glm::normalize(cameraUp);
+	
 	glm::vec3 front;
 	front.x = cos(glm::radians(m_EulerRotation.x)) * cos(glm::radians(m_EulerRotation.y));
 	front.y = sin(glm::radians(m_EulerRotation.x));

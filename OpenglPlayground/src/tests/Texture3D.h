@@ -16,8 +16,8 @@ namespace test
 		void OnRenderer() override;
 		void OnUserUpdate(float deltaTime) override;
 		void OnGuiRenderer() override;
-		void Movement(const glm::vec3& camFront, const glm::vec3& camUp);
-		void MoveRotation(glm::vec3& camFront, const double& x, const double& y);
+		void Movement(const glm::vec3& camFront, const glm::vec3& camUp, float& zOffset);
+		void MoveRotation(glm::vec3& camFront,glm::vec3& cameraUp, const double& x, const double& y, float& z);
 		friend void MouseCallBack(GLFWwindow* win, double& x, double& y);
 	private:
 		GLFWwindow*& m_win;
