@@ -126,6 +126,7 @@ glm::vec3(10.0f, -1.0f, 0.0f)
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_CW);
 	//GLCALL(glfwSetInputMode(m_win, GLFW_CURSOR, GLFW_CURSOR_DISABLED));
+	glfwSetCursorPos(m_win, m_LastPos.x, m_LastPos.y);
 	m_VAO = new VertexArray();
 	m_VL = new VertexLayout();
 	m_VL->Push<float>(3);//pos
@@ -256,14 +257,6 @@ void test::Texture3D::Movement(const glm::vec3& camFront, const glm::vec3& camUp
 
 void test::Texture3D::MoveRotation(glm::vec3& camFront, glm::vec3& cameraUp, const double& x, const double& y, float& z)
 {
-	//output is a FPS camera
-	static bool firstMove = true;
-	if (firstMove)//remove sudden jump when mouse enter window
-	{
-		firstMove = false;
-		m_LastPos.x = float(x);
-		m_LastPos.y = float(y);
-	}
 	//get distance from last frames & update
 	float offsetX = float(x) - m_LastPos.x;
 	float offsetY = m_LastPos.y - float(y);
