@@ -26,7 +26,7 @@ namespace test
 	public:
 		TestMenu(Test* &testPtr, GLFWwindow*& win);
 		void OnGuiRenderer() override;
-		template<class T>
+		template<typename T>
 		void AddTest(const std::string& name)
 		{
 			std::cout << "add scene: " << name << std::endl;

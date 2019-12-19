@@ -6,6 +6,8 @@
 #include "../Shader.h"
 #include "../Texture.h"
 #include<array>
+#include "../Camera.h"
+
 namespace test
 {
 	class Texture3D : public Test
@@ -16,8 +18,8 @@ namespace test
 		void OnRenderer() override;
 		void OnUserUpdate(float deltaTime) override;
 		void OnGuiRenderer() override;
-		void Movement(const glm::vec3& camFront, const glm::vec3& camUp, float& zOffset);
-		void MoveRotation(const double& x, const double& y, float& z);
+		void KeyboardMovement(const glm::vec3& camFront, const glm::vec3& camUp, float& zOffset);
+		void MouseMovement(const double& x, const double& y, float& z);
 		friend void MouseCallBack(GLFWwindow* win, double& x, double& y);
 		friend void scrollCallback(GLFWwindow* win, double xoffset, double yoffset);
 	private:
@@ -36,5 +38,6 @@ namespace test
 		float m_deltaTime;
 		float m_cameraSpeed;
 		glm::vec3 m_LastPos, m_EulerRotation;
+		Camera MyCamera;
 	};
 }

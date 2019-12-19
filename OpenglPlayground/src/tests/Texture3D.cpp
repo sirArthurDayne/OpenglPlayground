@@ -3,24 +3,26 @@
 #include"../Renderer.h"
 #include "../VertexLayout.h"
 #include "../imgui/imgui.h"
-#include <GLFW/glfw3.h>
 #include"../Vertex.h"
 float zoom = 45.0f;
+
+
+
 
 test::Texture3D::Texture3D(GLFWwindow*& win):
 	m_win(win),
 	m_FOV(45.0f),
 	m_cameraPos(glm::vec3(0.0f, 0.0f, 15.0f)),
 	m_proy(glm::perspective(glm::radians(m_FOV), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f)),
-	m_view(glm::lookAt(glm::vec3(0.0f, 0.0f, 15.0f),//def cameraPos
-		glm::vec3(0.0f, 0.0f, 0.0f),//def target
-		glm::vec3(0.0f, 1.0f, 0.0f))),//def up vec
+	m_view(glm::mat4(1.0f)),//def up vec
 	m_rotate(glm::rotate(glm::mat4(1.0), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f))),
 	m_scale(glm::scale(glm::mat4(1.0f), glm::vec3(1.0f))),
 	m_translationVec(glm::vec3(0.0f)), m_scaleVec(1.0f, 1.0f, 1.0f),
 	m_deltaTime(0.0f), m_cameraSpeed(5.0f),
 	m_LastPos(glm::vec3(float(WIDTH) / 2.0f, float(HEIGHT) / 2.0f,0.0f)),
-	m_EulerRotation(glm::vec3(0.0f, 0.0f, 0.0f))
+	m_EulerRotation(glm::vec3(0.0f, 0.0f, 0.0f)),
+	MyCamera(Camera(m_cameraPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, -1.0f)))
 {
 	glm::vec3 tri_pos[] =
 	{
@@ -120,6 +122,9 @@ glm::vec3(11.0f, 0.0f, 0.0f),
 glm::vec3(10.0f, 1.0f, 0.0f),
 glm::vec3(10.0f, -1.0f, 0.0f)
 	};
+
+	//enable camera
+	//MyCamera = ;
 	
 	//enable all features
 	glEnable(GL_DEPTH_TEST);
@@ -194,6 +199,7 @@ void test::Texture3D::OnRenderer()
 	
 	//shader binding and uniform sending data
 	m_texture->Bind();
+	m_FOV = zoom;
 	m_texture2->Bind(1);
 
 	m_shader->Bind();
@@ -201,26 +207,19 @@ void test::Texture3D::OnRenderer()
 	m_shader->SetUniform2f("u_resolution", (float)WIDTH, (float)HEIGHT);
 	m_shader->SetUniform1f("u_time", float(glfwGetTime()));
 
-	m_FOV = zoom;
-	//calculate camera view
-	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 cameraDirection = glm::normalize(m_cameraPos - cameraTarget);
-	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-	glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
-	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-
-	//camera input
-	float offsetZ = 0.0f;
-	Movement(cameraFront, cameraUp, offsetZ);
-	MoveRotation(mouseX, mouseY, offsetZ);
-	//set camera view
-	glm::mat4 cameraRotation = glm::rotate(glm::mat4(1.0f), glm::radians(m_EulerRotation.x),glm::vec3(1, 0, 0))
-	* glm::rotate(glm::mat4(1.0f),glm::radians(m_EulerRotation.y), glm::vec3(0, 1, 0))
-	* glm::rotate(glm::mat4(1.0f), glm::radians(m_EulerRotation.z), glm::vec3(0, 0, 1));
 	
-	m_view = glm::inverse(glm::translate(glm::mat4(1.0f), m_cameraPos + cameraFront) * cameraRotation);
+	//camera controls
+	float offsetZ = 0.0f;
+	glm::vec3 camerafront = glm::vec3(0.0f, 0.0f, -1.0f);
+	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	
+	KeyboardMovement(camerafront, cameraUp, offsetZ);
+	MouseMovement(mouseX, mouseY, offsetZ);
 
+	MyCamera.UpdateCamera(m_cameraPos, glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), m_EulerRotation);
+	
+	m_view = MyCamera.GetViewMatrix();
+	
 	for (int i = 0; i < m_cubePos.size(); i++)
 	{
 		float angle = 20.0f * i + 5.0f;
@@ -234,7 +233,6 @@ void test::Texture3D::OnRenderer()
 		m_shader->SetUniformMat4f("u_mvp", mvp);
 		renderer.Draw(m_VAO, m_IBO);
 	}
-
 }
 
 void test::Texture3D::OnUserUpdate(float deltaTime)
@@ -256,7 +254,7 @@ void test::Texture3D::OnGuiRenderer()
 	ImGui::End();
 }
 
-void test::Texture3D::Movement(const glm::vec3& camFront, const glm::vec3& camUp, float& zOffset)
+void test::Texture3D::KeyboardMovement(const glm::vec3& camFront, const glm::vec3& camUp, float& zOffset)
 {
 	float speed = m_cameraSpeed * m_deltaTime;
 	if (glfwGetKey(m_win, GLFW_KEY_W) == GLFW_PRESS) m_cameraPos += speed *camFront;
@@ -268,7 +266,7 @@ void test::Texture3D::Movement(const glm::vec3& camFront, const glm::vec3& camUp
 	
 }
 
-void test::Texture3D::MoveRotation(const double& x, const double& y, float& z)
+void test::Texture3D::MouseMovement(const double& x, const double& y, float& z)
 {
 	//get distance from last frames & update
 	float offsetX = m_LastPos.x -float(x);

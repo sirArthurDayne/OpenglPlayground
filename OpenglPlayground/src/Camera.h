@@ -1,28 +1,19 @@
 ﻿#pragma once
 #include"glm.hpp"
 
-enum class MOVEMENT
-{
-	FORWARD,
-	BACKWARD,
-	LEFT,
-	RIGHT
-};
 
 class Camera
 {
 public:
-	Camera() {  }
-	~Camera() {  }
-	void GetRotationMatrix(){}
-	void UpdateCamera() {  }
+	Camera(glm::vec3& cameraPos, glm::vec3 target, glm::vec3 up, glm::vec3 front);
+	~Camera() {}
+	glm::mat4 GetViewMatrix();
+	void UpdateCamera(glm::vec3 Camerapos, glm::vec3 target, glm::vec3 front, glm::vec3 rotations);
+
 private:
-	glm::mat4 m_EulerMatrix;
-	float m_FOV;
-	float m_EulerAngles;
-	glm::vec3 m_position;
-	glm::vec3 m_upVector;
-	glm::vec3 m_rightvector;
-	float m_speed;
-	float m_sensitivity;
+	glm::mat4 m_rotationMat;
+	glm::vec3 m_position, m_target, m_front;
+	glm::vec3 m_Up;
+	glm::vec3 m_Right;
+
 };
