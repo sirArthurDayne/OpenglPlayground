@@ -5,7 +5,7 @@
 #include "../imgui/imgui.h"
 #include <GLFW/glfw3.h>
 #include"../Vertex.h"
-float fov = 45.0f;
+float zoom = 45.0f;
 
 test::Texture3D::Texture3D(GLFWwindow*& win):
 	m_win(win),
@@ -20,7 +20,7 @@ test::Texture3D::Texture3D(GLFWwindow*& win):
 	m_translationVec(glm::vec3(0.0f)), m_scaleVec(1.0f, 1.0f, 1.0f),
 	m_deltaTime(0.0f), m_cameraSpeed(5.0f),
 	m_LastPos(glm::vec3(float(WIDTH) / 2.0f, float(HEIGHT) / 2.0f,0.0f)),
-	m_EulerRotation(glm::vec3(0.0f, -90.0f, 90.0f))
+	m_EulerRotation(glm::vec3(0.0f, 0.0f, 0.0f))
 {
 	glm::vec3 tri_pos[] =
 	{
@@ -125,7 +125,7 @@ glm::vec3(10.0f, -1.0f, 0.0f)
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_CW);
-	//GLCALL(glfwSetInputMode(m_win, GLFW_CURSOR, GLFW_CURSOR_DISABLED));
+	GLCALL(glfwSetInputMode(m_win, GLFW_CURSOR, GLFW_CURSOR_DISABLED));
 	glfwSetCursorPos(m_win, m_LastPos.x, m_LastPos.y);
 	m_VAO = new VertexArray();
 	m_VL = new VertexLayout();
@@ -166,7 +166,7 @@ test::Texture3D::~Texture3D()
 	//glDisable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
 	glfwSetInputMode(m_win, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-	fov = 45.0f;
+	zoom = 45.0f;
 }
 
 
@@ -177,9 +177,9 @@ void MouseCallBack(GLFWwindow* win, double& x, double& y)
 
 void scrollCallback(GLFWwindow* win, double xoffset, double yoffset)
 {
-	if (fov >= 1.0f && fov <= 45.0f) fov -= yoffset;
-	if (fov > 45.0f) fov = 45.0f;
-	else if (fov < 1.0f) fov = 1.0f;
+	if (zoom >= 1.0f && zoom <= 45.0f) zoom -= yoffset;
+	if (zoom > 45.0f) zoom = 45.0f;
+	else if (zoom < 1.0f) zoom = 1.0f;
 }
 void test::Texture3D::OnRenderer()
 {
@@ -201,7 +201,7 @@ void test::Texture3D::OnRenderer()
 	m_shader->SetUniform2f("u_resolution", (float)WIDTH, (float)HEIGHT);
 	m_shader->SetUniform1f("u_time", float(glfwGetTime()));
 
-	m_FOV = fov;
+	m_FOV = zoom;
 	//calculate camera view
 	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 cameraDirection = glm::normalize(m_cameraPos - cameraTarget);
@@ -213,10 +213,14 @@ void test::Texture3D::OnRenderer()
 	//camera input
 	float offsetZ = 0.0f;
 	Movement(cameraFront, cameraUp, offsetZ);
-	MoveRotation(cameraFront,cameraUp, mouseX, mouseY, offsetZ);
+	MoveRotation(mouseX, mouseY, offsetZ);
 	//set camera view
-	m_view = glm::lookAt(m_cameraPos, m_cameraPos + cameraFront, cameraUp);
+	glm::mat4 cameraRotation = glm::rotate(glm::mat4(1.0f), glm::radians(m_EulerRotation.x),glm::vec3(1, 0, 0))
+	* glm::rotate(glm::mat4(1.0f),glm::radians(m_EulerRotation.y), glm::vec3(0, 1, 0))
+	* glm::rotate(glm::mat4(1.0f), glm::radians(m_EulerRotation.z), glm::vec3(0, 0, 1));
 	
+	m_view = glm::inverse(glm::translate(glm::mat4(1.0f), m_cameraPos + cameraFront) * cameraRotation);
+
 	for (int i = 0; i < m_cubePos.size(); i++)
 	{
 		float angle = 20.0f * i + 5.0f;
@@ -264,41 +268,27 @@ void test::Texture3D::Movement(const glm::vec3& camFront, const glm::vec3& camUp
 	
 }
 
-void test::Texture3D::MoveRotation(glm::vec3& camFront, glm::vec3& cameraUp, const double& x, const double& y, float& z)
+void test::Texture3D::MoveRotation(const double& x, const double& y, float& z)
 {
 	//get distance from last frames & update
-	float offsetX = float(x) - m_LastPos.x;
+	float offsetX = m_LastPos.x -float(x);
 	float offsetY = m_LastPos.y - float(y);
 	m_LastPos.x = float(x);
 	m_LastPos.y = float(y);
 
-	float sensitivity = 0.15f;
+	const float sensitivity = 0.15f;
 	offsetX *= sensitivity;
 	offsetY *= sensitivity;
-	float offSetZ = z * sensitivity;
-	/*update rotations.
-	 *Euler Rotations are perpendicular to the axis
-	PITCH: x axis rotation
-	YAW: y axis rotation
-	ROLL: z axis rotation*/
+	const float offSetZ = z * sensitivity;
+
+
+	//add rotations
 	m_EulerRotation.y += offsetX;
 	m_EulerRotation.x += offsetY;
 	m_EulerRotation.z += offSetZ;
 	
 	//limit the pitch and roll
 	std::clamp(m_EulerRotation.x, -89.0f, 89.0f);		
-	std::clamp(m_EulerRotation.z, -89.0f, 89.0f);		
-	//calculate rotations
-	cameraUp.x = cos(glm::radians(m_EulerRotation.z));
-	cameraUp.y = sin(glm::radians(m_EulerRotation.z));
-	//send to cameraUp
-	cameraUp = glm::normalize(cameraUp);
-	
-	glm::vec3 front;
-	front.x = cos(glm::radians(m_EulerRotation.x)) * cos(glm::radians(m_EulerRotation.y));
-	front.y = sin(glm::radians(m_EulerRotation.x));
-	front.z = cos(glm::radians(m_EulerRotation.x)) * sin(glm::radians(m_EulerRotation.y));
-	//send to cameraFront
-	camFront = glm::normalize(front);
+	std::clamp(m_EulerRotation.z, -89.0f, 89.0f);	
 }
 

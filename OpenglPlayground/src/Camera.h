@@ -19,7 +19,7 @@ public:
 private:
 	glm::mat4 m_EulerMatrix;
 	float m_FOV;
-	float m_EulerAngles;//roll,pitch,yaw
+	float m_EulerAngles;
 	glm::vec3 m_position;
 	glm::vec3 m_upVector;
 	glm::vec3 m_rightvector;

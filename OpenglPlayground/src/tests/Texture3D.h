@@ -17,7 +17,7 @@ namespace test
 		void OnUserUpdate(float deltaTime) override;
 		void OnGuiRenderer() override;
 		void Movement(const glm::vec3& camFront, const glm::vec3& camUp, float& zOffset);
-		void MoveRotation(glm::vec3& camFront,glm::vec3& cameraUp, const double& x, const double& y, float& z);
+		void MoveRotation(const double& x, const double& y, float& z);
 		friend void MouseCallBack(GLFWwindow* win, double& x, double& y);
 		friend void scrollCallback(GLFWwindow* win, double xoffset, double yoffset);
 	private:
