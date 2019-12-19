@@ -6,9 +6,6 @@
 #include"../Vertex.h"
 float zoom = 45.0f;
 
-
-
-
 test::Texture3D::Texture3D(GLFWwindow*& win):
 	m_win(win),
 	m_FOV(45.0f),
@@ -192,6 +189,7 @@ void test::Texture3D::OnRenderer()
 	renderer.Clear(0.10f, 0.10f, 0.80f);
 	glClear( GL_DEPTH_BUFFER_BIT);
 	
+	m_FOV = zoom;
 	double mouseX = 0.0f;
 	double mouseY = 0.0f;
 	MouseCallBack(m_win, mouseX, mouseY);
@@ -199,27 +197,22 @@ void test::Texture3D::OnRenderer()
 	
 	//shader binding and uniform sending data
 	m_texture->Bind();
-	m_FOV = zoom;
 	m_texture2->Bind(1);
 
 	m_shader->Bind();
-
 	m_shader->SetUniform2f("u_resolution", (float)WIDTH, (float)HEIGHT);
 	m_shader->SetUniform1f("u_time", float(glfwGetTime()));
 
 	
-	//camera controls
-	float offsetZ = 0.0f;
-	glm::vec3 camerafront = glm::vec3(0.0f, 0.0f, -1.0f);
-	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	
-	KeyboardMovement(camerafront, cameraUp, offsetZ);
-	MouseMovement(mouseX, mouseY, offsetZ);
-
-	MyCamera.UpdateCamera(m_cameraPos, glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), m_EulerRotation);
-	
+	//camera input and update
+	float rollFactor = 0.0f;
+	Camera_Movement move = IDLE;
+	KeyboardMovement(move, rollFactor);
+	MouseMovement(mouseX, mouseY, rollFactor);
+	MyCamera.UpdateCamera(m_EulerRotation, move, m_cameraSpeed, m_deltaTime);
 	m_view = MyCamera.GetViewMatrix();
-	
+
+	//draw the cubes
 	for (int i = 0; i < m_cubePos.size(); i++)
 	{
 		float angle = 20.0f * i + 5.0f;
@@ -243,9 +236,11 @@ void test::Texture3D::OnUserUpdate(float deltaTime)
 void test::Texture3D::OnGuiRenderer()
 {
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
+	glm::vec3 pos = MyCamera.getPosition();
+	
 	ImGui::Begin("Move Cube!");
 	ImGui::SliderFloat("FOV", &m_FOV, 1.0f, 45.0f);
-	ImGui::SliderFloat3("world camera", &m_cameraPos.x, -20.0f, 20.0f);
+	ImGui::SliderFloat3("world camera", &pos.x, -20.0f, 20.0f);
 	ImGui::SliderFloat3("translation", &m_translationVec.x, -10.0f, 10.0f);
 	ImGui::SliderFloat3("scale", &m_scaleVec.x, 0.50f, 3.0);
 	ImGui::SliderFloat3("pitch-yaw-roll", &m_EulerRotation.x, -90.0f, 90.0f);
@@ -254,13 +249,12 @@ void test::Texture3D::OnGuiRenderer()
 	ImGui::End();
 }
 
-void test::Texture3D::KeyboardMovement(const glm::vec3& camFront, const glm::vec3& camUp, float& zOffset)
+void test::Texture3D::KeyboardMovement(Camera_Movement& currentDirection, float& zOffset)
 {
-	float speed = m_cameraSpeed * m_deltaTime;
-	if (glfwGetKey(m_win, GLFW_KEY_W) == GLFW_PRESS) m_cameraPos += speed *camFront;
-	else if (glfwGetKey(m_win, GLFW_KEY_S) == GLFW_PRESS) m_cameraPos -= speed * camFront;
-	if (glfwGetKey(m_win, GLFW_KEY_A) == GLFW_PRESS) m_cameraPos -= glm::normalize(glm::cross(camFront, camUp)) * speed;
-	else if (glfwGetKey(m_win, GLFW_KEY_D) == GLFW_PRESS) m_cameraPos += glm::normalize(glm::cross(camFront, camUp)) * speed;
+	if (glfwGetKey(m_win, GLFW_KEY_W) == GLFW_PRESS) currentDirection = FORWARD;
+	else if (glfwGetKey(m_win, GLFW_KEY_S) == GLFW_PRESS) currentDirection = BACKWARD;
+	if (glfwGetKey(m_win, GLFW_KEY_A) == GLFW_PRESS) currentDirection = LEFT;
+	else if (glfwGetKey(m_win, GLFW_KEY_D) == GLFW_PRESS) currentDirection = RIGHT;
 	if (glfwGetKey(m_win, GLFW_KEY_LEFT) == GLFW_PRESS) zOffset -= 1.0f;
 	else if (glfwGetKey(m_win, GLFW_KEY_RIGHT) == GLFW_PRESS) zOffset += 1.0f;
 	
