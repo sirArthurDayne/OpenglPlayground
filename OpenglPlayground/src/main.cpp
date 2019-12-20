@@ -8,6 +8,9 @@
 
 #include "tests/Test_Texture2D.h"
 #include "tests/Texture3D.h"
+#include "assimp/Importer.hpp"
+#include"assimp/scene.h"
+#include"assimp/postprocess.h"
 
 /*openGL--> is an implementation that runs & works on your GPU
 openGL works as a state machine.

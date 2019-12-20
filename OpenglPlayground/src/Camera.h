@@ -19,8 +19,8 @@ public:
 	void Movement(Camera_Movement& move, float& cameraSpeed, float deltaTime);
 	glm::vec3 getPosition() const { return m_position; }
 private:
-	glm::mat4 m_rotationMat;
 	glm::vec3 m_position, m_target, m_front;
+	glm::mat4 m_rotationMat;
 	glm::vec3 m_Up;
 	glm::vec3 m_Right;
 
