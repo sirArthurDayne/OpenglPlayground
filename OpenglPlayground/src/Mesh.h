@@ -32,6 +32,8 @@ public:
 	Mesh(std::vector<Vertex> data, std::vector<unsigned int> indices);
 	void Draw(Renderer& renderer);
 	std::vector<glm::vec3> getPositions() const;
+	//glm::mat4 getModelMatrix();
+	//void UpdateModelMatrix();
 	~Mesh();
 private:
 	VertexArray* m_VAO;

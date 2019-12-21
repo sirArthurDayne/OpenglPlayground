@@ -23,5 +23,6 @@ namespace test
 		Texture *m_texture2;
 		glm::mat4 m_view;
 		float m_FOV = 45.0f;
+		glm::vec3 m_ColorBase;
 	};
 }

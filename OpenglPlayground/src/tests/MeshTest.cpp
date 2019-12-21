@@ -10,7 +10,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	m_cameraTarget(glm::vec3(0.0f)),
 	m_MyCamera (Camera(m_cameraPos, m_cameraTarget, glm::vec3(0.0f, 1.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, -1.0f))),
-	m_view(glm::mat4(1.0f))
+	m_view(glm::mat4(1.0f)), m_ColorBase(glm::vec3(0.0f, 0.60f, 0.20f))
 {
 	//enable all features
 	glEnable(GL_DEPTH_TEST);
@@ -95,7 +95,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	m_geo = new Mesh(data, indices);
 	
 	//setup shaders and textures
-	m_shader = new Shader("shaders/Base.shader");
+	m_shader = new Shader("shaders/LightTest.shader");
 	m_shader->SetUniform1i("u_texture0", 0);
 	m_shader->SetUniform1i("u_texture1", 1);
 	m_shader->Unbind();
@@ -118,15 +118,16 @@ test::MeshTest::~MeshTest()
 void test::MeshTest::OnRenderer()
 {
 	Renderer renderer;
-	renderer.Clear(0.20, 0.0, 0.60f);
+	renderer.Clear(0.0f, 0.0, 0.0f);
 	glm::vec3 origin = glm::vec3(0.0f);
 	//bind stuff
 	m_texture->Bind();
 	m_texture2->Bind(1);
 	m_shader->Bind();
-	m_shader->SetUniform2f("u_resolution", (float)WIDTH, (float)HEIGHT);
 	m_shader->SetUniform1f("u_time", float(glfwGetTime()));
+	m_shader->SetUniform3f("u_colorBase", m_ColorBase.x, m_ColorBase.y, m_ColorBase.z);
 	//update stuff
+	//TODO: Send data to Mesh class and return ModelMatrix
 	glm::mat4 trans = glm::translate(glm::mat4(1.0f), m_cubeTranslation);
 	glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(10.0f)  * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
 	glm::mat4 scale = glm::scale(glm::mat4(1.0f), m_cubeScale);
@@ -148,5 +149,6 @@ void test::MeshTest::OnGuiRenderer()
 	ImGui::SliderFloat("FOV", &m_FOV, 30.0f, 90.0f);
 	ImGui::SliderFloat3("scale", &m_cubeScale.x, 1.0f, 3.0f);
 	ImGui::SliderFloat3("translation", &m_cubeTranslation.x, -10.0f, 10.0f);
+	ImGui::ColorEdit3("base color", &m_ColorBase.x);
 	ImGui::End();
 }

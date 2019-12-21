@@ -13,6 +13,7 @@ public:
 	void SetUniform1i(const std::string& name, int value);
 	void SetUniform1f(const std::string& name, float value);
 	void SetUniform2f(const std::string& name, float data, float data2);
+	void SetUniform3f(const std::string& name, float data0, float data1, float data2);
 	void SetUniformMat4f(const std::string& name, const glm::mat4& data);
 private:
 	std::pair<std::string, std::string> ParseShader(const std::string& filepath);
