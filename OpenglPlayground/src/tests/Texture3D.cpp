@@ -120,8 +120,10 @@ glm::vec3(10.0f, 1.0f, 0.0f),
 glm::vec3(10.0f, -1.0f, 0.0f)
 	};
 
-	//enable camera
-	//MyCamera = ;
+	/*
+	 * vector<Mesh> data = {"path.obj"};
+	 * vector<Mesh> data = {"path.obj"};
+	 */
 	
 	//enable all features
 	glEnable(GL_DEPTH_TEST);

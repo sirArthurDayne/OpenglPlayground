@@ -5,26 +5,21 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-
 #include "tests/Test_Texture2D.h"
 #include "tests/Texture3D.h"
-#include "assimp/Importer.hpp"
-#include"assimp/scene.h"
-#include"assimp/postprocess.h"
+
 
 /*openGL--> is an implementation that runs & works on your GPU
 openGL works as a state machine.
-
 example for drawing a triangle:
-
 1. generate a buffer
 1.1 load data(anticlockwise)
 1.2 generate an index buffer
 2. select a shader 
 3. draw a triangle with that data.
 */
-bool BACK = false;
 
+bool BACK = false;
 static void keyCallBack(GLFWwindow* win, int key, int scanCode, int action, int mode)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -98,7 +93,7 @@ int main(void)
 			currentTest->OnRenderer();
 			currentTest->OnGuiRenderer();
 			ImGui::Begin("Tests List");
-			if ((ImGui::Button("<-BACK") || BACK) && currentTest != test_menu)
+			if ((ImGui::Button("<-RETURN") || BACK) && currentTest != test_menu)
 			{
 				delete currentTest;
 				currentTest = test_menu;
