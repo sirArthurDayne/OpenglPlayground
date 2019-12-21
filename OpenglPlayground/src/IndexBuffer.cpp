@@ -14,7 +14,7 @@ IndexBuffer::IndexBuffer(const unsigned int* index_data, unsigned int count): m_
 void IndexBuffer::Bind() const
 {
 	GLCALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_rendererId));
-	std::cout << "ibo bound-->id: " << m_rendererId<< std::endl;
+	//std::cout << "ibo bound-->id: " << m_rendererId<< std::endl;
 }
 
 void IndexBuffer::Unbind() const

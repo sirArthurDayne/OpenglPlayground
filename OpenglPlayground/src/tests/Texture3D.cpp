@@ -120,11 +120,6 @@ glm::vec3(10.0f, 1.0f, 0.0f),
 glm::vec3(10.0f, -1.0f, 0.0f)
 	};
 
-	/*
-	 * vector<Mesh> data = {"path.obj"};
-	 * vector<Mesh> data = {"path.obj"};
-	 */
-	
 	//enable all features
 	glEnable(GL_DEPTH_TEST);
 	//glEnable(GL_CULL_FACE);
@@ -208,7 +203,7 @@ void test::Texture3D::OnRenderer()
 	
 	//camera input and update
 	float rollFactor = 0.0f;
-	Camera_Movement move = IDLE;
+	Camera_Movement move = Camera_Movement::IDLE;
 	KeyboardMovement(move, rollFactor);
 	MouseMovement(mouseX, mouseY, rollFactor);
 	MyCamera.UpdateCamera(m_EulerRotation, move, m_cameraSpeed, m_deltaTime);

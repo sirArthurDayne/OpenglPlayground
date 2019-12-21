@@ -1,6 +1,6 @@
 ﻿#include "Mesh.h"
 
-Mesh::Mesh(std::vector<Vertex>& data, std::vector<unsigned> indices) :
+Mesh::Mesh(std::vector<Vertex> data, std::vector<unsigned> indices) :
 	m_data(data), m_indices(indices)
 {
 	//setup the mesh for opengl
@@ -17,14 +17,28 @@ Mesh::Mesh(std::vector<Vertex>& data, std::vector<unsigned> indices) :
 	m_VAO->Unbind();
 	m_VBO->Unbind();
 	m_IBO->Unbind();
+	
 }
+
+
+Mesh::~Mesh()
+{
+	//clean everything
+	delete m_VBO;
+	delete m_IBO;
+	delete m_VL;
+	delete m_VAO;
+	m_data.clear();
+	m_indices.clear();
+}
+
 
 void Mesh::Draw(Renderer& renderer)
 {
 	renderer.Draw(m_VAO, m_IBO);
 }
 
-std::vector<glm::vec3>& Mesh::getPositions()
+std::vector<glm::vec3> Mesh::getPositions() const
 {
 	std::vector<glm::vec3> output;
 	for (auto& p : m_data)

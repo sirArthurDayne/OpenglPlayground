@@ -26,6 +26,7 @@ void Renderer::Clear(const float r, const float g, const float b, float a)
 {
 	glClearColor(r, g, b, a);
 	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
 }
 
 void Renderer::Draw(const VertexArray* vao, const IndexBuffer* ibo) const

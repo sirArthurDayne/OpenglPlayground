@@ -29,10 +29,10 @@ struct Vertex
 class Mesh
 {
 public:
-	Mesh(std::vector<Vertex>& data, std::vector<unsigned int> indices);
+	Mesh(std::vector<Vertex> data, std::vector<unsigned int> indices);
 	void Draw(Renderer& renderer);
-	std::vector<glm::vec3> &getPositions();
-	~Mesh() {}
+	std::vector<glm::vec3> getPositions() const;
+	~Mesh();
 private:
 	VertexArray* m_VAO;
 	VertexBuffer* m_VBO;
