@@ -10,7 +10,8 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	m_cameraTarget(glm::vec3(0.0f)),
 	m_MyCamera (Camera(m_cameraPos, m_cameraTarget, glm::vec3(0.0f, 1.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, -1.0f))),
-	m_view(glm::mat4(1.0f)), m_ColorBase(glm::vec3(0.0f, 0.60f, 0.20f))
+	m_view(glm::mat4(1.0f)), m_ColorBase(glm::vec3(0.0f, 0.60f, 0.20f)),
+	m_lightPos(glm::vec3(0.0f,	1.0f, -1.0f)), m_lightColor(glm::vec3(1.0f))
 {
 	//enable all features
 	glEnable(GL_DEPTH_TEST);
@@ -99,14 +100,16 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	m_shader->SetUniform1i("u_texture0", 0);
 	m_shader->SetUniform1i("u_texture1", 1);
 	m_shader->Unbind();
-	//TEXTURES
 	m_texture = new Texture("rusty.png");
 	m_texture2 = new Texture("character.png");
+	m_lightShader = new Shader("shaders/LightSource.shader");
+	m_lightShader->Unbind();
+	//TEXTURES
 }
 
 test::MeshTest::~MeshTest()
 {
-	delete m_shader;
+	delete m_shader, m_lightShader;
 	delete m_texture;
 	delete m_texture2;
 	delete m_geo;
@@ -137,10 +140,24 @@ void test::MeshTest::OnRenderer()
 	m_view = m_MyCamera.GetViewMatrix();
 	glm::mat4 proy = glm::perspective(glm::radians(m_FOV), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 	glm::mat4 mvp = proy * m_view * model;
-	
 	//draw stuff
 	m_shader->SetUniformMat4f("u_mvp", mvp);
 	m_geo->Draw(renderer);
+
+	{//light sourceCube
+		m_lightShader->Bind();
+		m_lightShader->SetUniform3f("u_lightColor", m_lightColor.x, m_lightColor.y, m_lightColor.z);
+		glm::mat4 trans = glm::translate(glm::mat4(1.0f), m_lightPos);
+		glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
+		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.25f));
+
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), origin);
+		model *= trans * rotate * scale;
+		glm::mat4 mvp = proy * m_view * model;
+		m_lightShader->SetUniformMat4f("u_mvp", mvp);
+		m_geo->Draw(renderer);
+	}
+
 }
 
 void test::MeshTest::OnGuiRenderer()
@@ -149,6 +166,8 @@ void test::MeshTest::OnGuiRenderer()
 	ImGui::SliderFloat("FOV", &m_FOV, 30.0f, 90.0f);
 	ImGui::SliderFloat3("scale", &m_cubeScale.x, 1.0f, 3.0f);
 	ImGui::SliderFloat3("translation", &m_cubeTranslation.x, -10.0f, 10.0f);
-	ImGui::ColorEdit3("base color", &m_ColorBase.x);
+	ImGui::ColorEdit3("Base color", &m_ColorBase.x);
+	ImGui::SliderFloat3("LightColor", &m_lightPos.x, -10.0f, 10.0f);
+	ImGui::ColorEdit3("Light Color", &m_lightColor.x);
 	ImGui::End();
 }

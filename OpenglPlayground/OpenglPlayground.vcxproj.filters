@@ -18,6 +18,7 @@
     <None Include="shaders\Base.shader" />
     <None Include="shaders\Caleidoscope.shader" />
     <None Include="shaders\LightTest.shader" />
+    <None Include="shaders\LightSource.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\IndexBuffer.cpp">
