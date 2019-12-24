@@ -16,10 +16,8 @@ test::Texture3D::Texture3D(GLFWwindow*& win):
 	m_scale(glm::scale(glm::mat4(1.0f), glm::vec3(1.0f))),
 	m_translationVec(glm::vec3(0.0f)), m_scaleVec(1.0f, 1.0f, 1.0f),
 	m_deltaTime(0.0f), m_cameraSpeed(5.0f),
-	m_LastPos(glm::vec3(float(WIDTH) / 2.0f, float(HEIGHT) / 2.0f,0.0f)),
-	m_EulerRotation(glm::vec3(0.0f, 0.0f, 0.0f)),
 	MyCamera(Camera(m_cameraPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, -1.0f)))
+		glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(float(WIDTH)/2.0f, float(HEIGHT)/2.0f,0.0f)))
 {
 	glm::vec3 tri_pos[] =
 	{
@@ -125,7 +123,7 @@ glm::vec3(10.0f, -1.0f, 0.0f)
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_CW);
 	GLCALL(glfwSetInputMode(m_win, GLFW_CURSOR, GLFW_CURSOR_DISABLED));
-	glfwSetCursorPos(m_win, m_LastPos.x, m_LastPos.y);
+	glfwSetCursorPos(m_win,float(WIDTH)/2.0f, float(HEIGHT)/2.0f);
 	m_VAO = new VertexArray();
 	m_VL = new VertexLayout();
 	m_VL->Push<float>(3);//pos
@@ -225,22 +223,21 @@ void test::Texture3D::OnUserUpdate(float deltaTime)
 	float rollFactor = 0.0f;
 	Camera_Movement move = Camera_Movement::IDLE;
 	KeyboardMovement(move, rollFactor);
-	MouseMovement(mouseX, mouseY, rollFactor);
-	MyCamera.UpdateCamera(m_EulerRotation, move, m_cameraSpeed, deltaTime);
-
+	MyCamera.MouseMovement(mouseX, mouseY, rollFactor);
+	MyCamera.UpdateCamera(move, m_cameraSpeed, deltaTime);
 }
 
 void test::Texture3D::OnGuiRenderer()
 {
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	glm::vec3 pos = MyCamera.getPosition();
-	
+	glm::vec3 rot = MyCamera.getRotation();
 	ImGui::Begin("Move Cube!");
 	ImGui::SliderFloat("FOV", &m_FOV, 1.0f, 45.0f);
 	ImGui::SliderFloat3("world camera", &pos.x, -20.0f, 20.0f);
 	ImGui::SliderFloat3("translation", &m_translationVec.x, -10.0f, 10.0f);
 	ImGui::SliderFloat3("scale", &m_scaleVec.x, 0.50f, 3.0);
-	ImGui::SliderFloat3("pitch-yaw-roll", &m_EulerRotation.x, -90.0f, 90.0f);
+	ImGui::SliderFloat3("pitch-yaw-roll", &rot.x, -90.0f, 90.0f);
 	ImGui::SliderFloat("cameraSpeed", &m_cameraSpeed, 0.0f, 10.0f);
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
@@ -256,30 +253,3 @@ void test::Texture3D::KeyboardMovement(Camera_Movement& currentDirection, float&
 	else if (glfwGetKey(m_win, GLFW_KEY_RIGHT) == GLFW_PRESS) zOffset += 1.0f;
 	
 }
-
-void test::Texture3D::MouseMovement(const double& x, const double& y, float& z)
-{
-	//get distance from last frames & update
-	float offsetX = m_LastPos.x -float(x);
-	float offsetY = m_LastPos.y - float(y);
-	m_LastPos.x = float(x);
-	m_LastPos.y = float(y);
-
-	const float sensitivity = 0.15f;
-	offsetX *= sensitivity;
-	offsetY *= sensitivity;
-	const float offSetZ = z * sensitivity;
-
-
-	//add rotations
-	m_EulerRotation.y += offsetX;
-	m_EulerRotation.x += offsetY;
-	m_EulerRotation.z += offSetZ;
-	
-	//limit the pitch and roll
-	if (m_EulerRotation.x > 89.0f) m_EulerRotation.x = 89.0f;
-	else if (m_EulerRotation.x < -89.0f) m_EulerRotation.x = -89.0f;
-	if (m_EulerRotation.z > 89.0f) m_EulerRotation.z = 89.0f;
-	else if (m_EulerRotation.z < -89.0f) m_EulerRotation.z = -89.0f;
-}
-

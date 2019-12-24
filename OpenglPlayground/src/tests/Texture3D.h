@@ -19,7 +19,6 @@ namespace test
 		void OnUserUpdate(float deltaTime) override;
 		void OnGuiRenderer() override;
 		void KeyboardMovement(Camera_Movement& currentDirection, float& zOffset);
-		void MouseMovement(const double& x, const double& y, float& z);
 		friend void MouseCallBack(GLFWwindow* win, double& x, double& y);
 		friend void scrollCallback(GLFWwindow* win, double xoffset, double yoffset);
 	private:
@@ -37,7 +36,6 @@ namespace test
 		std::array<glm::vec3, 21> m_cubePos;
 		float m_deltaTime;
 		float m_cameraSpeed;
-		glm::vec3 m_LastPos, m_EulerRotation;
 		Camera MyCamera;
 	};
 }

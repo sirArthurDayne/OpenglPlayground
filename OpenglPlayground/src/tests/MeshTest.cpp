@@ -9,7 +9,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	m_cubeScale(glm::vec3(1.0f)),
 	m_cameraTarget(glm::vec3(0.0f)),
 	m_MyCamera (Camera(m_cameraPos, m_cameraTarget, glm::vec3(0.0f, 1.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, -1.0f))),
+		glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3((float)WIDTH /2.0f, (float)HEIGHT /2.0f, 0.0f))),
 	m_view(glm::mat4(1.0f)), m_ColorBase(glm::vec3(0.0f, 0.60f, 0.20f)),
 	m_lightPos(glm::vec3(0.0f,	1.0f, -1.0f)), m_lightColor(glm::vec3(1.0f))
 {
@@ -181,5 +181,6 @@ void test::MeshTest::OnGuiRenderer()
 	ImGui::Begin("Lighting");
 	ImGui::SliderFloat3("Light Position", &m_lightPos.x, -10.0f, 10.0f);
 	ImGui::ColorEdit3("Light Color", &m_lightColor.x);
+	ImGui::SliderFloat3("camera", &m_cameraPos.x, -20.0f, 20.0f);
 	ImGui::End();
 }
