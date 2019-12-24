@@ -3,7 +3,7 @@
 #include"../Renderer.h"
 #include "../VertexLayout.h"
 #include "../imgui/imgui.h"
-#include"../Vertex.h"
+#include"../Mesh.h"
 float zoom = 45.0f;
 
 test::Texture3D::Texture3D(GLFWwindow*& win):
@@ -128,7 +128,7 @@ glm::vec3(10.0f, -1.0f, 0.0f)
 	m_VL = new VertexLayout();
 	m_VL->Push<float>(3);//pos
 	m_VL->Push<float>(2);//texture
-
+	m_VL->Push<float>(3);//nor
 	m_VBO = new VertexBuffer(cube,  6 * 4 * sizeof(Vertex));
 	m_VAO->AddBuffer(*m_VBO, *m_VL);
 
@@ -138,7 +138,7 @@ glm::vec3(10.0f, -1.0f, 0.0f)
 	m_shader->SetUniform1i("u_texture0", 0);
 	m_shader->SetUniform1i("u_texture1", 1);
 	//TEXTURES
-	m_texture = new Texture("fabric.png");
+	m_texture = new Texture("mosaic.png");
 	m_texture2 = new Texture("piratelogo.png");
 
 	//UNBOUND EVERYTHING
