@@ -25,9 +25,9 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 		{glm::vec3(1.0f, -1.0f, -1.0f) / 2.0f},//3
 
 		{glm::vec3(-1.0f, -1.0f,1.0f) / 2.0f},//4
-		{glm::vec3(-1.0f,1.0f,1.0f) / 2.0f	},//5
+		{glm::vec3(-1.0f,1.0f,1.0f) / 2.0f},//5
 		{glm::vec3(1.0f,1.0f,1.0f) / 2.0f	},//6
-		{glm::vec3(1.0f,-1.0f,1.0f) / 2.0f	},//7
+		{glm::vec3(1.0f,-1.0f,1.0f) / 2.0f},//7
 	};
 	glm::vec2 tex_pos[] =
 	{
@@ -36,38 +36,48 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 		{glm::vec2(0.0f, 1.0f)},//2
 		{glm::vec2(1.0f, 1.0f)},//3
 	};
+	//TODO: FIND NORMALS THAT WORK 
+	glm::vec3 tri_normals[] =
+	{
+		{glm::normalize(tri_pos[4] - tri_pos[5])},//bottom
+		{glm::normalize(tri_pos[4] - tri_pos[7])},//left
+		{glm::normalize(tri_pos[7] - tri_pos[4])},//right
+		{glm::normalize(tri_pos[0] - tri_pos[4])},//back
+		{glm::normalize(tri_pos[4] - tri_pos[0])},//front
+		{glm::normalize(tri_pos[5] - tri_pos[4])},//top
+	};
 	std::vector<Vertex> data =//pos, tex, norm
 	{
 		//bottom
-		{tri_pos[0],tex_pos[2]},//0
-		{tri_pos[1],tex_pos[0]},//1
-		{tri_pos[2],tex_pos[1]},//2
-		{tri_pos[3],tex_pos[3]},//3
+		{tri_pos[0],tex_pos[2],tri_normals[0]},//0
+		{tri_pos[1],tex_pos[0],tri_normals[0]},//1
+		{tri_pos[2],tex_pos[1],tri_normals[0]},//2
+		{tri_pos[3],tex_pos[3],tri_normals[0]},//3
 		//left
-		{tri_pos[0],tex_pos[2]},//4
-		{tri_pos[4],tex_pos[0]},//5
-		{tri_pos[5],tex_pos[1]},//6
-		{tri_pos[1],tex_pos[3]},//7
+		{tri_pos[0],tex_pos[2],tri_normals[1]},//4
+		{tri_pos[4],tex_pos[0],tri_normals[1]},//5
+		{tri_pos[5],tex_pos[1],tri_normals[1]},//6
+		{tri_pos[1],tex_pos[3],tri_normals[1]},//7
 		//right
-		{tri_pos[2],tex_pos[2]},//8
-		{tri_pos[6],tex_pos[0]},//9
-		{tri_pos[7],tex_pos[1]},//10
-		{tri_pos[3],tex_pos[3]},//11
+		{tri_pos[2],tex_pos[2],tri_normals[2]},//8
+		{tri_pos[6],tex_pos[0],tri_normals[2]},//9
+		{tri_pos[7],tex_pos[1],tri_normals[2]},//10
+		{tri_pos[3],tex_pos[3],tri_normals[2]},//11
 		//back
-		{tri_pos[1],tex_pos[2]},//12
-		{tri_pos[5],tex_pos[0]},//13
-		{tri_pos[6],tex_pos[1]},//14
-		{tri_pos[2],tex_pos[3]},//15
+		{tri_pos[1],tex_pos[2],tri_normals[3]},//12
+		{tri_pos[5],tex_pos[0],tri_normals[3]},//13
+		{tri_pos[6],tex_pos[1],tri_normals[3]},//14
+		{tri_pos[2],tex_pos[3],tri_normals[3]},//15
 		//front
-		{tri_pos[0],tex_pos[2]},//16
-		{tri_pos[4],tex_pos[0]},//17
-		{tri_pos[7],tex_pos[1]},//18
-		{tri_pos[3],tex_pos[3]},//19
+		{tri_pos[0],tex_pos[2],tri_normals[4]},//16
+		{tri_pos[4],tex_pos[0],tri_normals[4]},//17
+		{tri_pos[7],tex_pos[1],tri_normals[4]},//18
+		{tri_pos[3],tex_pos[3],tri_normals[4]},//19
 		//top
-		{tri_pos[4],tex_pos[2]},//20
-		{tri_pos[5],tex_pos[0]},//21
-		{tri_pos[6],tex_pos[1]},//22
-		{tri_pos[7],tex_pos[3]},//23
+		{tri_pos[4],tex_pos[2],tri_normals[5]},//20
+		{tri_pos[5],tex_pos[0],tri_normals[5]},//21
+		{tri_pos[6],tex_pos[1],tri_normals[5]},//22
+		{tri_pos[7],tex_pos[3],tri_normals[5]},//23
 	};
 
 	std::vector<unsigned int> indices =
@@ -96,15 +106,15 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	m_geo = new Mesh(data, indices);
 	
 	//setup shaders and textures
-	m_shader = new Shader("shaders/LightTest.shader");
+	m_shader = new Shader("shaders/LightObject.shader");
 	m_shader->SetUniform1i("u_texture0", 0);
 	m_shader->SetUniform1i("u_texture1", 1);
 	m_shader->Unbind();
+	
 	m_texture = new Texture("rusty.png");
 	m_texture2 = new Texture("character.png");
 	m_lightShader = new Shader("shaders/LightSource.shader");
 	m_lightShader->Unbind();
-	//TEXTURES
 }
 
 test::MeshTest::~MeshTest()
@@ -129,10 +139,11 @@ void test::MeshTest::OnRenderer()
 	m_shader->Bind();
 	m_shader->SetUniform1f("u_time", float(glfwGetTime()));
 	m_shader->SetUniform3f("u_colorBase", m_ColorBase.x, m_ColorBase.y, m_ColorBase.z);
+	m_shader->SetUniform3f("u_lightPosition", m_lightPos.x, m_lightPos.y, m_lightPos.z);
 	//update stuff
 	//TODO: Send data to Mesh class and return ModelMatrix
 	glm::mat4 trans = glm::translate(glm::mat4(1.0f), m_cubeTranslation);
-	glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(10.0f)  * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
+	glm::mat4 rotate =  glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
 	glm::mat4 scale = glm::scale(glm::mat4(1.0f), m_cubeScale);
 
 	glm::mat4 model = glm::translate(glm::mat4(1.0f), origin);
@@ -142,32 +153,33 @@ void test::MeshTest::OnRenderer()
 	glm::mat4 mvp = proy * m_view * model;
 	//draw stuff
 	m_shader->SetUniformMat4f("u_mvp", mvp);
+	m_shader->SetUniformMat4f("u_model", model);
+	m_shader->SetUniform3f("u_lightColor", m_lightColor.x, m_lightColor.y, m_lightColor.z);
 	m_geo->Draw(renderer);
-
 	{//light sourceCube
 		m_lightShader->Bind();
 		m_lightShader->SetUniform3f("u_lightColor", m_lightColor.x, m_lightColor.y, m_lightColor.z);
 		glm::mat4 trans = glm::translate(glm::mat4(1.0f), m_lightPos);
-		glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
+		glm::mat4 rotate = glm::mat4(1.0f);// glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.25f));
-
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), origin);
 		model *= trans * rotate * scale;
 		glm::mat4 mvp = proy * m_view * model;
 		m_lightShader->SetUniformMat4f("u_mvp", mvp);
 		m_geo->Draw(renderer);
 	}
-
 }
 
 void test::MeshTest::OnGuiRenderer()
 {
-	ImGui::Begin("Transformations");
+	ImGui::Begin("Affine Transforms");
 	ImGui::SliderFloat("FOV", &m_FOV, 30.0f, 90.0f);
 	ImGui::SliderFloat3("scale", &m_cubeScale.x, 1.0f, 3.0f);
 	ImGui::SliderFloat3("translation", &m_cubeTranslation.x, -10.0f, 10.0f);
 	ImGui::ColorEdit3("Base color", &m_ColorBase.x);
-	ImGui::SliderFloat3("LightColor", &m_lightPos.x, -10.0f, 10.0f);
+	ImGui::End();
+	ImGui::Begin("Lighting");
+	ImGui::SliderFloat3("Light Position", &m_lightPos.x, -10.0f, 10.0f);
 	ImGui::ColorEdit3("Light Color", &m_lightColor.x);
 	ImGui::End();
 }

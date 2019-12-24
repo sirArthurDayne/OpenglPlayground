@@ -186,12 +186,6 @@ void test::Texture3D::OnRenderer()
 	renderer.Clear(0.10f, 0.10f, 0.80f);
 	glClear( GL_DEPTH_BUFFER_BIT);
 	
-	m_FOV = zoom;
-	double mouseX = 0.0f;
-	double mouseY = 0.0f;
-	MouseCallBack(m_win, mouseX, mouseY);
-	glfwSetScrollCallback(m_win, scrollCallback);
-	
 	//shader binding and uniform sending data
 	m_texture->Bind();
 	m_texture2->Bind(1);
@@ -201,12 +195,6 @@ void test::Texture3D::OnRenderer()
 	m_shader->SetUniform1f("u_time", float(glfwGetTime()));
 
 	
-	//camera input and update
-	float rollFactor = 0.0f;
-	Camera_Movement move = Camera_Movement::IDLE;
-	KeyboardMovement(move, rollFactor);
-	MouseMovement(mouseX, mouseY, rollFactor);
-	MyCamera.UpdateCamera(m_EulerRotation, move, m_cameraSpeed, m_deltaTime);
 	m_view = MyCamera.GetViewMatrix();
 
 	//draw the cubes
@@ -227,7 +215,19 @@ void test::Texture3D::OnRenderer()
 
 void test::Texture3D::OnUserUpdate(float deltaTime)
 {
-	m_deltaTime = deltaTime;
+	m_FOV = zoom;
+	double mouseX = 0.0f;
+	double mouseY = 0.0f;
+	MouseCallBack(m_win, mouseX, mouseY);
+	glfwSetScrollCallback(m_win, scrollCallback);
+
+	//camera input and update
+	float rollFactor = 0.0f;
+	Camera_Movement move = Camera_Movement::IDLE;
+	KeyboardMovement(move, rollFactor);
+	MouseMovement(mouseX, mouseY, rollFactor);
+	MyCamera.UpdateCamera(m_EulerRotation, move, m_cameraSpeed, deltaTime);
+
 }
 
 void test::Texture3D::OnGuiRenderer()
@@ -277,7 +277,9 @@ void test::Texture3D::MouseMovement(const double& x, const double& y, float& z)
 	m_EulerRotation.z += offSetZ;
 	
 	//limit the pitch and roll
-	std::clamp(m_EulerRotation.x, -89.0f, 89.0f);		
-	std::clamp(m_EulerRotation.z, -89.0f, 89.0f);	
+	if (m_EulerRotation.x > 89.0f) m_EulerRotation.x = 89.0f;
+	else if (m_EulerRotation.x < -89.0f) m_EulerRotation.x = -89.0f;
+	if (m_EulerRotation.z > 89.0f) m_EulerRotation.z = 89.0f;
+	else if (m_EulerRotation.z < -89.0f) m_EulerRotation.z = -89.0f;
 }
 

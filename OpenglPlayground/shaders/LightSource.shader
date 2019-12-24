@@ -25,7 +25,6 @@ void main()
 layout(location = 0) out vec4 color;
 
 uniform vec3 u_lightColor;
-
 in vec2 v_textureCoord;
 in vec4 v_position;
 in vec3 v_normal;
