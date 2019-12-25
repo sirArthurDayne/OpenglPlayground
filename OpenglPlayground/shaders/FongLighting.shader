@@ -6,8 +6,9 @@ layout(location = 1) in vec2 textureCoord;
 layout(location = 2) in vec3 normal;
 
 uniform mat4 u_model;
-uniform mat4 u_mvp;
+uniform mat4 u_rotation;
 
+uniform mat4 u_mvp;
 out vec4 v_position;
 out vec2 v_textureCoord;
 out vec3 v_normal;
@@ -18,6 +19,7 @@ void main()
 	v_position = u_model * position;
 	v_textureCoord = textureCoord;
 	v_normal = mat3(transpose(inverse(u_model))) * normal;
+	//v_normal = vec3(u_rotation * vec4(v_normal, 1.0f));
 }
 
 
@@ -59,13 +61,14 @@ void main()
 	float specularIntensity = 0.5f;
 	vec3 camera = u_viewPosition;
 	vec3 cameraDir = normalize(camera - vec3(v_position));
-	vec3 reflectDir = reflect(-lightDir, norm);
+	vec3 reflectDir = normalize(reflect(-lightDir, norm));
 
-	float spec = pow(max(dot(cameraDir, reflectDir), 0.0f), 128);
+	float spec = pow(max(dot(cameraDir, reflectDir), 0.0f), 256);
+	//float spec = sin(length(distance(vec3(v_position), lightPos)));
 	vec3 specular = specularIntensity * spec * u_lightColor;
 
 
-	vec3 output = userColor * (ambient + diffuse + specular);
+	vec3 output = (userColor + specular) * (ambient + diffuse);
 	color = vec4(output, 1.0f);
 }
 

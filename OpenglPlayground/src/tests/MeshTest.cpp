@@ -4,7 +4,7 @@
 
 test::MeshTest::MeshTest(GLFWwindow*& win) :
 	m_win(win),
-	m_cameraPos(glm::vec3(glm::vec3(0.0f, 0.0f, 5.0f))),
+	m_cameraPos(glm::vec3(glm::vec3(0.0f, 0.0f, 15.0f))),
 	m_cubeTranslation(glm::vec3(0.0f)),
 	m_cubeScale(glm::vec3(1.0f)),
 	m_cameraTarget(glm::vec3(0.0f)),
@@ -19,15 +19,15 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	//setup data
 	glm::vec3 tri_pos[] =
 	{
-		{glm::vec3(-1.0f, -1.0f, -1.0f) / 2.0f},//0
-		{glm::vec3(-1.0f, 1.0f, -1.0f) / 2.0f},//1
-		{glm::vec3(1.0f, 1.0f,-1.0f) / 2.0f},//2
-		{glm::vec3(1.0f, -1.0f, -1.0f) / 2.0f},//3
+		{glm::vec3(-1.0f, -1.0f, 1.0f)},//0
+		{glm::vec3(-1.0f, -1.0f, -1.0f)},//1
+		{glm::vec3(1.0f, -1.0f,-1.0f)},//2
+		{glm::vec3(1.0f, -1.0f, 1.0f)},//3
 
-		{glm::vec3(-1.0f, -1.0f,1.0f) / 2.0f},//4
-		{glm::vec3(-1.0f,1.0f,1.0f) / 2.0f},//5
-		{glm::vec3(1.0f,1.0f,1.0f) / 2.0f	},//6
-		{glm::vec3(1.0f,-1.0f,1.0f) / 2.0f},//7
+		{glm::vec3(-1.0f, 1.0f,1.0f)},//4
+		{glm::vec3(-1.0f,1.0f,-1.0f)},//5
+		{glm::vec3(1.0f,1.0f,-1.0f)},//6
+		{glm::vec3(1.0f,1.0f,1.0f)},//7
 	};
 	glm::vec2 tex_pos[] =
 	{
@@ -39,67 +39,67 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	//TODO: FIND NORMALS THAT WORK 
 	glm::vec3 tri_normals[] =
 	{
-		{tri_pos[4] - tri_pos[5]},//bottom
-		{tri_pos[4] - tri_pos[7]},//left
-		{tri_pos[7] - tri_pos[4]},//right
-		{tri_pos[0] - tri_pos[4]},//back
-		{tri_pos[4] - tri_pos[0]},//front
-		{tri_pos[5] - tri_pos[4]},//top
+		{0.0f,-1.0f,0.0f},//bottom
+		{-1.0f,0.0f,0.0f},//left
+		{1.0f,0.0f,0.0f},//right
+		{0.0f,0.0f,-1.0f},//back
+		{0.0f,0.0f,1.0f},//front
+		{0.0f,1.0f,0.0f},//top
 	};
 	std::vector<Vertex> data =//pos, tex, norm
 	{
 		//bottom
-		{tri_pos[0],tex_pos[2],tri_normals[0]},//0
-		{tri_pos[1],tex_pos[0]},//1
-		{tri_pos[2],tex_pos[1]},//2
-		{tri_pos[3],tex_pos[3]},//3
+		{tri_pos[2],tex_pos[0],tri_normals[0]},//0
+		{tri_pos[1],tex_pos[1],tri_normals[0]},//1
+		{tri_pos[3],tex_pos[2],tri_normals[0]},//2
+		{tri_pos[0],tex_pos[3],tri_normals[0]},//3
 		//left
-		{tri_pos[0],tex_pos[2],tri_normals[1]},//4
-		{tri_pos[4],tex_pos[0]},//5
-		{tri_pos[5],tex_pos[1]},//6
-		{tri_pos[1],tex_pos[3]},//7
+		{tri_pos[5],tex_pos[0],tri_normals[1]},//4
+		{tri_pos[4],tex_pos[1],tri_normals[1]},//5
+		{tri_pos[1],tex_pos[2],tri_normals[1]},//6
+		{tri_pos[0],tex_pos[3],tri_normals[1]},//7
 		//right
-		{tri_pos[2],tex_pos[2],tri_normals[2]},//8
-		{tri_pos[6],tex_pos[0]},//9
-		{tri_pos[7],tex_pos[1]},//10
-		{tri_pos[3],tex_pos[3]},//11
+		{tri_pos[7],tex_pos[0],tri_normals[2]},//8
+		{tri_pos[6],tex_pos[1],tri_normals[2]},//9
+		{tri_pos[3],tex_pos[2],tri_normals[2]},//10
+		{tri_pos[2],tex_pos[3],tri_normals[2]},//11
 		//back
-		{tri_pos[1],tex_pos[2],tri_normals[3]},//12
-		{tri_pos[5],tex_pos[0]},//13
-		{tri_pos[6],tex_pos[1]},//14
-		{tri_pos[2],tex_pos[3]},//15
+		{tri_pos[6],tex_pos[0],tri_normals[3]},//12
+		{tri_pos[5],tex_pos[1],tri_normals[3]},//13
+		{tri_pos[2],tex_pos[2],tri_normals[3]},//14
+		{tri_pos[1],tex_pos[3],tri_normals[3]},//15
 		//front
-		{tri_pos[0],tex_pos[2],tri_normals[4]},//16
-		{tri_pos[4],tex_pos[0]},//17
-		{tri_pos[7],tex_pos[1]},//18
-		{tri_pos[3],tex_pos[3]},//19
+		{tri_pos[4],tex_pos[0],tri_normals[4]},//16
+		{tri_pos[7],tex_pos[1],tri_normals[4]},//17
+		{tri_pos[0],tex_pos[2],tri_normals[4]},//18
+		{tri_pos[3],tex_pos[3],tri_normals[4]},//19
 		//top
-		{tri_pos[4],tex_pos[2],tri_normals[5]},//20
-		{tri_pos[5],tex_pos[0]},//21
-		{tri_pos[6],tex_pos[1]},//22
-		{tri_pos[7],tex_pos[3]},//23
+		{tri_pos[5],tex_pos[0],tri_normals[5]},//20
+		{tri_pos[6],tex_pos[1],tri_normals[5]},//21
+		{tri_pos[4],tex_pos[2],tri_normals[5]},//22
+		{tri_pos[7],tex_pos[3],tri_normals[5]},//23
 	};
 
 	std::vector<unsigned int> indices =
 	{
 		//bottom
-		0,1,2,
-		3,0,2,
+		2,0,1,
+		2,1,3,
 		//left
-		4,5,6,
-		7,4,6,
+		6,4,5,
+		6,5,7,
 		//right
-		8,9,10,
-		11,8,10,
+		10,8,9,
+		10,9,11,
 		//back
-		12,13,14,
-		15,12,14,
+		14,12,13,
+		14,13,15,
 		//front
-		16,17,18,
-		19,16,18,
+		18,16,17,
+		18,17,19,
 		//top
-		20,21,22,
-		23,20,22
+		22,20,21,
+		22,21,23
 	};
 
 	//setup mesh
@@ -153,6 +153,7 @@ void test::MeshTest::OnRenderer()
 	//draw stuff
 	m_fongLightShader->SetUniformMat4f("u_mvp", mvp);
 	m_fongLightShader->SetUniformMat4f("u_model", model);
+	m_fongLightShader->SetUniformMat4f("u_rotation", rotate);
 	m_fongLightShader->SetUniform3f("u_lightColor", m_lightColor.x, m_lightColor.y, m_lightColor.z);
 	m_fongLightShader->SetUniform3f("u_viewPosition", m_cameraPos.x, m_cameraPos.y, m_cameraPos.z);
 	m_geo->Draw(renderer);
@@ -178,7 +179,8 @@ void test::MeshTest::OnUserUpdate(float deltaTime)
 	m_MyCamera.UpdateCamera(move, 0.0f, deltaTime);
 	m_view = m_MyCamera.GetViewMatrix();
 	m_lightPos.x = sin(float(glfwGetTime())) * 2.0f + 1.0f;
-	m_lightPos.y = sin(float(glfwGetTime() / 2.0f)) * 2.0f;
+	//m_lightPos.y = sin(float(glfwGetTime() / 2.0f)) * 2.0f + 1.0f;
+	m_lightPos.z = cos(float(glfwGetTime())) * 2.0f + 4.0f;
 }
 
 void test::MeshTest::OnGuiRenderer()
