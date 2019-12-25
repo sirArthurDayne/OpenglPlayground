@@ -20,6 +20,7 @@ public:
 	void MouseMovement(const float x, const float y, const float z);
 	glm::vec3 getPosition() const { return m_position; }
 	glm::vec3 getRotation() const { return m_rotations; }
+	void setPosition(glm::vec3 pos) { m_position = pos; }
 private:
 	glm::vec3 m_position, m_target, m_front, m_rotations, m_LastPointAtXY;
 	glm::mat4 m_rotationMat;

@@ -12,6 +12,7 @@ namespace test
 		MeshTest(GLFWwindow* &win);
 		~MeshTest();
 		void OnRenderer() override;
+		void OnUserUpdate(float deltaTime) override;
 		void OnGuiRenderer() override;
 	private:
 		GLFWwindow*& m_win;
@@ -19,7 +20,7 @@ namespace test
 		glm::vec3 m_lightPos, m_lightColor;
 		Camera m_MyCamera;
 		Mesh* m_geo;
-		Shader* m_shader, *m_lightShader;
+		Shader* m_fongLightShader, *m_lightSourceShader;
 		Texture* m_texture;
 		Texture *m_texture2;
 		glm::mat4 m_view;
