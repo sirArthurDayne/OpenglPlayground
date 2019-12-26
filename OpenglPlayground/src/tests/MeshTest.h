@@ -5,7 +5,11 @@
 #include "../Shader.h"
 #include "../Texture.h"
 namespace test
-{	
+{
+	enum class Lighting
+	{
+		PHONG, GOURAUD
+	};
 	class MeshTest : public Test
 	{
 	public:
@@ -14,17 +18,20 @@ namespace test
 		void OnRenderer() override;
 		void OnUserUpdate(float deltaTime) override;
 		void OnGuiRenderer() override;
+		void BindSelectedShader(Lighting& option);
+		void UpdateScene(Shader* shader);
 	private:
 		GLFWwindow*& m_win;
 		glm::vec3 m_cameraPos, m_cameraTarget, m_cubeTranslation, m_cubeScale;
 		glm::vec3 m_lightPos, m_lightColor;
 		Camera m_MyCamera;
 		Mesh* m_geo;
-		Shader* m_fongLightShader, *m_lightSourceShader;
+		Shader* m_fongLightShader, *m_lightSourceShader, *m_gouraudLightShader;
 		Texture* m_texture;
 		Texture *m_texture2;
 		glm::mat4 m_view;
 		float m_FOV = 45.0f;
 		glm::vec3 m_ColorBase;
+		bool m_isGouraudEnable = false;
 	};
 }

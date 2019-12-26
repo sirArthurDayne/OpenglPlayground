@@ -36,7 +36,6 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 		{glm::vec2(0.0f, 1.0f)},//2
 		{glm::vec2(1.0f, 1.0f)},//3
 	};
-	//TODO: FIND NORMALS THAT WORK 
 	glm::vec3 tri_normals[] =
 	{
 		{0.0f,-1.0f,0.0f},//bottom
@@ -108,10 +107,12 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	//setup shaders and textures
 	m_fongLightShader = new Shader("shaders/FongLighting.shader");
 	m_lightSourceShader = new Shader("shaders/LightSource.shader");
+	m_gouraudLightShader = new Shader("shaders/GouraudLighting.shader");
 	m_fongLightShader->SetUniform1i("u_texture0", 0);
 	m_fongLightShader->SetUniform1i("u_texture1", 1);
 	m_fongLightShader->Unbind();
 	m_lightSourceShader->Unbind();
+	m_gouraudLightShader->Unbind();
 	
 	m_texture = new Texture("rusty.png");
 	m_texture2 = new Texture("character.png");
@@ -119,7 +120,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 
 test::MeshTest::~MeshTest()
 {
-	delete m_fongLightShader, m_lightSourceShader;
+	delete m_fongLightShader, m_lightSourceShader, m_gouraudLightShader;
 	delete m_texture;
 	delete m_texture2;
 	delete m_geo;
@@ -132,30 +133,14 @@ void test::MeshTest::OnRenderer()
 {
 	Renderer renderer;
 	renderer.Clear(0.0f, 0.0, 0.0f);
-	glm::vec3 origin = glm::vec3(0.0f);
 	//bind stuff
 	m_texture->Bind();
 	m_texture2->Bind(1);
-	m_fongLightShader->Bind();
-	m_fongLightShader->SetUniform1f("u_time", float(glfwGetTime()));
-	m_fongLightShader->SetUniform3f("u_colorBase", m_ColorBase.x, m_ColorBase.y, m_ColorBase.z);
-	m_fongLightShader->SetUniform3f("u_lightPosition", m_lightPos.x, m_lightPos.y, m_lightPos.z);
-	//update stuff
-	//TODO: Send data to Mesh class and return ModelMatrix
-	glm::mat4 trans  = glm::translate(glm::mat4(1.0f), m_cubeTranslation);
-	glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
-	glm::mat4 scale  = glm::scale(glm::mat4(1.0f), m_cubeScale);
-	glm::mat4 model  = glm::translate(glm::mat4(1.0f), origin);
-	model *= trans * rotate * scale;
+
 	
-	glm::mat4 proy = glm::perspective(glm::radians(m_FOV), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-	glm::mat4 mvp = proy * m_view * model;
-	//draw stuff
-	m_fongLightShader->SetUniformMat4f("u_mvp", mvp);
-	m_fongLightShader->SetUniformMat4f("u_model", model);
-	m_fongLightShader->SetUniformMat4f("u_rotation", rotate);
-	m_fongLightShader->SetUniform3f("u_lightColor", m_lightColor.x, m_lightColor.y, m_lightColor.z);
-	m_fongLightShader->SetUniform3f("u_viewPosition", m_cameraPos.x, m_cameraPos.y, m_cameraPos.z);
+	Lighting lightState = m_isGouraudEnable ? Lighting::GOURAUD : Lighting::PHONG;
+	BindSelectedShader(lightState);
+	
 	m_geo->Draw(renderer);
 	
 	{//light sourceCube
@@ -164,8 +149,9 @@ void test::MeshTest::OnRenderer()
 		glm::mat4 trans = glm::translate(glm::mat4(1.0f), m_lightPos);
 		glm::mat4 rotate = glm::mat4(1.0f);// glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.25f));
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), origin);
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
 		model *= trans * rotate * scale;
+		glm::mat4 proy = glm::perspective(glm::radians(m_FOV), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 		glm::mat4 mvp = proy * m_view * model;
 		m_lightSourceShader->SetUniformMat4f("u_mvp", mvp);
 		m_geo->Draw(renderer);
@@ -192,8 +178,46 @@ void test::MeshTest::OnGuiRenderer()
 	ImGui::ColorEdit3("Base color", &m_ColorBase.x);
 	ImGui::End();
 	ImGui::Begin("Lighting");
+	ImGui::Checkbox("Gouraud",&m_isGouraudEnable);
 	ImGui::SliderFloat3("Light Position", &m_lightPos.x, -10.0f, 10.0f);
 	ImGui::ColorEdit3("Light Color", &m_lightColor.x);
 	ImGui::SliderFloat3("camera", &m_cameraPos.x, -20.0f, 20.0f);
 	ImGui::End();
+}
+
+void test::MeshTest::BindSelectedShader(Lighting& option)
+{
+	if (option == Lighting::PHONG)
+	{
+		m_fongLightShader->Bind();
+		UpdateScene(m_fongLightShader);
+			
+	}
+	else if (option == Lighting::GOURAUD)
+	{
+		m_gouraudLightShader->Bind();
+		UpdateScene(m_gouraudLightShader);
+	}
+}
+
+void test::MeshTest::UpdateScene(Shader* shader)
+{
+	//TODO: Send data to Mesh class and return ModelMatrix
+	glm::mat4 trans  = glm::translate(glm::mat4(1.0f), m_cubeTranslation);
+	glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
+	glm::mat4 scale  = glm::scale(glm::mat4(1.0f), m_cubeScale);
+	glm::mat4 model  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
+	model *= trans * rotate * scale;
+	
+	glm::mat4 proy = glm::perspective(glm::radians(m_FOV), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+	glm::mat4 mvp = proy * m_view * model;
+	
+	//shader->SetUniform1f("u_time", float(glfwGetTime()));
+	shader->SetUniform3f("u_colorBase", m_ColorBase.x, m_ColorBase.y, m_ColorBase.z);
+	shader->SetUniform3f("u_lightPosition", m_lightPos.x, m_lightPos.y, m_lightPos.z);
+	shader->SetUniformMat4f("u_mvp", mvp);
+	shader->SetUniformMat4f("u_model", model);
+	shader->SetUniform3f("u_lightColor", m_lightColor.x, m_lightColor.y, m_lightColor.z);
+	shader->SetUniform3f("u_viewPosition", m_cameraPos.x, m_cameraPos.y, m_cameraPos.z);
+	
 }

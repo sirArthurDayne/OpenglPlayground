@@ -73,16 +73,16 @@ int main(void)
 	currentTest = test_menu;
 	test_menu->AddTest <test::Texture2D>("2D Orthographic + Texture");
 	test_menu->AddTest<test::Texture3D>("3D Perspective + Texture");
-	test_menu->AddTest<test::MeshTest>("Mesh + Light Source");
+	test_menu->AddTest<test::MeshTest>("Phong & Gouldard Lighting");
 	
 	Renderer renderer;
 	while (!glfwWindowShouldClose(mainWindow))
 	{
 		renderer.Clear(0.0f, 0.0f, 0.0f, 1.0f);
 		//get dt
-		float currentFrame = float(glfwGetTime());
-		delta_time = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+		const float current_frame = float(glfwGetTime());
+		delta_time = current_frame - lastFrame;
+		lastFrame = current_frame;
 		
 		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();

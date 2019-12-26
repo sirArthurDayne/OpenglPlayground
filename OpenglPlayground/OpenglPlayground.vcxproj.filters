@@ -19,6 +19,7 @@
     <None Include="shaders\Caleidoscope.shader" />
     <None Include="shaders\LightSource.shader" />
     <None Include="shaders\FongLighting.shader" />
+    <None Include="shaders\GouraudLighting.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\IndexBuffer.cpp">
