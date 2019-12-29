@@ -51,19 +51,20 @@ void main()
 	vec3 lightPos = u_lightPosition;
 	vec3 lightDir = normalize(lightPos - vec3(v_position));
 		
-	float ambientIntensity = 1.f;
+	float ambientIntensity = 0.20f;
 	vec3 ambient = u_lightColor * ambientIntensity;
 	
 	float diffuseIntensity = max(dot(norm,lightDir), 0.0f);
 	vec3 diffuse = u_lightColor * diffuseIntensity;
 	
 
-	float specularIntensity = 0.5f;
+	float specularIntensity = 0.85f;
 	vec3 camera = u_viewPosition;
-	vec3 cameraDir = normalize(camera - vec3(v_position));
+	//vec3 cameraDir = normalize(camera - vec3(v_position));
+	vec3 cameraDir = normalize(camera + norm);
 	vec3 reflectDir = normalize(reflect(-lightDir, norm));
 
-	float spec = pow(max(dot(cameraDir, reflectDir), 0.0f), 256);
+	float spec = pow(max(dot(cameraDir, reflectDir), 0.0f), 128);
 	//float spec = sin(length(distance(vec3(v_position), lightPos)));
 	vec3 specular = specularIntensity * spec * u_lightColor;
 

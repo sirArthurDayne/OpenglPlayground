@@ -31,7 +31,7 @@ void main()
 	vec3 lightDir = normalize(u_lightPosition - vec3(v_position));
 	vec3 reflectDir = normalize(reflect(-lightDir, v_normal));
 
-	float ambientIntensity = 1.0f;
+	float ambientIntensity = 0.60f;
 	vec3 ambient = ambientIntensity * u_lightColor;
 	
 	float diffuseIntensity = max(dot(v_normal, lightDir), 0.0f);
