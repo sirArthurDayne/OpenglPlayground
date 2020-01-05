@@ -102,9 +102,9 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	};
 
 	//setup light object
-	m_geo = new Mesh(data, indices);
+	m_lightCube = new Mesh(data, indices);
 	//setup model
-	m_MyModel = new Model("models/icosaedro.txt");
+	m_MyModel = new Model("models/teapot.obj");
 	
 	//setup shaders and textures
 	m_fongLightShader = new Shader("shaders/FongLighting.shader");
@@ -125,7 +125,7 @@ test::MeshTest::~MeshTest()
 	delete m_fongLightShader, m_lightSourceShader, m_gouraudLightShader;
 	delete m_texture;
 	delete m_texture2;
-	delete m_geo, m_MyModel;
+	delete m_lightCube, m_MyModel;
 	//set default enviroment
 	glDisable(GL_DEPTH_TEST);
 	glFrontFace(GL_CCW);
@@ -155,7 +155,7 @@ void test::MeshTest::OnRenderer()
 		glm::mat4 proy = glm::perspective(glm::radians(m_FOV), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 		glm::mat4 mvp = proy * m_view * model;
 		m_lightSourceShader->SetUniformMat4f("u_mvp", mvp);
-		m_geo->Draw(renderer);
+		m_lightCube->Draw(renderer);
 	}
 }
 

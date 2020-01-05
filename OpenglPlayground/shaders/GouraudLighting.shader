@@ -26,22 +26,26 @@ void main()
 	//calculate camera
 	vec3 camera = u_viewPosition;
 	vec3 cameraDir = normalize(camera - vec3(v_position));
+	//vec3 cameraDir = normalize(camera + v_normal);
 
 	//calculate lighting
 	vec3 lightDir = normalize(u_lightPosition - vec3(v_position));
 	vec3 reflectDir = normalize(reflect(-lightDir, v_normal));
 
-	float ambientIntensity = 0.60f;
+	float ambientIntensity = 0.20f;
 	vec3 ambient = ambientIntensity * u_lightColor;
 	
+	float diffuseInt = 0.40f;
 	float diffuseIntensity = max(dot(v_normal, lightDir), 0.0f);
-	vec3 diffuse = diffuseIntensity * u_lightColor;
+	vec3 diffuse = diffuseInt * diffuseIntensity * u_lightColor;
 
-	float specularIntensity = 0.5f;
-	float spec = pow(max(dot(cameraDir, reflectDir), 0.0f), 512);
-	vec3 specular = specularIntensity * spec * u_lightColor;
-	
-	v_outputColor = (u_colorBase + specular) * (ambient * diffuse);
+	float specularIntensity = 0.55f;
+	float spec = pow(max(dot(cameraDir, reflectDir), 0.0f), 128);
+	//float spec = sin(length(distance(vec3(v_position), u_lightPosition)));
+	float facing = dot(v_normal, lightDir) > 0.0f ? 1.0f : 0.0f;
+	vec3 specular = specularIntensity * spec * u_lightColor * facing;
+
+	v_outputColor = u_colorBase * (ambient + diffuse) + specular;
 }
 
 #shader fragment

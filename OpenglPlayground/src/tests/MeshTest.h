@@ -27,7 +27,7 @@ namespace test
 		glm::vec3 m_cameraPos, m_cameraTarget, m_cubeTranslation, m_cubeScale;
 		glm::vec3 m_lightPos, m_lightColor;
 		Camera m_MyCamera;
-		Mesh* m_geo;
+		Mesh* m_lightCube;
 		Shader* m_fongLightShader, *m_lightSourceShader, *m_gouraudLightShader;
 		Texture* m_texture;
 		Texture *m_texture2;
