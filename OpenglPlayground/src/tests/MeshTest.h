@@ -4,6 +4,8 @@
 #include"../camera.h"
 #include "../Shader.h"
 #include "../Texture.h"
+#include "../Model.h"
+
 namespace test
 {
 	enum class Lighting
@@ -33,5 +35,6 @@ namespace test
 		float m_FOV = 45.0f;
 		glm::vec3 m_ColorBase;
 		bool m_isGouraudEnable = false;
+		Model* m_MyModel;
 	};
 }

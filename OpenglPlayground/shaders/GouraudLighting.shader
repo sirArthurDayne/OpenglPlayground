@@ -38,7 +38,7 @@ void main()
 	vec3 diffuse = diffuseIntensity * u_lightColor;
 
 	float specularIntensity = 0.5f;
-	float spec = pow(max(dot(cameraDir, reflectDir), 0.0f), 256);
+	float spec = pow(max(dot(cameraDir, reflectDir), 0.0f), 512);
 	vec3 specular = specularIntensity * spec * u_lightColor;
 	
 	v_outputColor = (u_colorBase + specular) * (ambient * diffuse);

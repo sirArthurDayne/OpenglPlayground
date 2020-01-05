@@ -10,7 +10,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	m_cameraTarget(glm::vec3(0.0f)),
 	m_MyCamera (Camera(m_cameraPos, m_cameraTarget, glm::vec3(0.0f, 1.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3((float)WIDTH /2.0f, (float)HEIGHT /2.0f, 0.0f))),
-	m_view(glm::mat4(1.0f)), m_ColorBase(glm::vec3(0.0f, 0.60f, 0.20f)),
+	m_view(glm::mat4(1.0f)), m_ColorBase(glm::vec3(0.40f, 0.60f, 0.10f)),
 	m_lightPos(glm::vec3(0.0f,	1.0f, -1.0f)), m_lightColor(glm::vec3(1.0f))
 {
 	//enable all features
@@ -101,8 +101,10 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 		22,21,23
 	};
 
-	//setup mesh
+	//setup light object
 	m_geo = new Mesh(data, indices);
+	//setup model
+	m_MyModel = new Model("models/icosaedro.txt");
 	
 	//setup shaders and textures
 	m_fongLightShader = new Shader("shaders/FongLighting.shader");
@@ -123,7 +125,7 @@ test::MeshTest::~MeshTest()
 	delete m_fongLightShader, m_lightSourceShader, m_gouraudLightShader;
 	delete m_texture;
 	delete m_texture2;
-	delete m_geo;
+	delete m_geo, m_MyModel;
 	//set default enviroment
 	glDisable(GL_DEPTH_TEST);
 	glFrontFace(GL_CCW);
@@ -140,8 +142,7 @@ void test::MeshTest::OnRenderer()
 	
 	Lighting lightState = m_isGouraudEnable ? Lighting::GOURAUD : Lighting::PHONG;
 	BindSelectedShader(lightState);
-	
-	m_geo->Draw(renderer);
+	m_MyModel->DrawModel(renderer);
 	
 	{//light sourceCube
 		m_lightSourceShader->Bind();

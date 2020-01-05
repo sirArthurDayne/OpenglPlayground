@@ -29,7 +29,7 @@ void main()
 layout(location = 0) out vec4 color;
 
 //uniform float u_time;
-//uniform sampler2D u_texture0;
+uniform sampler2D u_texture0;
 //uniform sampler2D u_texture1;
 uniform vec3 u_colorBase;
 uniform vec3 u_lightPosition;
@@ -45,6 +45,7 @@ void main()
 	//vec4 texColor = texture(u_texture0, v_textureCoord);
 	//vec4 texColor1 = texture(u_texture1, v_textureCoord);
 	
+	//vec3 userColor = u_colorBase * vec3(texColor);
 	vec3 userColor = u_colorBase;
 	vec3 norm = normalize(v_normal);
 
@@ -66,7 +67,9 @@ void main()
 
 	float spec = pow(max(dot(cameraDir, reflectDir), 0.0f), 128);
 	//float spec = sin(length(distance(vec3(v_position), lightPos)));
-	vec3 specular = specularIntensity * spec * u_lightColor;
+	float facing = dot(v_normal, lightDir) > 0.0f ? 1.0f : 0.0f;
+
+	vec3 specular = specularIntensity * spec * u_lightColor * facing;
 
 
 	vec3 output = (vec3(userColor) + specular) * (ambient + diffuse);
