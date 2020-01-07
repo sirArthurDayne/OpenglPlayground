@@ -34,6 +34,7 @@ void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		auto [vertices, indices] = ProcessMesh(mesh, scene);
+		m_meshVec.reserve(7);//TODO: elimnate this necesity to pre-allocate memory 
 		m_meshVec.emplace_back(vertices, indices);
 	}
 	

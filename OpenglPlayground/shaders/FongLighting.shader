@@ -17,8 +17,10 @@ void main()
 	gl_Position = u_mvp * position;
 	v_position = u_model * position;
 	v_textureCoord = textureCoord;
-	v_normal = mat3(transpose(inverse(u_model))) * vec3(normalize(position));
-	//v_normal = mat3(transpose(inverse(u_model))) * normalize(normal);
+	//smooth shading
+	//v_normal = mat3(transpose(inverse(u_model))) * vec3(normalize(position));
+	//flat shading
+	v_normal = mat3(transpose(inverse(u_model))) * normalize(normal);
 }
 
 
