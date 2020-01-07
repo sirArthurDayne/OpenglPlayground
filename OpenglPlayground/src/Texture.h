@@ -1,6 +1,14 @@
 ﻿#pragma once
 #include <string>
 
+enum class TextureType
+{
+	UNKNOW,
+	AMBIENT,
+	DIFFUSE,
+	SPECULAR,
+	NORMAL,
+};
 
 class Texture
 {
@@ -11,7 +19,8 @@ public:
 	void Unbind() const;
 	int GetWidth() const { return m_width; }
 	int GetHeight() const { return m_height; }
-	std::string m_type;
+	std::string GetPath() const { return m_path; }
+	TextureType m_type;
 private:
 	unsigned int m_rendererID;
 	std::string m_path;

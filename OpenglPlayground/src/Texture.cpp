@@ -28,7 +28,7 @@ Texture::Texture(const std::string& path) : m_rendererID(0), m_path(path),
 		//GLCALL(glGenerateMipmap(GL_TEXTURE_2D));
 		Unbind();
 		stbi_image_free(m_bufferData);
-		std::cout << "texture loaded!";
+		std::cout << "texture loaded! ->" << m_path << std::endl;
 	}
 	else std::cout << "FAILED TO LOAD TEXTURE, path:" << m_path;
 }

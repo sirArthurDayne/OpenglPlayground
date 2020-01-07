@@ -2,17 +2,22 @@
 #include <iostream>
 #include "glm.hpp"
 
-Model::Model(const std::string path, bool gamma) :
-	m_path(path), m_gammaCorrection(gamma)
+Model::Model(const std::string path, bool hasMaterials) :
+	m_path(path), m_gammaCorrection(hasMaterials)
 {
+	m_directory = m_path.substr(0, m_path.find_last_of('/') + 1);
+	int end = m_path.find_last_of('.')-1;
+	int start = m_path.find_last_of('/');
+	m_fileName = m_path.substr(m_path.find_last_of('/')+1, end - start);
+	
 	if (path!= "")
 		LoadModel();
 }
 
 Model::~Model()
 {
-	m_meshVec.clear();
-	m_textureVec.clear();
+	m_meshLoaded.clear();
+	m_textureLoaded.clear();
 }
 
 void Model::LoadModel()
@@ -23,9 +28,11 @@ void Model::LoadModel()
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
 		std::cout << "ERROR model path:" << m_path <<"\n error-->" << importer.GetErrorString() << std::endl;
+		importer.FreeScene();
 		return;
 	}
 	ProcessNodes(scene->mRootNode, scene);
+	importer.FreeScene();
 }
 
 void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
@@ -34,8 +41,8 @@ void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		auto [vertices, indices] = ProcessMesh(mesh, scene);
-		m_meshVec.reserve(7);//TODO: elimnate this necesity to pre-allocate memory 
-		m_meshVec.emplace_back(vertices, indices);
+		m_meshLoaded.reserve(7);//TODO: elimnate this necesity to pre-allocate memory 
+		m_meshLoaded.emplace_back(vertices, indices);
 	}
 	
 	//recursily repeat process for child nodes
@@ -48,6 +55,7 @@ void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
 {
 	std::vector<Vertex> out_vertices;
 	std::vector<unsigned int> out_indices;
+	std::vector<Texture> out_textures;
 
 	//vertex data
 	for (int i = 0; i < mesh->mNumVertices; i++)
@@ -82,17 +90,58 @@ void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
 				out_indices.push_back(face.mIndices[j]);
 		}
 
-	//prepare materialsTextures reading
+	//prepare materials/Textures data
+	if (mesh->mMaterialIndex >= 0)
+	{
+		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
+		std::vector<Texture> diffuseMaps = LoadMaterialsTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+		out_textures.insert(out_textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+	}	
 
-	
 	//make pair
 	return {out_vertices, out_indices};
 }
 
+std::vector<Texture> Model::LoadMaterialsTextures(aiMaterial* material, aiTextureType type, std::string materialName)
+{
+	std::vector<Texture> out_vec;
+
+	for (unsigned int i = 0; i < material->GetTextureCount(type); i++)
+	{
+		aiString textureFileName;
+		material->GetTexture(type, i, &textureFileName);
+		
+		bool exits = false;
+		std::string fullpath = m_directory + textureFileName.C_Str();
+		//compare for existing texture file
+		for (auto& tex: m_textureLoaded)
+		{
+			if (tex.GetPath() == fullpath)
+			{
+				out_vec.push_back(tex);
+				exits = true;
+				break;
+			}
+		}
+
+		//if the texture doesnt exits 
+		if (!exits)
+		{
+			Texture t(fullpath);
+			if (type == aiTextureType_DIFFUSE) t.m_type = TextureType::DIFFUSE;
+			else if (type == aiTextureType_AMBIENT) t.m_type = TextureType::AMBIENT;
+			else if (type == aiTextureType_SPECULAR) t.m_type = TextureType::SPECULAR;
+			out_vec.push_back(t);
+			m_textureLoaded.push_back(t);
+		}
+	}
+	return out_vec;
+}
+
 void Model::DrawModel(Renderer& renderer)
 {
-	for (auto& mesh : m_meshVec)
+	for (auto& mesh : m_meshLoaded)
 		mesh.Draw(renderer);
 }
 

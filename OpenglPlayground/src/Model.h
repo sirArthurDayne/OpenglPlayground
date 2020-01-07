@@ -13,7 +13,7 @@
 class Model
 {
 public:
-	Model(const std::string path, bool gamma = false);
+	Model(const std::string path, bool hasMaterials = false);
 	~Model();
 	void DrawModel(Renderer& renderer);
 private:
@@ -21,10 +21,11 @@ private:
 	void ProcessNodes(const aiNode * node, const aiScene* scene);
 	std::pair<std::vector<Vertex>,std::vector<unsigned int>>
 	ProcessMesh(const aiMesh* mesh, const aiScene* scene);
+	std::vector<Texture> LoadMaterialsTextures(aiMaterial* material, aiTextureType type, std::string materialName);
 	
 private:
-	std::vector<Mesh> m_meshVec;
-	std::vector<Texture> m_textureVec;
-	std::string m_path;
+	std::vector<Mesh> m_meshLoaded;
+	std::vector<Texture> m_textureLoaded;
+	std::string m_path, m_directory, m_fileName;
 	bool m_gammaCorrection;
 };

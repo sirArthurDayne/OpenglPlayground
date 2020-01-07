@@ -30,9 +30,18 @@ void main()
 
 layout(location = 0) out vec4 color;
 
-//uniform float u_time;
+struct Material
+{
+	vec3 ka;
+	vec3 kd;
+	vec3 ks;
+	float shininess;
+};
+//uniform Material material;
+
 uniform sampler2D u_texture0;
 //uniform sampler2D u_texture1;
+
 uniform vec3 u_colorBase;
 uniform vec3 u_lightPosition;
 uniform vec3 u_lightColor;
