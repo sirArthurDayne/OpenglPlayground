@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <string>
 
+
 class Texture
 {
 public:
@@ -8,8 +9,9 @@ public:
 	~Texture();
 	void Bind(unsigned int slot = 0) const;
 	void Unbind() const;
-	inline int GetWidth() const { return m_width; }
-	inline int GetHeight() const { return m_height; }
+	int GetWidth() const { return m_width; }
+	int GetHeight() const { return m_height; }
+	std::string m_type;
 private:
 	unsigned int m_rendererID;
 	std::string m_path;

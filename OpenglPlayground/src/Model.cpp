@@ -81,6 +81,11 @@ void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
 			for (unsigned int j = 0; j < face.mNumIndices; j++)
 				out_indices.push_back(face.mIndices[j]);
 		}
+
+	//prepare materialsTextures reading
+
+
+	
 	//make pair
 	return {out_vertices, out_indices};
 }

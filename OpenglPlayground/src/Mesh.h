@@ -25,15 +25,19 @@ struct Vertex
 	normal(glm::vec3(0.0f)) {}
 };
 
+struct Material
+{
+	glm::vec3 ambient;//ka
+	glm::vec3 diffuse;//kd
+	glm::vec3 specular;//ks
+	float shininess;//sh
+};
 
 class Mesh
 {
 public:
 	Mesh(std::vector<Vertex> data, std::vector<unsigned int> indices);
 	void Draw(Renderer& renderer);
-	std::vector<glm::vec3> getPositions() const;
-	//glm::mat4 getModelMatrix();
-	//void UpdateModelMatrix();
 	~Mesh();
 private:
 	VertexArray* m_VAO;
