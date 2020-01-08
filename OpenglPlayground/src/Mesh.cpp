@@ -21,6 +21,25 @@ Mesh::Mesh(std::vector<Vertex> data, std::vector<unsigned> indices) :
 	
 }
 
+Mesh::Mesh(std::vector<Vertex> data, std::vector<unsigned int> indices, std::vector<Texture> textures) :
+	m_data(data), m_indices(indices), m_textures(textures)
+{
+		//setup the mesh for opengl
+	m_VAO = new VertexArray();
+	m_VL = new VertexLayout();
+	m_VL->Push<float>(3);//pos
+	m_VL->Push<float>(2);//tex
+	m_VL->Push<float>(3);//nor
+
+	m_VBO = new VertexBuffer(&m_data[0], m_data.size() * sizeof(Vertex));
+	m_VAO->AddBuffer(*m_VBO,*m_VL);
+	m_IBO = new IndexBuffer(&m_indices[0], m_indices.size());
+	//unbind and wait for signal
+	m_VAO->Unbind();
+	m_VBO->Unbind();
+	m_IBO->Unbind();
+}
+
 
 Mesh::~Mesh()
 {
@@ -31,6 +50,7 @@ Mesh::~Mesh()
 	delete m_VAO;
 	m_data.clear();
 	m_indices.clear();
+	m_textures.clear();
 }
 
 

@@ -14,8 +14,8 @@ Texture::Texture(const std::string& path) : m_rendererID(0), m_path(path),
 	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 	
 	//horizontal and vertical texture render
-	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP));
-	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP));
+	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));//default:GL_CLAMP
+	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
 
 	//always flip because of openGL texture coords system,(0,0) at bottom-left
 	stbi_set_flip_vertically_on_load(1);
@@ -24,8 +24,8 @@ Texture::Texture(const std::string& path) : m_rendererID(0), m_path(path),
 	
 	if (m_bufferData)
 	{
-		GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_bufferData));
-		//GLCALL(glGenerateMipmap(GL_TEXTURE_2D));
+		GLCALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_bufferData));
+		GLCALL(glGenerateMipmap(GL_TEXTURE_2D));
 		Unbind();
 		stbi_image_free(m_bufferData);
 		std::cout << "texture loaded! ->" << m_path << std::endl;

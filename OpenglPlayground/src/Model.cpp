@@ -40,7 +40,7 @@ void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		auto [vertices, indices] = ProcessMesh(mesh, scene);
+		auto [vertices,indices,textures] = ProcessMesh(mesh, scene);
 		m_meshLoaded.reserve(7);//TODO: elimnate this necesity to pre-allocate memory 
 		m_meshLoaded.emplace_back(vertices, indices);
 	}
@@ -50,7 +50,7 @@ void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
 		ProcessNodes(node->mChildren[j], scene);
 }
 
-	std::pair<std::vector<Vertex>,std::vector<unsigned int>>
+	std::tuple<std::vector<Vertex>,std::vector<unsigned int>,std::vector<Texture>>
 	Model::ProcessMesh(const aiMesh* mesh, const aiScene* scene)
 {
 	std::vector<Vertex> out_vertices;
@@ -82,13 +82,13 @@ void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
 	}
 	
 	//indices data
-		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
-		{
-			const aiFace face = mesh->mFaces[i];
-			// retrieve all indices of the face and store them in the indices vector
-			for (unsigned int j = 0; j < face.mNumIndices; j++)
-				out_indices.push_back(face.mIndices[j]);
-		}
+	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+	{
+		const aiFace face = mesh->mFaces[i];
+		// retrieve all indices of the face and store them in the indices vector
+		for (unsigned int j = 0; j < face.mNumIndices; j++)
+			out_indices.push_back(face.mIndices[j]);
+	}
 
 	//prepare materials/Textures data
 	if (mesh->mMaterialIndex >= 0)
@@ -99,8 +99,8 @@ void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
 		out_textures.insert(out_textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 	}	
 
-	//make pair
-	return {out_vertices, out_indices};
+	//make tuple
+	return {out_vertices,out_indices,out_textures};
 }
 
 std::vector<Texture> Model::LoadMaterialsTextures(aiMaterial* material, aiTextureType type, std::string materialName)
@@ -124,7 +124,6 @@ std::vector<Texture> Model::LoadMaterialsTextures(aiMaterial* material, aiTextur
 				break;
 			}
 		}
-
 		//if the texture doesnt exits 
 		if (!exits)
 		{

@@ -1,10 +1,8 @@
 ﻿#pragma once
 #include"glm.hpp"
 #include "VertexLayout.h"
+#include "Texture.h"
 
-//#include "assimp/Importer.hpp"
-//#include"assimp/scene.h"
-//#include"assimp/postprocess.h"
 
 struct Vertex
 {
@@ -37,6 +35,7 @@ class Mesh
 {
 public:
 	Mesh(std::vector<Vertex> data, std::vector<unsigned int> indices);
+	Mesh(std::vector<Vertex> data, std::vector<unsigned int> indices, std::vector<Texture> textures);
 	void Draw(Renderer& renderer);
 	~Mesh();
 private:
@@ -46,4 +45,5 @@ private:
 	IndexBuffer* m_IBO;
 	std::vector<Vertex> m_data;
 	std::vector<unsigned int> m_indices;
+	std::vector<Texture> m_textures;
 };

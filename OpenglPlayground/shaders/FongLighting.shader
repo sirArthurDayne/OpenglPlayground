@@ -53,11 +53,11 @@ in vec4 v_position;
 in vec3 v_normal;
 void main()
 {
-	//vec4 texColor = texture(u_texture0, v_textureCoord);
+	vec4 texColor = texture(u_texture0, v_textureCoord);
 	//vec4 texColor1 = texture(u_texture1, v_textureCoord);
 	
-	//vec3 userColor = u_colorBase * vec3(texColor);
-	vec3 userColor = u_colorBase;
+	vec3 userColor = u_colorBase * vec3(texColor);
+	//vec3 userColor = u_colorBase;
 	vec3 norm = normalize(v_normal);
 
 	vec3 lightPos = u_lightPosition;

@@ -19,10 +19,10 @@ public:
 private:
 	void LoadModel();
 	void ProcessNodes(const aiNode * node, const aiScene* scene);
-	std::pair<std::vector<Vertex>,std::vector<unsigned int>>
+	std::tuple<std::vector<Vertex>,std::vector<unsigned int>,std::vector<Texture>>
 	ProcessMesh(const aiMesh* mesh, const aiScene* scene);
 	std::vector<Texture> LoadMaterialsTextures(aiMaterial* material, aiTextureType type, std::string materialName);
-	
+		
 private:
 	std::vector<Mesh> m_meshLoaded;
 	std::vector<Texture> m_textureLoaded;
