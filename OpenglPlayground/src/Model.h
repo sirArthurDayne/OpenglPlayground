@@ -13,19 +13,18 @@
 class Model
 {
 public:
-	Model(const std::string path, bool hasMaterials = false);
+	Model(const std::string path);
 	~Model();
-	void DrawModel(Renderer& renderer);
+	void DrawModel(Renderer& renderer, Shader* shader);
 private:
 	void LoadModel();
 	void ProcessNodes(const aiNode * node, const aiScene* scene);
-	std::tuple<std::vector<Vertex>,std::vector<unsigned int>,std::vector<Texture>>
+	std::tuple<std::vector<Vertex>,std::vector<unsigned int>,std::vector<TextureData>>
 	ProcessMesh(const aiMesh* mesh, const aiScene* scene);
-	std::vector<Texture> LoadMaterialsTextures(aiMaterial* material, aiTextureType type, std::string materialName);
+	std::vector<TextureData> LoadMaterialsTextures(aiMaterial* material, aiTextureType type, std::string materialName);
 		
 private:
 	std::vector<Mesh> m_meshLoaded;
-	std::vector<Texture> m_textureLoaded;
+	std::vector<TextureData> m_textureLoaded;
 	std::string m_path, m_directory, m_fileName;
-	bool m_gammaCorrection;
 };

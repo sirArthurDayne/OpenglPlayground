@@ -21,8 +21,8 @@ Mesh::Mesh(std::vector<Vertex> data, std::vector<unsigned> indices) :
 	
 }
 
-Mesh::Mesh(std::vector<Vertex> data, std::vector<unsigned int> indices, std::vector<Texture> textures) :
-	m_data(data), m_indices(indices), m_textures(textures)
+Mesh::Mesh(std::vector<Vertex> data, std::vector<unsigned int> indices, std::vector<TextureData> textures) :
+	m_data(data), m_indices(indices), m_texDataVec(textures)
 {
 		//setup the mesh for opengl
 	m_VAO = new VertexArray();
@@ -38,6 +38,7 @@ Mesh::Mesh(std::vector<Vertex> data, std::vector<unsigned int> indices, std::vec
 	m_VAO->Unbind();
 	m_VBO->Unbind();
 	m_IBO->Unbind();
+	LoadTextures();
 }
 
 
@@ -53,8 +54,29 @@ Mesh::~Mesh()
 	m_textures.clear();
 }
 
-
-void Mesh::Draw(Renderer& renderer)
+void Mesh::LoadTextures()
 {
+	for(auto data : m_texDataVec)
+	{
+		//Texture t(data.path);
+		//t.m_type = data.type;
+		m_textures.emplace_back(data.path).m_type=data.type;
+	}
+}
+
+
+void Mesh::Draw(Renderer& renderer, Shader* shader)
+{
+	unsigned int i = 0;
+	unsigned int diffNum = 1;
+	for(auto& texture : m_textures)
+	{
+		std::string uniformName;
+		if (texture.m_type == TextureType::DIFFUSE)
+			uniformName += "u_texture_diffuse_" + std::to_string(diffNum++);
+		
+		shader->SetUniform1i(uniformName, i);
+		texture.Bind(i++);
+	}
 	renderer.Draw(m_VAO, m_IBO);
 }

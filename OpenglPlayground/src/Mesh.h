@@ -2,7 +2,7 @@
 #include"glm.hpp"
 #include "VertexLayout.h"
 #include "Texture.h"
-
+#include "Shader.h"
 
 struct Vertex
 {
@@ -31,14 +31,22 @@ struct Material
 	float shininess;//sh
 };
 
+
+struct TextureData
+{
+	std::string path;
+	TextureType type;
+};
+
 class Mesh
 {
 public:
 	Mesh(std::vector<Vertex> data, std::vector<unsigned int> indices);
-	Mesh(std::vector<Vertex> data, std::vector<unsigned int> indices, std::vector<Texture> textures);
-	void Draw(Renderer& renderer);
+	Mesh(std::vector<Vertex> data, std::vector<unsigned int> indices, std::vector<TextureData> textures);
+	void Draw(Renderer& renderer, Shader* shader);
 	~Mesh();
 private:
+	void LoadTextures();
 	VertexArray* m_VAO;
 	VertexBuffer* m_VBO;
 	VertexLayout* m_VL;
@@ -46,4 +54,5 @@ private:
 	std::vector<Vertex> m_data;
 	std::vector<unsigned int> m_indices;
 	std::vector<Texture> m_textures;
+	std::vector<TextureData> m_texDataVec;
 };

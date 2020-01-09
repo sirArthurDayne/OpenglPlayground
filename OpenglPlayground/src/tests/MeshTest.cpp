@@ -110,14 +110,14 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	m_fongLightShader = new Shader("shaders/FongLighting.shader");
 	m_lightSourceShader = new Shader("shaders/LightSource.shader");
 	m_gouraudLightShader = new Shader("shaders/GouraudLighting.shader");
-	m_fongLightShader->SetUniform1i("u_texture0", 0);
-	m_fongLightShader->SetUniform1i("u_texture1", 1);
+	//m_fongLightShader->SetUniform1i("u_texture0", 0);
+	//m_fongLightShader->SetUniform1i("u_texture1", 1);
 	m_fongLightShader->Unbind();
 	m_lightSourceShader->Unbind();
 	m_gouraudLightShader->Unbind();
 	
-	m_texture = new Texture("rusty.png");
-	m_texture2 = new Texture("character.png");
+	//m_texture = new Texture("rusty.png");
+	//m_texture2 = new Texture("character.png");
 }
 
 test::MeshTest::~MeshTest()
@@ -136,13 +136,13 @@ void test::MeshTest::OnRenderer()
 	Renderer renderer;
 	renderer.Clear(0.0f, 0.0, 0.0f);
 	//bind stuff
-	m_texture->Bind();
-	m_texture2->Bind(1);
+	//m_texture->Bind();
+	//m_texture2->Bind(1);
 
 	
 	Lighting lightState = m_isGouraudEnable ? Lighting::GOURAUD : Lighting::PHONG;
 	BindSelectedShader(lightState);
-	m_MyModel->DrawModel(renderer);
+	m_MyModel->DrawModel(renderer, m_fongLightShader);
 	
 	{//light sourceCube
 		m_lightSourceShader->Bind();
@@ -155,7 +155,7 @@ void test::MeshTest::OnRenderer()
 		glm::mat4 proy = glm::perspective(glm::radians(m_FOV), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 		glm::mat4 mvp = proy * m_view * model;
 		m_lightSourceShader->SetUniformMat4f("u_mvp", mvp);
-		m_lightCube->Draw(renderer);
+		m_lightCube->Draw(renderer, m_lightSourceShader);
 	}
 }
 

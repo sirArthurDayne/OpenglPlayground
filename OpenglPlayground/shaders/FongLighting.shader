@@ -39,8 +39,10 @@ struct Material
 };
 //uniform Material material;
 
-uniform sampler2D u_texture0;
-//uniform sampler2D u_texture1;
+//uniform sampler2D u_texture0;
+uniform sampler2D u_texture_diffuse_0;
+uniform sampler2D u_texture_diffuse_1;
+
 
 uniform vec3 u_colorBase;
 uniform vec3 u_lightPosition;
@@ -53,17 +55,16 @@ in vec4 v_position;
 in vec3 v_normal;
 void main()
 {
-	vec4 texColor = texture(u_texture0, v_textureCoord);
-	//vec4 texColor1 = texture(u_texture1, v_textureCoord);
-	
-	vec3 userColor = u_colorBase * vec3(texColor);
-	//vec3 userColor = u_colorBase;
 	vec3 norm = normalize(v_normal);
+	vec4 texColor = texture(u_texture_diffuse_0, v_textureCoord);
+	//vec4 texColor1 = texture(u_texture_diffuse_1, v_textureCoord);
+	
+	vec3 userColor = vec3(texColor);
 
 	vec3 lightPos = u_lightPosition;
 	vec3 lightDir = normalize(lightPos - vec3(v_position));
 		
-	float ambientIntensity = 0.20f;
+	float ambientIntensity = 0.90f;
 	vec3 ambient = u_lightColor * ambientIntensity;
 	
 	float diffuseInt = 0.40f;
