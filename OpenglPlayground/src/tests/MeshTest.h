@@ -29,8 +29,6 @@ namespace test
 		Camera m_MyCamera;
 		Mesh* m_lightCube;
 		Shader* m_fongLightShader, *m_lightSourceShader, *m_gouraudLightShader;
-		Texture* m_texture;
-		Texture *m_texture2;
 		glm::mat4 m_view;
 		float m_FOV = 45.0f;
 		glm::vec3 m_ColorBase;

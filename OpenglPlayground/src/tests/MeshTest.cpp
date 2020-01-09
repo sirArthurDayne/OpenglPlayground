@@ -110,21 +110,15 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	m_fongLightShader = new Shader("shaders/FongLighting.shader");
 	m_lightSourceShader = new Shader("shaders/LightSource.shader");
 	m_gouraudLightShader = new Shader("shaders/GouraudLighting.shader");
-	//m_fongLightShader->SetUniform1i("u_texture0", 0);
-	//m_fongLightShader->SetUniform1i("u_texture1", 1);
 	m_fongLightShader->Unbind();
 	m_lightSourceShader->Unbind();
 	m_gouraudLightShader->Unbind();
 	
-	//m_texture = new Texture("rusty.png");
-	//m_texture2 = new Texture("character.png");
 }
 
 test::MeshTest::~MeshTest()
 {
 	delete m_fongLightShader, m_lightSourceShader, m_gouraudLightShader;
-	delete m_texture;
-	delete m_texture2;
 	delete m_lightCube, m_MyModel;
 	//set default enviroment
 	glDisable(GL_DEPTH_TEST);
@@ -136,9 +130,6 @@ void test::MeshTest::OnRenderer()
 	Renderer renderer;
 	renderer.Clear(0.0f, 0.0, 0.0f);
 	//bind stuff
-	//m_texture->Bind();
-	//m_texture2->Bind(1);
-
 	
 	Lighting lightState = m_isGouraudEnable ? Lighting::GOURAUD : Lighting::PHONG;
 	BindSelectedShader(lightState);
@@ -205,7 +196,8 @@ void test::MeshTest::UpdateScene(Shader* shader)
 {
 	//TODO: Send data to Mesh class and return ModelMatrix
 	glm::mat4 trans  = glm::translate(glm::mat4(1.0f), m_cubeTranslation);
-	glm::mat4 rotate = glm::mat4(1.0f);// glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
+	//glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
+	glm::mat4 rotate = glm::mat4(1.0f);
 	glm::mat4 scale  = glm::scale(glm::mat4(1.0f), m_cubeScale);
 	glm::mat4 model  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
 	model *= trans * rotate * scale;

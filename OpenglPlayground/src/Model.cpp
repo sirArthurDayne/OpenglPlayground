@@ -23,7 +23,7 @@ Model::~Model()
 void Model::LoadModel()
 {
 	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(m_path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals| aiProcess_CalcTangentSpace);
+	const aiScene* scene = importer.ReadFile(m_path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals| aiProcess_CalcTangentSpace | aiProcess_JoinIdenticalVertices);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -97,6 +97,8 @@ void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
 
 		std::vector<TextureData> diffuseMaps = LoadMaterialsTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 		out_textures.insert(out_textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+		std::vector<TextureData> specularMaps = LoadMaterialsTextures(material, aiTextureType_SPECULAR, "texture_diffuse");
+		out_textures.insert(out_textures.end(), specularMaps.begin(), specularMaps.end());
 	}	
 
 	//make tuple
@@ -130,8 +132,7 @@ std::vector<TextureData> Model::LoadMaterialsTextures(aiMaterial* material, aiTe
 			TextureData tex;
 			tex.path = fullpath;
 			if (type == aiTextureType_DIFFUSE) tex.type = TextureType::DIFFUSE;
-			//else if (type == aiTextureType_AMBIENT) t.m_type = TextureType::AMBIENT;
-			//else if (type == aiTextureType_SPECULAR) t.m_type = TextureType::SPECULAR;
+			else if (type == aiTextureType_SPECULAR) tex.type = TextureType::SPECULAR;
 
 			out_vec.push_back(tex);
 			m_textureLoaded.push_back(tex);

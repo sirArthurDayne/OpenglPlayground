@@ -39,10 +39,8 @@ struct Material
 };
 //uniform Material material;
 
-//uniform sampler2D u_texture0;
-uniform sampler2D u_texture_diffuse_0;
 uniform sampler2D u_texture_diffuse_1;
-
+uniform sampler2D u_texture_specular_1;
 
 uniform vec3 u_colorBase;
 uniform vec3 u_lightPosition;
@@ -56,15 +54,15 @@ in vec3 v_normal;
 void main()
 {
 	vec3 norm = normalize(v_normal);
-	vec4 texColor = texture(u_texture_diffuse_0, v_textureCoord);
-	//vec4 texColor1 = texture(u_texture_diffuse_1, v_textureCoord);
-	
-	vec3 userColor = vec3(texColor);
+	vec4 texDiffuseColor = texture(u_texture_diffuse_1, v_textureCoord);
+	vec4 texSpecularColor = texture(u_texture_specular_1, v_textureCoord);
+
+	vec3 userColor = vec3(texDiffuseColor);
 
 	vec3 lightPos = u_lightPosition;
 	vec3 lightDir = normalize(lightPos - vec3(v_position));
 		
-	float ambientIntensity = 0.90f;
+	float ambientIntensity = 0.40f;
 	vec3 ambient = u_lightColor * ambientIntensity;
 	
 	float diffuseInt = 0.40f;
@@ -80,7 +78,7 @@ void main()
 	float spec = pow(max(dot(cameraDir, reflectDir), 0.0f), 128);
 	//float spec = sin(length(distance(vec3(v_position), lightPos)));
 	float facing = dot(v_normal, lightDir) > 0.0f ? 1.0f : 0.0f;
-	vec3 specular = specularIntensity * spec * u_lightColor * facing;
+	vec3 specular = specularIntensity * spec * u_lightColor * facing * vec3(texSpecularColor);
 
 	vec3 output = userColor * (ambient + diffuse) + specular;
 	color = vec4(output, 1.0f);

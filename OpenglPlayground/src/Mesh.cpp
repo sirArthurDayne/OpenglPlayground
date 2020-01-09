@@ -56,12 +56,9 @@ Mesh::~Mesh()
 
 void Mesh::LoadTextures()
 {
-	for(auto data : m_texDataVec)
-	{
-		//Texture t(data.path);
-		//t.m_type = data.type;
+	m_textures.reserve(4);
+	for(auto& data : m_texDataVec)
 		m_textures.emplace_back(data.path).m_type=data.type;
-	}
 }
 
 
@@ -69,12 +66,18 @@ void Mesh::Draw(Renderer& renderer, Shader* shader)
 {
 	unsigned int i = 0;
 	unsigned int diffNum = 1;
+	unsigned int specNum = 1;
 	for(auto& texture : m_textures)
 	{
 		std::string uniformName;
 		if (texture.m_type == TextureType::DIFFUSE)
+		{
 			uniformName += "u_texture_diffuse_" + std::to_string(diffNum++);
-		
+		}
+		else if (texture.m_type == TextureType::SPECULAR)
+		{
+			uniformName += "u_texture_specular_" + std::to_string(specNum++);
+		}
 		shader->SetUniform1i(uniformName, i);
 		texture.Bind(i++);
 	}
