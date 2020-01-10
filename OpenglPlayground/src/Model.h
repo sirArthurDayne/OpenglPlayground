@@ -21,7 +21,7 @@ private:
 	void ProcessNodes(const aiNode * node, const aiScene* scene);
 	std::tuple<std::vector<Vertex>,std::vector<unsigned int>,std::vector<TextureData>>
 	ProcessMesh(const aiMesh* mesh, const aiScene* scene);
-	std::vector<TextureData> LoadMaterialsTextures(aiMaterial* material, aiTextureType type, std::string materialName);
+	std::vector<TextureData> LoadMaterialsTextures(aiMaterial* material, aiTextureType type);
 		
 private:
 	std::vector<Mesh> m_meshLoaded;

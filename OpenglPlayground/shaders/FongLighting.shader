@@ -4,6 +4,9 @@
 layout(location = 0) in vec4 position;
 layout(location = 1) in vec2 textureCoord;
 layout(location = 2) in vec3 normal;
+layout(location = 3) in vec3 tangent;
+layout(location = 4) in vec3 bitangent;
+
 
 uniform mat4 u_model;
 uniform mat4 u_mvp;
@@ -54,10 +57,10 @@ in vec3 v_normal;
 void main()
 {
 	vec3 norm = normalize(v_normal);
-	//vec4 texDiffuseColor = texture(u_texture_diffuse_1, v_textureCoord);
-	//vec4 texSpecularColor = texture(u_texture_specular_1, v_textureCoord);
+	vec4 texDiffuseColor = texture(u_texture_diffuse_1, v_textureCoord);
+	vec4 texSpecularColor = texture(u_texture_specular_1, v_textureCoord);
 
-	vec3 baseColor = u_colorBase;
+	vec3 baseColor = u_colorBase * vec3(texDiffuseColor);
 
 	vec3 lightPos = u_lightPosition;
 	vec3 lightDir = normalize(lightPos - vec3(v_position));

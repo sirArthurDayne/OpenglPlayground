@@ -7,7 +7,7 @@ enum class TextureType
 	AMBIENT,
 	DIFFUSE,
 	SPECULAR,
-	NORMAL,
+	HEIGHTMAP
 };
 
 class Texture

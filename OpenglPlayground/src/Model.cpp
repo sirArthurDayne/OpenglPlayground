@@ -61,16 +61,19 @@ void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
 	for (int i = 0; i < mesh->mNumVertices; i++)
 	{
 		Vertex vertex;
+		//position
 		glm::vec3 v;
 		v.x = mesh->mVertices[i].x;
 		v.y = mesh->mVertices[i].y;
 		v.z = mesh->mVertices[i].z;
 		vertex.position = v;
+		//normals
 		v.x = mesh->mNormals[i].x;
 		v.y = mesh->mNormals[i].y;
 		v.z = mesh->mNormals[i].z;
 		vertex.normal = v;
-		if (mesh->mTextureCoords[0])
+		//texture UV
+		if (mesh->HasTextureCoords(0))
 		{
 			glm::vec2 v;
 			v.x = mesh->mTextureCoords[0][i].x;
@@ -78,6 +81,22 @@ void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
 			vertex.textureCoord = v;
 		}
 		else vertex.textureCoord = glm::vec2(0.0f);
+
+		//normal mapping required.
+		if (mesh->HasTangentsAndBitangents())
+		{
+			//tangents
+			v.x = mesh->mTangents[i].x;
+			v.y = mesh->mTangents[i].y;
+			v.z = mesh->mTangents[i].z;
+			vertex.tangents = v;
+
+			//bitangents
+			v.x = mesh->mBitangents[i].x;
+			v.y = mesh->mBitangents[i].y;
+			v.z = mesh->mBitangents[i].z;
+			vertex.bitangents = v;
+		}
 		out_vertices.push_back(vertex);
 	}
 	
@@ -95,17 +114,21 @@ void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
 	{
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-		std::vector<TextureData> diffuseMaps = LoadMaterialsTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+		std::vector<TextureData> diffuseMaps = LoadMaterialsTextures(material, aiTextureType_DIFFUSE);
 		out_textures.insert(out_textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-		std::vector<TextureData> specularMaps = LoadMaterialsTextures(material, aiTextureType_SPECULAR, "texture_diffuse");
+		std::vector<TextureData> specularMaps = LoadMaterialsTextures(material, aiTextureType_SPECULAR);
 		out_textures.insert(out_textures.end(), specularMaps.begin(), specularMaps.end());
+		std::vector<TextureData> normalMaps = LoadMaterialsTextures(material, aiTextureType_HEIGHT);
+		out_textures.insert(out_textures.end(), normalMaps.begin(), normalMaps.end());
+		std::vector<TextureData> heightMaps = LoadMaterialsTextures(material, aiTextureType_AMBIENT);
+		out_textures.insert(out_textures.end(), heightMaps.begin(), heightMaps.end());
 	}	
 
 	//make tuple
 	return {out_vertices,out_indices,out_textures};
 }
 
-std::vector<TextureData> Model::LoadMaterialsTextures(aiMaterial* material, aiTextureType type, std::string materialName)
+std::vector<TextureData> Model::LoadMaterialsTextures(aiMaterial* material, aiTextureType type)
 {
 	std::vector<TextureData> out_vec;
 
@@ -133,7 +156,8 @@ std::vector<TextureData> Model::LoadMaterialsTextures(aiMaterial* material, aiTe
 			tex.path = fullpath;
 			if (type == aiTextureType_DIFFUSE) tex.type = TextureType::DIFFUSE;
 			else if (type == aiTextureType_SPECULAR) tex.type = TextureType::SPECULAR;
-
+			else if (type == aiTextureType_HEIGHT) tex.type = TextureType::HEIGHTMAP;
+			else if (type == aiTextureType_AMBIENT) tex.type = TextureType::AMBIENT;
 			out_vec.push_back(tex);
 			m_textureLoaded.push_back(tex);
 		}

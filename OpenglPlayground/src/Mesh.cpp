@@ -10,6 +10,8 @@ Mesh::Mesh(std::vector<Vertex> data, std::vector<unsigned> indices) :
 	m_VL->Push<float>(3);//pos
 	m_VL->Push<float>(2);//tex
 	m_VL->Push<float>(3);//nor
+	m_VL->Push<float>(3);//tan
+	m_VL->Push<float>(3);//bitan
 
 	m_VBO = new VertexBuffer(&m_data[0], m_data.size() * sizeof(Vertex));
 	m_VAO->AddBuffer(*m_VBO,*m_VL);
@@ -30,6 +32,8 @@ Mesh::Mesh(std::vector<Vertex> data, std::vector<unsigned int> indices, std::vec
 	m_VL->Push<float>(3);//pos
 	m_VL->Push<float>(2);//tex
 	m_VL->Push<float>(3);//nor
+	m_VL->Push<float>(3);//tan
+	m_VL->Push<float>(3);//bitan
 
 	m_VBO = new VertexBuffer(&m_data[0], m_data.size() * sizeof(Vertex));
 	m_VAO->AddBuffer(*m_VBO,*m_VL);
@@ -67,6 +71,7 @@ void Mesh::Draw(Renderer& renderer, Shader* shader)
 	unsigned int i = 0;
 	unsigned int diffNum = 1;
 	unsigned int specNum = 1;
+	unsigned int norNum = 1;
 	for(auto& texture : m_textures)
 	{
 		std::string uniformName;
@@ -77,6 +82,10 @@ void Mesh::Draw(Renderer& renderer, Shader* shader)
 		else if (texture.m_type == TextureType::SPECULAR)
 		{
 			uniformName += "u_texture_specular_" + std::to_string(specNum++);
+		}
+		else if (texture.m_type == TextureType::HEIGHTMAP)
+		{
+			uniformName += "u_texture_normal_" + std::to_string(norNum++);
 		}
 		shader->SetUniform1i(uniformName, i);
 		texture.Bind(i++);
