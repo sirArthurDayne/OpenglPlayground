@@ -73,7 +73,7 @@ int main(void)
 	currentTest = test_menu;
 	test_menu->AddTest <test::Texture2D>("2D Orthographic + Texture");
 	test_menu->AddTest<test::Texture3D>("3D Perspective + Texture");
-	test_menu->AddTest<test::MeshTest>("Phong & Gouldard Lighting");
+	test_menu->AddTest<test::MeshTest>("Model Loading + Phong/Gouldard Lighting");
 	
 	Renderer renderer;
 	while (!glfwWindowShouldClose(mainWindow))

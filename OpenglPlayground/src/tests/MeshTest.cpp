@@ -10,7 +10,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	m_cameraTarget(glm::vec3(0.0f)),
 	m_MyCamera (Camera(m_cameraPos, m_cameraTarget, glm::vec3(0.0f, 1.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3((float)WIDTH /2.0f, (float)HEIGHT /2.0f, 0.0f))),
-	m_view(glm::mat4(1.0f)), m_ColorBase(glm::vec3(0.40f, 0.60f, 0.10f)),
+	m_view(glm::mat4(1.0f)), m_ColorBase(glm::vec3(1.0f, 1.0f, 1.0f)),
 	m_lightPos(glm::vec3(0.0f,	1.0f, -1.0f)), m_lightColor(glm::vec3(1.0f))
 {
 	//enable all features
@@ -104,7 +104,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	//setup light object
 	m_lightCube = new Mesh(data, indices);
 	//setup model
-	m_MyModel = new Model("models/Nanosuit/nanosuit.obj");
+	m_MyModel = new Model("models/teapot.obj");
 	
 	//setup shaders and textures
 	m_fongLightShader = new Shader("shaders/FongLighting.shader");
@@ -175,6 +175,12 @@ void test::MeshTest::OnGuiRenderer()
 	ImGui::ColorEdit3("Light Color", &m_lightColor.x);
 	ImGui::SliderFloat3("camera", &m_cameraPos.x, -20.0f, 20.0f);
 	ImGui::End();
+	ImGui::Begin("Object Material");
+	ImGui::ColorEdit3("Ambient", &m_MyMaterials.ambient.x);
+	ImGui::ColorEdit3("Diffuse", &m_MyMaterials.diffuse.x);
+	ImGui::ColorEdit3("Specular", &m_MyMaterials.specular.x);
+	ImGui::SliderFloat("shininess", &m_MyMaterials.shininess, 0.0f, 1.0f);
+	ImGui::End();
 }
 
 void test::MeshTest::BindSelectedShader(Lighting& option)
@@ -196,16 +202,19 @@ void test::MeshTest::UpdateScene(Shader* shader)
 {
 	//TODO: Send data to Mesh class and return ModelMatrix
 	glm::mat4 trans  = glm::translate(glm::mat4(1.0f), m_cubeTranslation);
-	//glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
-	glm::mat4 rotate = glm::mat4(1.0f);
+	glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
+	//glm::mat4 rotate = glm::mat4(1.0f);
 	glm::mat4 scale  = glm::scale(glm::mat4(1.0f), m_cubeScale);
 	glm::mat4 model  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
 	model *= trans * rotate * scale;
 	
 	glm::mat4 proy = glm::perspective(glm::radians(m_FOV), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 	glm::mat4 mvp = proy * m_view * model;
+	shader->SetUniform3f("u_material.ka", m_MyMaterials.ambient.x, m_MyMaterials.ambient.y, m_MyMaterials.ambient.z);
+	shader->SetUniform3f("u_material.kd", m_MyMaterials.diffuse.x, m_MyMaterials.diffuse.y, m_MyMaterials.diffuse.z);
+	shader->SetUniform3f("u_material.ks", m_MyMaterials.specular.x, m_MyMaterials.specular.y, m_MyMaterials.specular.z);
+	shader->SetUniform1f("u_material.sh", m_MyMaterials.shininess);
 	
-	//shader->SetUniform1f("u_time", float(glfwGetTime()));
 	shader->SetUniform3f("u_colorBase", m_ColorBase.x, m_ColorBase.y, m_ColorBase.z);
 	shader->SetUniform3f("u_lightPosition", m_lightPos.x, m_lightPos.y, m_lightPos.z);
 	shader->SetUniformMat4f("u_mvp", mvp);

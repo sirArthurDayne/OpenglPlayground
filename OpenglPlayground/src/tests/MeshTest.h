@@ -3,7 +3,6 @@
 #include"../Mesh.h"
 #include"../camera.h"
 #include "../Shader.h"
-#include "../Texture.h"
 #include "../Model.h"
 
 namespace test
@@ -34,5 +33,6 @@ namespace test
 		glm::vec3 m_ColorBase;
 		bool m_isGouraudEnable = false;
 		Model* m_MyModel;
+		Material m_MyMaterials;
 	};
 }

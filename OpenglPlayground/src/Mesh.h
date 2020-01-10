@@ -4,31 +4,42 @@
 #include "Texture.h"
 #include "Shader.h"
 
+//TODO add tangents and bitangents for model normal mapping
 struct Vertex
 {
 	glm::vec3 position;
 	glm::vec2 textureCoord;
 	glm::vec3 normal;
 	Vertex():
-	position(glm::vec3(0.0f)),
-	textureCoord(glm::vec2(0.0f)),
-	normal(glm::vec3(0.0f)) {}
+		position(glm::vec3(0.0f)),
+		textureCoord(glm::vec2(0.0f)),
+		normal(glm::vec3(0.0f)) {}
 	Vertex(glm::vec3 pos, glm::vec2 tex, glm::vec3 norm):
-	position(pos),
-	textureCoord(tex),
-	normal(norm) {}
+		position(pos),
+		textureCoord(tex),
+		normal(norm) {}
 	Vertex(glm::vec3 pos, glm::vec2 tex):
-	position(pos),
-	textureCoord(tex),
-	normal(glm::vec3(0.0f)) {}
+		position(pos),
+		textureCoord(tex),
+		normal(glm::vec3(0.0f)) {}
 };
-
+//TODO setup a material struct and test it.
 struct Material
 {
 	glm::vec3 ambient;//ka
 	glm::vec3 diffuse;//kd
 	glm::vec3 specular;//ks
 	float shininess;//sh
+	Material() :
+		ambient(glm::vec3(0.0f)),
+		diffuse(glm::vec3(0.0f)),
+		specular(glm::vec3(0.0f)),
+		shininess(1.0f) {}
+	Material(glm::vec3 amb, glm::vec3 dif, glm::vec3 spec, float sh) :
+		ambient(amb),
+		diffuse(dif),
+		specular(spec),
+		shininess(sh) {}
 };
 
 
