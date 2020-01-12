@@ -129,6 +129,9 @@ glm::vec3(10.0f, -1.0f, 0.0f)
 	m_VL->Push<float>(3);//pos
 	m_VL->Push<float>(2);//texture
 	m_VL->Push<float>(3);//nor
+	m_VL->Push<float>(3);//tan
+	m_VL->Push<float>(3);//bitan
+	
 	m_VBO = new VertexBuffer(cube,  6 * 4 * sizeof(Vertex));
 	m_VAO->AddBuffer(*m_VBO, *m_VL);
 

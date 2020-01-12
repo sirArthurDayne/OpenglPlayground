@@ -9,6 +9,7 @@ layout(location = 4) in vec3 bitangent;
 
 
 uniform mat4 u_model;
+uniform mat4 u_view;
 uniform mat4 u_mvp;
 
 out vec4 v_position;
@@ -17,13 +18,17 @@ out vec3 v_normal;
 
 void main()
 {
-	gl_Position = u_mvp * position;
+	//WORLD SPACE CALCULATIONS
 	v_position = u_model * position;
 	v_textureCoord = textureCoord;
+	
 	//smooth shading
 	//v_normal = mat3(transpose(inverse(u_model))) * vec3(normalize(position));
 	//flat shading
 	v_normal = mat3(transpose(inverse(u_model))) * normalize(normal);
+	
+	
+	gl_Position = u_mvp * position;
 }
 
 
@@ -48,12 +53,13 @@ uniform sampler2D u_texture_specular_1;
 uniform vec3 u_colorBase;
 uniform vec3 u_lightPosition;
 uniform vec3 u_lightColor;
-uniform vec3 u_viewPosition;
+uniform vec3 u_cameraPosition;
 
 
 in vec2 v_textureCoord;
 in vec4 v_position;
 in vec3 v_normal;
+
 void main()
 {
 	vec3 norm = normalize(v_normal);
@@ -64,7 +70,7 @@ void main()
 
 	vec3 lightPos = u_lightPosition;
 	vec3 lightDir = normalize(lightPos - vec3(v_position));
-		
+	
 	vec3 ambientIntensity = u_material.ka;
 	vec3 ambient = u_lightColor * ambientIntensity;
 	
@@ -72,10 +78,10 @@ void main()
 	float diffuseIntensity = max(dot(norm,lightDir), 0.0f);
 	vec3 diffuse = diffuseInt * u_lightColor * diffuseIntensity;
 	
-	vec3 camera = u_viewPosition;
+	vec3 camera = u_cameraPosition;
 	vec3 cameraDir = normalize(camera - vec3(v_position));
 	
-	vec3 specularIntensity = u_material.ks;
+	vec3 specularIntensity = u_material.ks * vec3(texSpecularColor);
 	//vec3 cameraDir = normalize(camera + norm);
 	vec3 reflectDir = normalize(reflect(-lightDir, norm));
 

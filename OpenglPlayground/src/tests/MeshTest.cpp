@@ -111,15 +111,17 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	m_fongLightShader = new Shader("shaders/FongLighting.shader");
 	m_lightSourceShader = new Shader("shaders/LightSource.shader");
 	m_gouraudLightShader = new Shader("shaders/GouraudLighting.shader");
+	m_normalMapShader = new Shader("shaders/NormalMapLighting.shader");
+	
 	m_fongLightShader->Unbind();
 	m_lightSourceShader->Unbind();
 	m_gouraudLightShader->Unbind();
-	
+	m_normalMapShader->Unbind();
 }
 
 test::MeshTest::~MeshTest()
 {
-	delete m_fongLightShader, m_lightSourceShader, m_gouraudLightShader;
+	delete m_fongLightShader, m_lightSourceShader, m_gouraudLightShader, m_normalMapShader;
 	delete m_lightCube, m_MyModel;
 	//set default enviroment
 	glDisable(GL_DEPTH_TEST);
@@ -132,11 +134,17 @@ void test::MeshTest::OnRenderer()
 	renderer.Clear(0.0f, 0.0, 0.0f);
 	//bind stuff
 	
-	Lighting lightState = m_isGouraudEnable ? Lighting::GOURAUD : Lighting::PHONG;
+	Lighting lightState;
+	if (m_shaderActive == 0) lightState = Lighting::PHONG;
+	else if (m_shaderActive == 1) lightState = Lighting::GOURAUD;
+	else lightState = Lighting::NORMAL_MAP;
+	
 	BindSelectedShader(lightState);
+
 	m_MyModel->DrawModel(renderer, m_fongLightShader);
 	
-	{//light sourceCube
+	//light sourceCube
+	{
 		m_lightSourceShader->Bind();
 		m_lightSourceShader->SetUniform3f("u_lightColor", m_lightColor.x, m_lightColor.y, m_lightColor.z);
 		glm::mat4 trans = glm::translate(glm::mat4(1.0f), m_lightPos);
@@ -164,23 +172,27 @@ void test::MeshTest::OnUserUpdate(float deltaTime)
 
 void test::MeshTest::OnGuiRenderer()
 {
-	ImGui::Begin("Affine Transforms");
+	ImGui::Begin("Model Inspector");
 	ImGui::SliderFloat("FOV", &m_FOV, 30.0f, 90.0f);
+	ImGui::SliderFloat3("cameraPosition", &m_cameraPos.x, -20.0f, 20.0f);
 	ImGui::SliderFloat3("scale", &m_cubeScale.x, 1.0f, 3.0f);
 	ImGui::SliderFloat3("translation", &m_cubeTranslation.x, -10.0f, 10.0f);
 	ImGui::ColorEdit3("Base color", &m_ColorBase.x);
-	ImGui::End();
-	ImGui::Begin("Lighting");
-	ImGui::Checkbox("Gouraud",&m_isGouraudEnable);
-	ImGui::SliderFloat3("Light Position", &m_lightPos.x, -10.0f, 10.0f);
-	ImGui::ColorEdit3("Light Color", &m_lightColor.x);
-	ImGui::SliderFloat3("camera", &m_cameraPos.x, -20.0f, 20.0f);
-	ImGui::End();
-	ImGui::Begin("Object Material");
 	ImGui::ColorEdit3("Ambient", &m_MyMaterials.ambient.x);
 	ImGui::ColorEdit3("Diffuse", &m_MyMaterials.diffuse.x);
 	ImGui::ColorEdit3("Specular", &m_MyMaterials.specular.x);
 	ImGui::SliderFloat("shininess", &m_MyMaterials.shininess, 0.0f, 1.0f);
+	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	ImGui::End();
+	
+	ImGui::Begin("Shading Inspector");
+	ImGui::RadioButton("Phong", &m_shaderActive, 0);
+	ImGui::SameLine();
+	ImGui::RadioButton("Gouraud", &m_shaderActive, 1);
+	ImGui::SameLine();
+	ImGui::RadioButton("NormalMap", &m_shaderActive, 2);
+	ImGui::SliderFloat3("position", &m_lightPos.x, -10.0f, 10.0f);
+	ImGui::ColorEdit3("color", &m_lightColor.x);
 	ImGui::End();
 }
 
@@ -197,6 +209,11 @@ void test::MeshTest::BindSelectedShader(Lighting& option)
 		m_gouraudLightShader->Bind();
 		UpdateScene(m_gouraudLightShader);
 	}
+	else if (option == Lighting::NORMAL_MAP)
+	{
+		m_normalMapShader->Bind();
+		UpdateScene(m_normalMapShader);
+	}
 }
 
 void test::MeshTest::UpdateScene(Shader* shader)
@@ -211,16 +228,19 @@ void test::MeshTest::UpdateScene(Shader* shader)
 	
 	glm::mat4 proy = glm::perspective(glm::radians(m_FOV), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 	glm::mat4 mvp = proy * m_view * model;
+	//materials
 	shader->SetUniform3f("u_material.ka", m_MyMaterials.ambient.x, m_MyMaterials.ambient.y, m_MyMaterials.ambient.z);
 	shader->SetUniform3f("u_material.kd", m_MyMaterials.diffuse.x, m_MyMaterials.diffuse.y, m_MyMaterials.diffuse.z);
 	shader->SetUniform3f("u_material.ks", m_MyMaterials.specular.x, m_MyMaterials.specular.y, m_MyMaterials.specular.z);
 	shader->SetUniform1f("u_material.sh", m_MyMaterials.shininess);
-	
+	//vectors
 	shader->SetUniform3f("u_colorBase", m_ColorBase.x, m_ColorBase.y, m_ColorBase.z);
 	shader->SetUniform3f("u_lightPosition", m_lightPos.x, m_lightPos.y, m_lightPos.z);
+	shader->SetUniform3f("u_lightColor", m_lightColor.x, m_lightColor.y, m_lightColor.z);
+	shader->SetUniform3f("u_cameraPosition", m_cameraPos.x, m_cameraPos.y, m_cameraPos.z);
+	//matrices
 	shader->SetUniformMat4f("u_mvp", mvp);
 	shader->SetUniformMat4f("u_model", model);
-	shader->SetUniform3f("u_lightColor", m_lightColor.x, m_lightColor.y, m_lightColor.z);
-	shader->SetUniform3f("u_viewPosition", m_cameraPos.x, m_cameraPos.y, m_cameraPos.z);
+	shader->SetUniformMat4f("u_view", m_view);
 	
 }

@@ -9,7 +9,7 @@ namespace test
 {
 	enum class Lighting
 	{
-		PHONG, GOURAUD
+		PHONG, GOURAUD, NORMAL_MAP
 	};
 	class MeshTest : public Test
 	{
@@ -27,11 +27,11 @@ namespace test
 		glm::vec3 m_lightPos, m_lightColor;
 		Camera m_MyCamera;
 		Mesh* m_lightCube;
-		Shader* m_fongLightShader, *m_lightSourceShader, *m_gouraudLightShader;
+		Shader* m_fongLightShader, *m_lightSourceShader, *m_gouraudLightShader, *m_normalMapShader;
 		glm::mat4 m_view;
 		float m_FOV = 45.0f;
 		glm::vec3 m_ColorBase;
-		bool m_isGouraudEnable = false;
+		int m_shaderActive = 0;
 		Model* m_MyModel;
 		Material m_MyMaterials;
 	};

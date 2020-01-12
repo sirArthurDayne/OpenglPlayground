@@ -16,21 +16,32 @@ struct Material
 };
 
 uniform Material u_material;
-uniform mat4 u_model;
-uniform mat4 u_mvp;
+
+uniform sampler2D u_texture_diffuse_1;
+uniform sampler2D u_texture_specular_1;
+
 uniform vec3 u_lightPosition;
 uniform vec3 u_lightColor;
 uniform vec3 u_colorBase;
-uniform vec3 u_viewPosition;
+uniform vec3 u_cameraPosition;
 
+uniform mat4 u_model;
+uniform mat4 u_mvp;
+uniform mat4 u_view;
 
 out vec3 v_outputColor;
 
 void main()
 {
 	gl_Position = u_mvp * position;
-	
+	vec4 texDiffuseColor = texture(u_texture_diffuse_1, textureCoord);
+	vec4 texSpecularColor = texture(u_texture_specular_1, textureCoord);
+
+
 	vec4 v_position = u_model * position;
+	vec3 baseColor = u_colorBase * vec3(texDiffuseColor);
+
+
 	//smooth shading
 	vec3 v_normal = mat3(transpose(inverse(u_model))) * vec3(normalize(position));
 	//flat shading
@@ -38,7 +49,7 @@ void main()
 	v_normal = normalize(v_normal);
 	
 	//calculate camera
-	vec3 camera = u_viewPosition;
+	vec3 camera = u_cameraPosition;
 	vec3 cameraDir = normalize(camera - vec3(v_position));
 	//vec3 cameraDir = normalize(camera + v_normal);
 
@@ -53,13 +64,13 @@ void main()
 	float diffuseIntensity = max(dot(v_normal, lightDir), 0.0f);
 	vec3 diffuse = diffuseInt * diffuseIntensity * u_lightColor;
 
-	vec3 specularIntensity = u_material.ks;
+	vec3 specularIntensity = u_material.ks * vec3(texSpecularColor);
 	float spec = pow(max(dot(cameraDir, reflectDir), 0.0f), 128.0f * u_material.sh);
 	//float spec = sin(length(distance(vec3(v_position), u_lightPosition)));
 	float facing = dot(v_normal, lightDir) > 0.0f ? 1.0f : 0.0f;
 	vec3 specular = specularIntensity * spec * u_lightColor * facing;
 
-	v_outputColor = u_colorBase * (ambient + diffuse) + specular;
+	v_outputColor = baseColor * (ambient + diffuse) + specular;
 }
 
 #shader fragment

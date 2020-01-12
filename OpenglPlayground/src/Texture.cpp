@@ -10,15 +10,15 @@ Texture::Texture(const std::string& path) : m_rendererID(0), m_path(path),
 	GLCALL(glBindTexture(GL_TEXTURE_2D, m_rendererID));
 
 	//render on area greater or smaller than texture size
-	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
 	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 	
 	//horizontal and vertical texture render
-	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));//default:GL_CLAMP
-	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
+	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));//default:GL_CLAMP
+	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
 
 	//always flip because of openGL texture coords system,(0,0) at bottom-left
-	stbi_set_flip_vertically_on_load(1);
+	//stbi_set_flip_vertically_on_load(1);
 	
 	m_bufferData = stbi_load(m_path.c_str(), &m_width, &m_height, &m_numColChannels, 4);
 	

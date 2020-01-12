@@ -118,10 +118,10 @@ void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
 		out_textures.insert(out_textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 		std::vector<TextureData> specularMaps = LoadMaterialsTextures(material, aiTextureType_SPECULAR);
 		out_textures.insert(out_textures.end(), specularMaps.begin(), specularMaps.end());
-		std::vector<TextureData> normalMaps = LoadMaterialsTextures(material, aiTextureType_HEIGHT);
+		std::vector<TextureData> normalMaps = LoadMaterialsTextures(material, aiTextureType_NORMALS);
 		out_textures.insert(out_textures.end(), normalMaps.begin(), normalMaps.end());
-		std::vector<TextureData> heightMaps = LoadMaterialsTextures(material, aiTextureType_AMBIENT);
-		out_textures.insert(out_textures.end(), heightMaps.begin(), heightMaps.end());
+		//std::vector<TextureData> heightMaps = LoadMaterialsTextures(material, aiTextureType_AMBIENT);
+		//out_textures.insert(out_textures.end(), heightMaps.begin(), heightMaps.end());
 	}	
 
 	//make tuple
@@ -156,7 +156,7 @@ std::vector<TextureData> Model::LoadMaterialsTextures(aiMaterial* material, aiTe
 			tex.path = fullpath;
 			if (type == aiTextureType_DIFFUSE) tex.type = TextureType::DIFFUSE;
 			else if (type == aiTextureType_SPECULAR) tex.type = TextureType::SPECULAR;
-			else if (type == aiTextureType_HEIGHT) tex.type = TextureType::HEIGHTMAP;
+			else if (type == aiTextureType_NORMALS) tex.type = TextureType::NORMALS;
 			else if (type == aiTextureType_AMBIENT) tex.type = TextureType::AMBIENT;
 			out_vec.push_back(tex);
 			m_textureLoaded.push_back(tex);
