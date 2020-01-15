@@ -105,7 +105,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	//setup light object
 	m_lightCube = new Mesh(data, indices);
 	//setup model
-	m_MyModel = new Model("models/Nanosuit/nanosuit.obj");
+	m_MyModel = new Model("models/Almeja/almeja.obj");
 	
 	//setup shaders and textures
 	m_fongLightShader = new Shader("shaders/FongLighting.shader");
@@ -175,8 +175,8 @@ void test::MeshTest::OnGuiRenderer()
 	ImGui::Begin("Model Inspector");
 	ImGui::SliderFloat("FOV", &m_FOV, 30.0f, 90.0f);
 	ImGui::SliderFloat3("cameraPosition", &m_cameraPos.x, -20.0f, 20.0f);
-	ImGui::SliderFloat3("scale", &m_cubeScale.x, 1.0f, 3.0f);
-	ImGui::SliderFloat3("translation", &m_cubeTranslation.x, -10.0f, 10.0f);
+	ImGui::SliderFloat3("scale", &m_cubeScale.x, .50f, 3.0f);
+	ImGui::SliderFloat3("translation", &m_cubeTranslation.x, -20.0f, 20.0f);
 	ImGui::ColorEdit3("Base color", &m_ColorBase.x);
 	ImGui::ColorEdit3("Ambient", &m_MyMaterials.ambient.x);
 	ImGui::ColorEdit3("Diffuse", &m_MyMaterials.diffuse.x);
@@ -220,8 +220,8 @@ void test::MeshTest::UpdateScene(Shader* shader)
 {
 	//TODO: Send data to Mesh class and return ModelMatrix
 	glm::mat4 trans  = glm::translate(glm::mat4(1.0f), m_cubeTranslation);
-	//glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
-	glm::mat4 rotate = glm::mat4(1.0f);
+	glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
+	//glm::mat4 rotate = glm::mat4(1.0f);
 	glm::mat4 scale  = glm::scale(glm::mat4(1.0f), m_cubeScale);
 	glm::mat4 model  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
 	model *= trans * rotate * scale;

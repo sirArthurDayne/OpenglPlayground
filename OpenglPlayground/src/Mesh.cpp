@@ -78,23 +78,23 @@ void Mesh::Draw(Renderer& renderer, Shader* shader)
 		if (texture.m_type == TextureType::DIFFUSE)
 		{
 			uniformName += "u_texture_diffuse_" + std::to_string(diffNum++);
-		//	shader->SetUniform1i(uniformName, 0);
-		//	texture.Bind(0);
+			shader->SetUniform1i(uniformName, 0);
+			texture.Bind(0);
 		}
 		else if (texture.m_type == TextureType::SPECULAR)
 		{
 			uniformName += "u_texture_specular_" + std::to_string(specNum++);
-			//shader->SetUniform1i(uniformName, 1);
-			//texture.Bind(1);
+			shader->SetUniform1i(uniformName, 1);
+			texture.Bind(1);
 		}
 		else if (texture.m_type == TextureType::NORMALS)
 		{
 			uniformName += "u_texture_normal_" + std::to_string(norNum++);
-			//shader->SetUniform1i(uniformName, 2);
-			//texture.Bind(2);
+			shader->SetUniform1i(uniformName, 2);
+			texture.Bind(2);
 		}
-			shader->SetUniform1i(uniformName, i);
-			texture.Bind(i++);
+			//shader->SetUniform1i(uniformName, i);
+			//texture.Bind(i++);
 	}
 	renderer.Draw(m_VAO, m_IBO);
 }

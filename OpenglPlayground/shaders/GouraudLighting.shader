@@ -51,11 +51,11 @@ void main()
 	//calculate camera
 	vec3 camera = u_cameraPosition;
 	vec3 cameraDir = normalize(camera - vec3(v_position));
-	//vec3 cameraDir = normalize(camera + v_normal);
 
 	//calculate lighting
 	vec3 lightDir = normalize(u_lightPosition - vec3(v_position));
-	vec3 reflectDir = normalize(reflect(-lightDir, v_normal));
+	//vec3 reflectDir = normalize(reflect(-lightDir, v_normal));
+	vec3 halfwayVec = normalize(lightDir + cameraDir);
 
 	vec3 ambientIntensity = u_material.ka;
 	vec3 ambient = ambientIntensity * u_lightColor;
@@ -65,7 +65,7 @@ void main()
 	vec3 diffuse = diffuseInt * diffuseIntensity * u_lightColor;
 
 	vec3 specularIntensity = u_material.ks * vec3(texSpecularColor);
-	float spec = pow(max(dot(cameraDir, reflectDir), 0.0f), 128.0f * u_material.sh);
+	float spec = pow(max(dot(cameraDir, halfwayVec), 0.0f), 128.0f * u_material.sh);
 	//float spec = sin(length(distance(vec3(v_position), u_lightPosition)));
 	float facing = dot(v_normal, lightDir) > 0.0f ? 1.0f : 0.0f;
 	vec3 specular = specularIntensity * spec * u_lightColor * facing;

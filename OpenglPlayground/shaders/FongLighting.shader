@@ -82,10 +82,11 @@ void main()
 	vec3 cameraDir = normalize(camera - vec3(v_position));
 	
 	vec3 specularIntensity = u_material.ks * vec3(texSpecularColor);
-	//vec3 cameraDir = normalize(camera + norm);
-	vec3 reflectDir = normalize(reflect(-lightDir, norm));
+	
+	//vec3 reflectDir = normalize(reflect(-lightDir, norm));
+	vec3 halfwayVec = normalize(lightDir + cameraDir);
 
-	float spec = pow(max(dot(cameraDir, reflectDir), 0.0f), u_material.sh * 128.0f);
+	float spec = pow(max(dot(cameraDir, halfwayVec),0.0f), u_material.sh * 128.0f);
 	//float spec = sin(length(distance(vec3(v_position), lightPos)));
 	float facing = dot(v_normal, lightDir) > 0.0f ? 1.0f : 0.0f;
 	vec3 specular = specularIntensity * spec * u_lightColor * facing;
