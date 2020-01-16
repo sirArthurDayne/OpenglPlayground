@@ -27,7 +27,7 @@ void main()
 	//CONVERTION FROM MODEL TO VIEW SPACE
 	mat4 modelViewMat = u_model * u_view;
 	v_position = modelViewMat * position;
-	v_normal = normalize(vec3(modelViewMat * vec4(normal,0.0f)));
+	v_normal = mat3(transpose(inverse(modelViewMat))) * normalize(normal);
 	v_tangent = normalize(vec3(modelViewMat * vec4(tangent,0.0f)));
 
 	//REO-ORTOGONALIZE TANGENT RESPECT TO NORMAL
@@ -116,6 +116,6 @@ void main()
 	vec3 specular = (u_lightColor * specularFact) * specularIntensity * facing;
 
 	vec3 output = emissiveColor * (ambient + diffuse) + specular;
-	//vec3 output = v_tangent;
+	//vec3 output = normalTS;
 	color = vec4(output, 1.0f);
 }
