@@ -34,10 +34,10 @@ void main()
 	v_tangent = normalize(v_tangent - dot(v_tangent, v_normal) * v_normal);
 
 	//CALCULATE BITANGENT AND TBN MATRIX
-	v_bitangent = normalize(-cross(v_normal, v_tangent));
+	v_bitangent = normalize(cross(v_normal, v_tangent));
 
 	//Conversion to right handed
-	if (dot(-cross(v_normal, v_tangent), v_bitangent) < 0.0f)
+	if (dot(cross(v_normal, v_tangent), v_bitangent) < 0.0f)
 		v_tangent = -v_tangent;
 
 	mat3 TBN = transpose(mat3(v_tangent, v_bitangent, v_normal));
@@ -100,7 +100,6 @@ void main()
 	vec3 cameraDirectionTS = normalize(v_cameraDir);
 	vec3 lightDirectionTS = normalize(v_lightDir);
 
-	//vec3 reflectDirectionTS = normalize(reflect(-lightDirectionTS,normalTS));
 	vec3 halfwayTS = normalize(lightDirectionTS + cameraDirectionTS);
 	//LIGHTING CALCULATIONS
 	vec3 ambientIntensity = u_material.ka;

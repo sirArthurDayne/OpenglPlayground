@@ -13,7 +13,7 @@
 class Model
 {
 public:
-	Model(const std::string path);
+	Model(const std::string path, bool hasMaterials = false);
 	~Model();
 	void DrawModel(Renderer& renderer, Shader* shader);
 private:
@@ -27,4 +27,5 @@ private:
 	std::vector<Mesh> m_meshLoaded;
 	std::vector<TextureData> m_textureLoaded;
 	std::string m_path, m_directory, m_fileName;
+	bool m_hasMaterials = false;
 };

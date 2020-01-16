@@ -2,8 +2,8 @@
 #include <iostream>
 #include "glm.hpp"
 
-Model::Model(const std::string path) :
-	m_path(path)
+Model::Model(const std::string path, bool hasMaterials) :
+	m_path(path), m_hasMaterials(hasMaterials)
 {
 	m_directory = m_path.substr(0, m_path.find_last_of('/') + 1);
 	int end = m_path.find_last_of('.')-1;
@@ -37,11 +37,11 @@ void Model::LoadModel()
 
 void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
 {
+	m_meshLoaded.reserve(scene->mNumMeshes);
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 		auto [vertices,indices,texturesData] = ProcessMesh(mesh, scene);
-		m_meshLoaded.reserve(7);//TODO: elimnate this necesity to pre-allocate memory 
 		m_meshLoaded.emplace_back(vertices,indices,texturesData);
 	}
 	
@@ -56,8 +56,11 @@ void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
 	std::vector<Vertex> out_vertices;
 	std::vector<unsigned int> out_indices;
 	std::vector<TextureData> out_textures;
-
+	std::vector<Material> out_materials;
+	
 	//vertex data
+	out_vertices.reserve(mesh->mNumVertices);
+	out_indices.reserve(mesh->mNumFaces * 3u);
 	for (int i = 0; i < mesh->mNumVertices; i++)
 	{
 		Vertex vertex;
@@ -114,14 +117,50 @@ void Model::ProcessNodes(const aiNode* node, const aiScene* scene)
 	{
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
+		if (m_hasMaterials)
+		{
+			aiColor4D ambientColor;
+			aiColor4D diffuseColor;
+			aiColor4D specularColor;
+			float shinniness;
+
+			//read materials
+			aiGetMaterialColor(material, AI_MATKEY_COLOR_AMBIENT, &ambientColor);
+			aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diffuseColor);
+			aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, &specularColor);
+			aiGetMaterialFloat(material, AI_MATKEY_SHININESS, &shinniness);
+
+			auto makeMaterial = [=] (aiColor4D amb, aiColor4D dif, aiColor4D spec, float sh)
+			{
+				glm::vec3 ambient, difuse, specular;
+				ambient.r = amb.r;
+				ambient.g = amb.g;
+				ambient.b = amb.b;
+
+				difuse.r = dif.r;
+				difuse.g = dif.g;
+				difuse.b = dif.b;
+
+				specular.r = spec.r;
+				specular.g = spec.g;
+				specular.b = spec.b;
+				
+				return Material(ambient, difuse, specular, sh);
+			};
+
+			Material mat = makeMaterial(ambientColor, diffuseColor, specularColor, shinniness);
+			out_materials.push_back(mat);
+			std::cout << "new material made" << std::endl;
+		}
+		
 		std::vector<TextureData> diffuseMaps = LoadMaterialsTextures(material, aiTextureType_DIFFUSE);
 		out_textures.insert(out_textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 		std::vector<TextureData> specularMaps = LoadMaterialsTextures(material, aiTextureType_SPECULAR);
 		out_textures.insert(out_textures.end(), specularMaps.begin(), specularMaps.end());
 		std::vector<TextureData> normalMaps = LoadMaterialsTextures(material, aiTextureType_NORMALS);
 		out_textures.insert(out_textures.end(), normalMaps.begin(), normalMaps.end());
-		//std::vector<TextureData> heightMaps = LoadMaterialsTextures(material, aiTextureType_AMBIENT);
-		//out_textures.insert(out_textures.end(), heightMaps.begin(), heightMaps.end());
+		//std::vector<TextureData> ambientMaps = LoadMaterialsTextures(material, aiTextureType_AMBIENT);
+		//out_textures.insert(out_textures.end(), ambientMaps.begin(), ambientMaps.end());
 	}	
 
 	//make tuple

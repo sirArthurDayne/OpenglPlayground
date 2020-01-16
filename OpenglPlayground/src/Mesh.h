@@ -62,6 +62,7 @@ struct TextureData
 {
 	std::string path;
 	TextureType type;
+	
 };
 
 class Mesh

@@ -105,7 +105,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	//setup light object
 	m_lightCube = new Mesh(data, indices);
 	//setup model
-	m_MyModel = new Model("models/Almeja/almeja.obj");
+	m_MyModel = new Model("models/Nanosuit/nanosuit.obj", true);
 	
 	//setup shaders and textures
 	m_fongLightShader = new Shader("shaders/FongLighting.shader");
