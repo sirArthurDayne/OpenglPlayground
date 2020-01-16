@@ -51,6 +51,9 @@ artifacts/
 *.ilk
 *.meta
 *.obj
+#allow .obj model files to git
+!OpenglPlayground/models/*.obj
+!OpenglPlayground/models/*/*.obj
 *.pch
 *.pdb
 *.pgc
