@@ -11,7 +11,8 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	m_MyCamera (Camera(m_cameraPos, m_cameraTarget, glm::vec3(0.0f, 1.0f, 0.0f),
 		glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3((float)WIDTH /2.0f, (float)HEIGHT /2.0f, 0.0f))),
 	m_view(glm::mat4(1.0f)), m_ColorBase(glm::vec3(1.0f, 1.0f, 1.0f)),
-	m_lightPos(glm::vec3(0.0f,	1.0f, -1.0f)), m_lightColor(glm::vec3(1.0f))
+	m_lightPos(glm::vec3(0.0f,	1.0f, -1.0f)), m_lightColor(glm::vec3(1.0f)),
+	m_lightAtt(glm::vec3(1.0f, 0.045f,0.007f))
 {
 	//enable all features
 	glEnable(GL_DEPTH_TEST);
@@ -193,6 +194,7 @@ void test::MeshTest::OnGuiRenderer()
 	ImGui::SameLine();
 	ImGui::RadioButton("NormalMap", &m_shaderActive, 2);
 	ImGui::SliderFloat3("position", &m_lightPos.x, -10.0f, 10.0f);
+	ImGui::SliderFloat3("attenuation", &m_lightAtt.x, 0.0f, 1.0f);
 	ImGui::ColorEdit3("color", &m_lightColor.x);
 	ImGui::End();
 }
@@ -239,6 +241,7 @@ void test::MeshTest::UpdateScene(Shader* shader)
 	shader->SetUniform3f("u_lightPosition", m_lightPos.x, m_lightPos.y, m_lightPos.z);
 	shader->SetUniform3f("u_lightColor", m_lightColor.x, m_lightColor.y, m_lightColor.z);
 	shader->SetUniform3f("u_cameraPosition", m_cameraPos.x, m_cameraPos.y, m_cameraPos.z);
+	shader->SetUniform3f("u_attConst", m_lightAtt.x,m_lightAtt.y, m_lightAtt.z);
 	//matrices
 	shader->SetUniformMat4f("u_mvp", mvp);
 	shader->SetUniformMat4f("u_model", model);

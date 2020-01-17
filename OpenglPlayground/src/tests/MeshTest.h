@@ -24,7 +24,7 @@ namespace test
 	private:
 		GLFWwindow*& m_win;
 		glm::vec3 m_cameraPos, m_cameraTarget, m_cubeTranslation, m_cubeScale;
-		glm::vec3 m_lightPos, m_lightColor;
+		glm::vec3 m_lightPos, m_lightColor, m_lightAtt;
 		Camera m_MyCamera;
 		Mesh* m_lightCube;
 		Shader* m_fongLightShader, *m_lightSourceShader, *m_gouraudLightShader, *m_normalMapShader;

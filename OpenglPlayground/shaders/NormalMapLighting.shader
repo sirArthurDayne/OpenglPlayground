@@ -74,6 +74,7 @@ uniform sampler2D u_texture_normal_1;
 
 uniform vec3 u_colorBase;
 uniform vec3 u_lightColor;
+uniform vec3 u_attConst;
 
 //model 
 in vec4 v_position;
@@ -98,22 +99,28 @@ void main()
 	vec3 lightDirectionTS = normalize(v_lightPos - v_position.xyz);
 	vec3 halfwayTS = normalize(lightDirectionTS + cameraDirectionTS);
 
-	
+	float distance = length(v_lightPos - v_position.xyz);
+	float att = 1.0f / (u_attConst.x + u_attConst.y * distance + u_attConst.z * (distance * distance));
+
+
 	//LIGHTING CALCULATIONS
 	vec3 emissiveColor = u_colorBase;
 
 	vec3 ambientFact = u_meshMaterial.ka * texDiffuseColor.rgb;
 	vec3 ambient = u_lightColor * ambientFact;
+	ambient *= att;
 
 	vec3 diffuseIntensity = u_meshMaterial.kd * texDiffuseColor.rgb;
 	float diffuseFact = max(dot(normalTS, lightDirectionTS), 0.0f);
 	vec3 diffuse = (diffuseFact * u_lightColor) * diffuseIntensity;
-	
+	diffuse *= att;
+
 	vec3 specularFact = u_meshMaterial.ks * texSpecularColor.rgb;
 	float specularIntensity = max(0.0f, sign(dot(normalTS, lightDirectionTS))) * pow(max(0.0f, dot(cameraDirectionTS, halfwayTS)), u_meshMaterial.sh);
 	float facing = dot(normalTS, lightDirectionTS) > 0.0f ? 1.0f : 0.0f;
-	vec3 specular = (u_lightColor * specularFact * specularIntensity) * facing;
+	vec3 specular = (u_lightColor * specularFact * specularIntensity) * (diffuseIntensity * diffuseFact) * facing;
+	specular *= att;
 
-	vec3 output = emissiveColor * (ambient + diffuse + specular);
+	vec3 output = emissiveColor * (ambient + diffuse) + specular;
 	color = vec4(output, 1.0f);
 }

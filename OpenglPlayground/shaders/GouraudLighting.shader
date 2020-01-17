@@ -25,6 +25,7 @@ uniform vec3 u_lightPosition;
 uniform vec3 u_lightColor;
 uniform vec3 u_colorBase;
 uniform vec3 u_cameraPosition;
+uniform vec3 u_attConst;//x:kc, y:kl, z:kq
 
 uniform mat4 u_model;
 uniform mat4 u_mvp;
@@ -49,29 +50,36 @@ void main()
 	vec3 v_normal = mat3(transpose(inverse(u_model))) * normalize(normal);
 	v_normal = normalize(v_normal);
 	
-	//calculate camera
 	vec3 camera = u_cameraPosition;
-	vec3 cameraDir = normalize(camera - vec3(v_position));
+	vec3 cameraDir = normalize(camera - v_position.xyz);
 
-	vec3 lightDir = normalize(u_lightPosition - vec3(v_position));
+	vec3 lightDir = normalize(u_lightPosition - v_position.xyz);
 	vec3 halfwayVec = normalize(lightDir + cameraDir);
 	
+	
+	float distance = length(u_lightPosition - v_position.xyz);
+	float att = 1.0f / (u_attConst.x + u_attConst.y * distance + u_attConst.z * (distance * distance));
+
+
 	//LIGHTING CALCULATIONS
 	vec3 emissiveColor = u_colorBase;
 
 	vec3 ambientFact = u_meshMaterial.ka * texDiffuseColor.rgb;
 	vec3 ambient = ambientFact * u_lightColor;
-	
+	ambient *= att;
+
 	vec3 diffuseFact = u_meshMaterial.kd * texDiffuseColor.rgb;
 	float diffuseIntensity = max(dot(v_normal, lightDir), 0.0f);
 	vec3 diffuse = (diffuseFact * u_lightColor) * diffuseIntensity;
+	diffuse *= att;
 
 	vec3 specularFact = u_meshMaterial.ks * texSpecularColor.rgb;
 	float spec = max(0.0f, sign(dot(v_normal, lightDir))) * pow(max(0.0f, dot(cameraDir,halfwayVec)), u_meshMaterial.sh);
 	float facing = dot(v_normal, lightDir) > 0.0f ? 1.0f : 0.0f;
-	vec3 specular = (specularFact * spec * u_lightColor) * facing;
+	vec3 specular = (specularFact * spec * u_lightColor) * (diffuseFact * diffuseIntensity) * facing;
+	specular *= att;
 
-	v_outputColor = emissiveColor * (ambient + diffuse + specular);
+	v_outputColor = emissiveColor * (ambient + diffuse) + specular;
 }
 
 #shader fragment
