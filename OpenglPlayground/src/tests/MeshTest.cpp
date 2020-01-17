@@ -105,7 +105,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	//setup light object
 	m_lightCube = new Mesh(data, indices);
 	//setup model
-	m_MyModel = new Model("models/Nanosuit/nanosuit.obj", true);
+	m_MyModel = new Model("models/Almeja/almeja.obj", true);
 	
 	//setup shaders and textures
 	m_fongLightShader = new Shader("shaders/FongLighting.shader");
@@ -126,6 +126,7 @@ test::MeshTest::~MeshTest()
 	//set default enviroment
 	glDisable(GL_DEPTH_TEST);
 	glFrontFace(GL_CCW);
+	system("cls");
 }
 
 void test::MeshTest::OnRenderer()

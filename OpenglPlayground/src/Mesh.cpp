@@ -45,6 +45,28 @@ Mesh::Mesh(std::vector<Vertex> data, std::vector<unsigned int> indices, std::vec
 	LoadTextures();
 }
 
+Mesh::Mesh(std::vector<Vertex> data, std::vector<unsigned int> indices, std::vector<TextureData> textures, std::vector<Material> mat) :
+	m_data(data), m_indices(indices), m_texDataVec(textures), m_materials(mat)
+{
+		//setup the mesh for opengl
+	m_VAO = new VertexArray();
+	m_VL = new VertexLayout();
+	m_VL->Push<float>(3);//pos
+	m_VL->Push<float>(2);//tex
+	m_VL->Push<float>(3);//nor
+	m_VL->Push<float>(3);//tan
+	m_VL->Push<float>(3);//bitan
+
+	m_VBO = new VertexBuffer(&m_data[0], m_data.size() * sizeof(Vertex));
+	m_VAO->AddBuffer(*m_VBO,*m_VL);
+	m_IBO = new IndexBuffer(&m_indices[0], m_indices.size());
+	//unbind and wait for signal
+	m_VAO->Unbind();
+	m_VBO->Unbind();
+	m_IBO->Unbind();
+	LoadTextures();
+}
+
 
 Mesh::~Mesh()
 {
@@ -56,6 +78,7 @@ Mesh::~Mesh()
 	m_data.clear();
 	m_indices.clear();
 	m_textures.clear();
+	m_materials.clear();
 }
 
 void Mesh::LoadTextures()
@@ -95,6 +118,14 @@ void Mesh::Draw(Renderer& renderer, Shader* shader)
 		}
 			//shader->SetUniform1i(uniformName, i);
 			//texture.Bind(i++);
+	}
+
+	for (auto& mat : m_materials)
+	{
+		shader->SetUniform3f("u_meshMaterial.ka", mat.ambient.r, mat.ambient.g, mat.ambient.b);
+		shader->SetUniform3f("u_meshMaterial.kd", mat.diffuse.r, mat.diffuse.g, mat.diffuse.b);
+		shader->SetUniform3f("u_meshMaterial.ks", mat.specular.r, mat.specular.g, mat.specular.b);
+		shader->SetUniform1f("u_meshMaterial.sh", mat.shininess);
 	}
 	renderer.Draw(m_VAO, m_IBO);
 }

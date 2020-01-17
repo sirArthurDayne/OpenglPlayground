@@ -20,14 +20,15 @@ void main()
 {
 	//WORLD SPACE CALCULATIONS
 	v_position = u_model * position;
-	v_textureCoord = textureCoord;
 	
-	//smooth shading
+	//SMOOTH SHADING
 	//v_normal = mat3(transpose(inverse(u_model))) * vec3(normalize(position));
-	//flat shading
+	
+	//FLAT SHADING
 	v_normal = mat3(transpose(inverse(u_model))) * normalize(normal);
 	
-	
+	//OPENGL SPECIFIC
+	v_textureCoord = textureCoord;
 	gl_Position = u_mvp * position;
 }
 
@@ -45,7 +46,8 @@ struct Material
 	vec3 ks;
 	float sh;
 };
-uniform Material u_material;
+uniform Material u_material;//user
+uniform Material u_meshMaterial;//model
 
 uniform sampler2D u_texture_diffuse_1;
 uniform sampler2D u_texture_specular_1;
@@ -66,32 +68,31 @@ void main()
 	vec4 texDiffuseColor = texture(u_texture_diffuse_1, v_textureCoord);
 	vec4 texSpecularColor = texture(u_texture_specular_1, v_textureCoord);
 
-	vec3 baseColor = u_colorBase * vec3(texDiffuseColor);
-
-	vec3 lightPos = u_lightPosition;
-	vec3 lightDir = normalize(lightPos - vec3(v_position));
-	
-	vec3 ambientIntensity = u_material.ka;
-	vec3 ambient = u_lightColor * ambientIntensity;
-	
-	vec3 diffuseInt = u_material.kd;
-	float diffuseIntensity = max(dot(norm,lightDir), 0.0f);
-	vec3 diffuse = diffuseInt * u_lightColor * diffuseIntensity;
-	
 	vec3 camera = u_cameraPosition;
 	vec3 cameraDir = normalize(camera - vec3(v_position));
 	
-	vec3 specularIntensity = u_material.ks * vec3(texSpecularColor);
+	vec3 lightPos = u_lightPosition;
+	vec3 lightDir = normalize(lightPos - vec3(v_position));
 	
-	//vec3 reflectDir = normalize(reflect(-lightDir, norm));
 	vec3 halfwayVec = normalize(lightDir + cameraDir);
 
-	float spec = pow(max(dot(cameraDir, halfwayVec),0.0f), u_material.sh * 128.0f);
-	//float spec = sin(length(distance(vec3(v_position), lightPos)));
+	//LIGHT CALCULATIONS
+	vec3 emissiveColor = u_colorBase;
+	
+	vec3 ambientFact = u_meshMaterial.ka * texDiffuseColor.rgb;
+	vec3 ambient = u_lightColor * ambientFact;
+	
+	vec3 diffuseFact = u_meshMaterial.kd * texDiffuseColor.rgb;
+	float diffuseIntensity = max(dot(norm,lightDir), 0.0f);
+	vec3 diffuse = (diffuseFact * u_lightColor) * diffuseIntensity;
+	
+	vec3 specularFact = u_meshMaterial.ks * texSpecularColor.rgb;
 	float facing = dot(v_normal, lightDir) > 0.0f ? 1.0f : 0.0f;
-	vec3 specular = specularIntensity * spec * u_lightColor * facing;
+	//float spec = pow(max(dot(cameraDir, halfwayVec),0.0f), u_material.sh * 128.0f);
+	float spec = max(0.0f, sign(dot(norm, lightDir))) * pow(max(0.0f, dot(cameraDir,halfwayVec)), u_meshMaterial.sh);
+	vec3 specular = (specularFact* spec) * u_lightColor * facing;
 
-	vec3 output = baseColor * (ambient + diffuse) + specular;
+	vec3 output = emissiveColor * (ambient + diffuse) + specular;
 	color = vec4(output, 1.0f);
 }
 
