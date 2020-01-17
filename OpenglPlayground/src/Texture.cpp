@@ -14,8 +14,8 @@ Texture::Texture(const std::string& path) : m_rendererID(0), m_path(path),
 	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 	
 	//horizontal and vertical texture render
-	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP));//default:GL_CLAMP
-	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP));
+	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));//default:GL_CLAMP
+	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
 
 	//always flip because of openGL texture coords system,(0,0) at bottom-left
 	//stbi_set_flip_vertically_on_load(1);

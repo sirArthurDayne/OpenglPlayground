@@ -88,11 +88,10 @@ void main()
 	
 	vec3 specularFact = u_meshMaterial.ks * texSpecularColor.rgb;
 	float facing = dot(v_normal, lightDir) > 0.0f ? 1.0f : 0.0f;
-	//float spec = pow(max(dot(cameraDir, halfwayVec),0.0f), u_material.sh * 128.0f);
 	float spec = max(0.0f, sign(dot(norm, lightDir))) * pow(max(0.0f, dot(cameraDir,halfwayVec)), u_meshMaterial.sh);
-	vec3 specular = (specularFact* spec) * u_lightColor * facing;
+	vec3 specular = (specularFact* spec * u_lightColor) * facing;
 
-	vec3 output = emissiveColor * (ambient + diffuse) + specular;
+	vec3 output = emissiveColor * (ambient + diffuse + specular);
 	color = vec4(output, 1.0f);
 }
 

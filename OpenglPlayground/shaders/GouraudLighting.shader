@@ -67,11 +67,11 @@ void main()
 	vec3 diffuse = (diffuseFact * u_lightColor) * diffuseIntensity;
 
 	vec3 specularFact = u_meshMaterial.ks * texSpecularColor.rgb;
-	float spec = pow(max(dot(cameraDir, halfwayVec), 0.0f), u_meshMaterial.sh);
+	float spec = max(0.0f, sign(dot(v_normal, lightDir))) * pow(max(0.0f, dot(cameraDir,halfwayVec)), u_meshMaterial.sh);
 	float facing = dot(v_normal, lightDir) > 0.0f ? 1.0f : 0.0f;
-	vec3 specular = (specularFact * spec) * u_lightColor * facing;
+	vec3 specular = (specularFact * spec * u_lightColor) * facing;
 
-	v_outputColor = emissiveColor * (ambient + diffuse) + specular;
+	v_outputColor = emissiveColor * (ambient + diffuse + specular);
 }
 
 #shader fragment

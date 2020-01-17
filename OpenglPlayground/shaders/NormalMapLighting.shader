@@ -19,52 +19,34 @@ out vec2 v_textureCoord;
 out vec3 v_normal;
 out vec3 v_tangent;
 out vec3 v_bitangent;
-out vec3 v_cameraDir;
-out vec3 v_lightDir;
-out vec3 v_halfwayDir;
+out vec3 v_cameraPos;
+out vec3 v_lightPos;
 
 void main()
 {
-
 	//CONVERTION FROM MODEL TO VIEW SPACE
-	mat4 modelViewMat = u_model * u_view;
-	v_position = modelViewMat * position;
-	
-	v_normal = mat3(transpose(inverse(modelViewMat))) * normal;
-	v_normal = normalize(v_normal);
-	
-	v_tangent = normalize(vec3(modelViewMat * vec4(tangent,0.0f)));
+	mat3 toModelMatrix = mat3(transpose(inverse(u_model)));
+	v_normal = normalize(toModelMatrix * normal);
+	v_tangent = normalize(toModelMatrix * tangent);
+	v_bitangent = normalize(toModelMatrix * bitangent);
+
 	//REO-ORTOGONALIZE TANGENT RESPECT TO NORMAL
 	v_tangent = normalize(v_tangent - dot(v_tangent, v_normal) * v_normal);
 
-	//CALCULATE BITANGENT AND TBN MATRIX
-	v_bitangent = normalize(-cross(v_normal, v_tangent));
 
 	//CONVERT TO RIGHT HAND SYSTEM
 	if (dot(-cross(v_normal, v_tangent), v_bitangent) < 0.0f)
-	{
 		v_tangent = -v_tangent;
-		//v_bitangent = normalize(-cross(v_normal, v_tangent));
-	}
 
-	mat3 TBN = transpose(mat3(
-		v_tangent.x, v_bitangent.x, v_normal.x,
-		v_tangent.y, v_bitangent.y, v_normal.y,
-		v_tangent.z, v_bitangent.z, v_normal.z
-	));
+	//CALCULATE TBN MATRIX
+	mat3 TBN = transpose(mat3(v_tangent, v_bitangent, v_normal));
 
-	//CONVERTION FROM VIEW TO TANGENT SPACE
-	vec3 cameraPos = vec3(modelViewMat * vec4(u_cameraPosition,0.0f));
-	v_cameraDir = TBN * (cameraPos - v_position.xyz);
-	v_cameraDir = normalize(v_cameraDir);
-
-	vec3 lightPos = vec3(modelViewMat * vec4(u_lightPosition,0.0f));
-	v_lightDir = TBN * (lightPos - v_position.xyz);
-	v_lightDir = normalize(v_lightDir);
-
-	v_halfwayDir = normalize(v_lightDir + v_cameraDir);
-
-	v_position = vec4(TBN * v_position.xyz, 0.0f);
+	//CONVERTION FROM MODEL TO TANGENT SPACE
+	v_cameraPos = TBN * u_cameraPosition;
+	v_lightPos = TBN * u_lightPosition;
+	vec4 pos = u_model * position;
+	v_position = vec4(TBN * pos.xyz,0.0f);
+	
 	//OPENGL SPECIFIC
 	v_textureCoord = texCoord;
 	gl_Position = u_mvp * position;
@@ -99,24 +81,23 @@ in vec2 v_textureCoord;
 in vec3 v_normal;
 in vec3 v_tangent;
 in vec3 v_bitangent;
-//camera
-in vec3 v_cameraDir;
-//light
-in vec3 v_lightDir;
-in vec3 v_halfwayDir;
+
+in vec3 v_cameraPos;
+in vec3 v_lightPos;
 
 void main()
 {
 	vec4 texDiffuseColor = texture(u_texture_diffuse_1, v_textureCoord);
 	vec4 texSpecularColor = texture(u_texture_specular_1, v_textureCoord);
-	
-	vec4 texNormalColor = 2.0f * normalize(texture(u_texture_normal_1, v_textureCoord)) - 1.0f;
-	vec3 normalTS = texNormalColor.rgb;
+	vec4 texNormalColor =  2.0f * texture(u_texture_normal_1, v_textureCoord) - 1.0f;
+	vec3 normalTS = normalize(texNormalColor).rgb;
+	normalTS.y = -normalTS.y;
+	normalTS.z = -normalTS.z;
 
-	vec3 cameraDirectionTS = normalize(v_cameraDir);
-	vec3 lightDirectionTS = normalize(v_lightDir);
+	vec3 cameraDirectionTS = normalize(v_cameraPos - v_position.xyz);
+	vec3 lightDirectionTS = normalize(v_lightPos - v_position.xyz);
+	vec3 halfwayTS = normalize(lightDirectionTS + cameraDirectionTS);
 
-	vec3 halfwayTS = normalize(v_halfwayDir);
 	
 	//LIGHTING CALCULATIONS
 	vec3 emissiveColor = u_colorBase;
@@ -129,10 +110,10 @@ void main()
 	vec3 diffuse = (diffuseFact * u_lightColor) * diffuseIntensity;
 	
 	vec3 specularFact = u_meshMaterial.ks * texSpecularColor.rgb;
-	float specularIntensity = pow(max(dot(cameraDirectionTS, halfwayTS), 0.0f), u_meshMaterial.sh);
+	float specularIntensity = max(0.0f, sign(dot(normalTS, lightDirectionTS))) * pow(max(0.0f, dot(cameraDirectionTS, halfwayTS)), u_meshMaterial.sh);
 	float facing = dot(normalTS, lightDirectionTS) > 0.0f ? 1.0f : 0.0f;
-	vec3 specular = u_lightColor * (specularFact * specularIntensity) * facing;
+	vec3 specular = (u_lightColor * specularFact * specularIntensity) * facing;
 
-	vec3 output = emissiveColor * (ambient + diffuse) + specular;
+	vec3 output = emissiveColor * (ambient + diffuse + specular);
 	color = vec4(output, 1.0f);
 }
