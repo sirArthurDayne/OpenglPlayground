@@ -106,7 +106,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	//setup light object
 	m_lightCube = new Mesh(data, indices);
 	//setup model
-	m_MyModel = new Model("models/Almeja/almeja.obj", true);
+	m_MyModel = new Model("models/Nanosuit/nanosuit.obj", true);
 	
 	//setup shaders and textures
 	m_fongLightShader = new Shader("shaders/FongLighting.shader");
@@ -183,7 +183,7 @@ void test::MeshTest::OnGuiRenderer()
 	ImGui::ColorEdit3("Ambient", &m_MyMaterials.ambient.x);
 	ImGui::ColorEdit3("Diffuse", &m_MyMaterials.diffuse.x);
 	ImGui::ColorEdit3("Specular", &m_MyMaterials.specular.x);
-	ImGui::SliderFloat("shininess", &m_MyMaterials.shininess, 0.0f, 1.0f);
+	ImGui::SliderFloat("shininess", &m_MyMaterials.shininess, 1.0f, 144.0f);
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
 	
@@ -223,8 +223,8 @@ void test::MeshTest::UpdateScene(Shader* shader)
 {
 	//TODO: Send data to Mesh class and return ModelMatrix
 	glm::mat4 trans  = glm::translate(glm::mat4(1.0f), m_cubeTranslation);
-	//glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
-	glm::mat4 rotate = glm::mat4(1.0f);
+	glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
+	//glm::mat4 rotate = glm::mat4(1.0f);
 	glm::mat4 scale  = glm::scale(glm::mat4(1.0f), m_cubeScale);
 	glm::mat4 model  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
 	model *= trans * rotate * scale;

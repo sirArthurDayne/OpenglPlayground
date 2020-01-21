@@ -120,6 +120,11 @@ void Mesh::Draw(Renderer& renderer, Shader* shader)
 			//texture.Bind(i++);
 	}
 
+	if (m_materials.empty())
+		shader->SetUniform1f("u_hasMaterials", 0.0f);
+	else
+		shader->SetUniform1f("u_hasMaterials", 1.0f);
+	
 	for (auto& mat : m_materials)
 	{
 		shader->SetUniform3f("u_meshMaterial.ka", mat.ambient.r, mat.ambient.g, mat.ambient.b);
@@ -127,5 +132,7 @@ void Mesh::Draw(Renderer& renderer, Shader* shader)
 		shader->SetUniform3f("u_meshMaterial.ks", mat.specular.r, mat.specular.g, mat.specular.b);
 		shader->SetUniform1f("u_meshMaterial.sh", mat.shininess);
 	}
+	
+	
 	renderer.Draw(m_VAO, m_IBO);
 }

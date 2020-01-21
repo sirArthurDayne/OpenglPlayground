@@ -222,7 +222,6 @@ void Model::DrawModel(Renderer& renderer, Shader* shader)
 {
 	for (auto& mesh : m_meshLoaded)
 		mesh.Draw(renderer, shader);
-	
 }
 
 
