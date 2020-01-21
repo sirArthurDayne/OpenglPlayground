@@ -12,7 +12,7 @@ enum Camera_Movement {
 class Camera
 {
 public:
-	Camera(glm::vec3& cameraPos, glm::vec3 target, glm::vec3 up, glm::vec3 front, glm::vec3 initPoint);
+	Camera(glm::vec3 cameraPos, glm::vec3 target, glm::vec3 up, glm::vec3 front, glm::vec3 initPoint);
 	~Camera() {}
 	glm::mat4 GetViewMatrix();
 	void UpdateCamera(Camera_Movement& move, float speed, float dt);

@@ -8,6 +8,8 @@
 #include "tests/Test_Texture2D.h"
 #include "tests/Texture3D.h"
 #include"tests/MeshTest.h"
+#include "tests/CameraTests.h"
+
 
 /*openGL--> is an implementation that runs & works on your GPU
 openGL works as a state machine.
@@ -74,6 +76,7 @@ int main(void)
 	test_menu->AddTest <test::Texture2D>("2D Orthographic + Texture");
 	test_menu->AddTest<test::Texture3D>("3D Perspective + Texture");
 	test_menu->AddTest<test::MeshTest>("Model Loading + Phong/Gouldard Lighting");
+	test_menu->AddTest<test::CameraTest>("Free camera test enviroment");
 	
 	Renderer renderer;
 	while (!glfwWindowShouldClose(mainWindow))
