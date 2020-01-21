@@ -8,7 +8,6 @@ test::CameraTest::CameraTest(GLFWwindow*& win)
 	//enable all features
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CW);
-	GLCALL(glfwSetInputMode(m_win, GLFW_CURSOR, GLFW_CURSOR_DISABLED));
 
 	glfwSetCursorPos(m_win,float(WIDTH)/2.0f, float(HEIGHT)/2.0f);
 	//setup data
@@ -106,7 +105,8 @@ test::CameraTest::CameraTest(GLFWwindow*& win)
 	m_lightSource_shader = new Shader("shaders/LightSource.shader");
 	m_lightSource_shader->Unbind();
 
-	FreeCamera = new MayaCamera(glm::vec3(0.0f,0.0f,15.0f), 45.0f);
+	//FreeCamera = new MayaCamera(glm::vec3(0.0f,0.0f,15.0f), 45.0f);
+	FirstPersonCamera = new FPSCamera(glm::vec3(0.0f, 0.0f, 15.0f), 45.0f);
 	
 	lightCubePos = glm::vec3(0.0f, 1.0f, 1.0f);
 
@@ -118,7 +118,8 @@ test::CameraTest::~CameraTest()
 {
 	delete lightCube, TestModel;
 	delete m_fong_ligthing_shader, m_lightSource_shader;
-	delete FreeCamera;
+//	delete FreeCamera;
+	delete FirstPersonCamera;
 	
 	//set default enviroment
 	glDisable(GL_DEPTH_TEST);
@@ -148,7 +149,7 @@ void test::CameraTest::OnRenderer()
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.45f));
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
 		model *= trans * rotate * scale;
-		glm::mat4 proy = glm::perspective(glm::radians(FreeCamera->GetCameraFOV()), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+		glm::mat4 proy = glm::perspective(glm::radians(FirstPersonCamera->GetCameraFOV()), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 		glm::mat4 mvp = proy * m_viewMatrix * model;
 		
 		m_lightSource_shader->SetUniformMat4f("u_mvp", mvp);
@@ -164,7 +165,7 @@ void test::CameraTest::OnRenderer()
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(15.0f,0.10f,15.0f));
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
 		model *= trans * rotate * scale;
-		glm::mat4 proy = glm::perspective(glm::radians(FreeCamera->GetCameraFOV()), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+		glm::mat4 proy = glm::perspective(glm::radians(FirstPersonCamera->GetCameraFOV()), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 		glm::mat4 mvp = proy * m_viewMatrix * model;
 		
 		m_lightSource_shader->SetUniformMat4f("u_mvp", mvp);
@@ -177,8 +178,8 @@ void test::CameraTest::OnRenderer()
 
 void test::CameraTest::OnUserUpdate(float deltaTime)
 {
-	FreeCamera->UpdateCamera(m_win, deltaTime);
-	m_viewMatrix = FreeCamera->GetViewMatrix();
+	FirstPersonCamera->UpdateCamera(m_win, deltaTime);
+	m_viewMatrix = FirstPersonCamera->GetViewMatrix();
 
 	lightCubePos.x = sin(float(glfwGetTime())) * 2.0f + 1.0f;
 	lightCubePos.z = cos(float(glfwGetTime())) * 2.0f + 4.0f;
@@ -187,9 +188,9 @@ void test::CameraTest::OnUserUpdate(float deltaTime)
 
 void test::CameraTest::OnGuiRenderer()
 {
-	glm::vec3 camera = FreeCamera->GetEyePosition();
-	glm::vec2 rotation = FreeCamera->GetPY();
-	float zoom = FreeCamera->GetCameraFOV();
+	glm::vec3 camera = FirstPersonCamera->GetEyePosition();
+	glm::vec2 rotation = FirstPersonCamera->GetPY();
+	float zoom = FirstPersonCamera->GetCameraFOV();
 	ImGui::Begin("Camera");
 	ImGui::SliderFloat3("position", &camera.x, -20.0f,20.0f);
 	ImGui::SliderFloat2("pitch/yaw", &rotation.x, -20.0f,20.0f);
@@ -208,14 +209,14 @@ void test::CameraTest::UpdateScene()
 	glm::mat4 model  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
 	model *= trans * rotate * scale;
 	
-	glm::mat4 proy = glm::perspective(glm::radians(FreeCamera->GetCameraFOV()), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+	glm::mat4 proy = glm::perspective(glm::radians(FirstPersonCamera->GetCameraFOV()), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 	glm::mat4 mvp = proy * m_viewMatrix * model;
 
 	//vectors
 	m_fong_ligthing_shader->SetUniform3f("u_colorBase", 1.0f, 1.0f, 1.0f);
 	m_fong_ligthing_shader->SetUniform3f("u_lightPosition", lightCubePos.x, lightCubePos.y, lightCubePos.z);
 	m_fong_ligthing_shader->SetUniform3f("u_lightColor", 1.0f, 1.0f, 1.0f);
-	m_fong_ligthing_shader->SetUniform3f("u_cameraPosition", FreeCamera->GetEyePosition().x, FreeCamera->GetEyePosition().y, FreeCamera->GetEyePosition().z);
+	m_fong_ligthing_shader->SetUniform3f("u_cameraPosition", FirstPersonCamera->GetEyePosition().x, FirstPersonCamera->GetEyePosition().y, FirstPersonCamera->GetEyePosition().z);
 	m_fong_ligthing_shader->SetUniform3f("u_attConst", att.x,att.y, att.z);
 	//matrices
 	m_fong_ligthing_shader->SetUniformMat4f("u_mvp", mvp);

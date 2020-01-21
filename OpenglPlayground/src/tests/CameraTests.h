@@ -2,6 +2,7 @@
 #include "Test.h"
 #include "../Model.h"
 #include"../MayaCamera.h"
+#include"../FPSCamera.h"
 #include"../Shader.h"
 
 namespace test
@@ -21,8 +22,10 @@ namespace test
 		Model* TestModel;
 		Mesh* lightCube;
 		Shader* m_fong_ligthing_shader, *m_lightSource_shader;
-		MayaCamera* FreeCamera;
 
+	//	MayaCamera* FreeCamera;
+		FPSCamera* FirstPersonCamera;
+		
 		glm::vec3 lightCubePos;
 		glm::vec3 att;
 		glm::mat4 m_viewMatrix;

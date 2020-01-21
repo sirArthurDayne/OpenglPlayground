@@ -113,7 +113,6 @@ void MayaCamera::KeyboardMovement(GLFWwindow* win, float dt)
 		m_eyePosition -= rightDir * speed;
 	else if (glfwGetKey(win, GLFW_KEY_D) == GLFW_PRESS)
 		m_eyePosition += rightDir * speed;
-	
 
 }
 
@@ -166,7 +165,7 @@ void MayaCamera::MousePanning(const glm::vec2 delta, float dt)
 	m_distance = glm::distance(m_eyePosition, m_focalPoint);
 }
 
-void MayaCamera::UpdateVectors()
+void MayaCamera::UpdateVectors(void)
 {
 	glm::quat yawQuat = Rotate(-m_pitch, glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::quat pitchQuat = Rotate(m_yaw, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -180,5 +179,3 @@ glm::quat MayaCamera::Rotate(float angle, const glm::vec3 axis)
 {
 	return glm::angleAxis(glm::radians(angle), axis);
 }
-
-

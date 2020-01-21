@@ -22,7 +22,7 @@ public:
 	
 	void SetCameraFOV(float zoom) { m_zoom = zoom; }
 private:
-	void UpdateVectors();
+	void UpdateVectors(void);
 
 	void GetMousePosition(GLFWwindow* win, double& x, double& y);
 
@@ -35,6 +35,7 @@ private:
 	void MouseRotating(glm::vec2 delta, float dt);
 
 	glm::quat Rotate(float angle, const glm::vec3 axis);
+
 private:
 	glm::mat4 m_viewMat;
 
