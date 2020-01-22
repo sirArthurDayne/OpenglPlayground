@@ -120,10 +120,12 @@ void Mesh::Draw(Renderer& renderer, Shader* shader)
 			//texture.Bind(i++);
 	}
 
-	if (m_materials.empty())
+	if (m_materials.empty() && m_textures.empty())
 		shader->SetUniform1f("u_hasMaterials", 0.0f);
-	else
+	else if (!m_textures.empty() && m_materials.empty())
 		shader->SetUniform1f("u_hasMaterials", 1.0f);
+	else if (!m_materials.empty() && !m_textures.empty())
+		shader->SetUniform1f("u_hasMaterials", 2.0f);
 	
 	for (auto& mat : m_materials)
 	{

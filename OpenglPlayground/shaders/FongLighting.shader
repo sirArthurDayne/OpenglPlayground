@@ -106,12 +106,17 @@ void main()
 
 	//LIGHT CALCULATIONS
 	vec3 output = vec3(0.0f);
-	if (u_hasMaterials == 1.0f)
+	if (u_hasMaterials == 2.0f)//textures and materials
 	{
 		output = BlinPhong(norm, texDiffuseColor.rgb, texSpecularColor.rgb,
 				cameraDir, lightDir, halfwayVec, u_lightColor, u_meshMaterial, att);
 	}
-	else
+	else if (u_hasMaterials == 1.0f)//only textures
+	{
+		output = BlinPhong(norm, texDiffuseColor.rgb, texSpecularColor.rgb,
+				cameraDir, lightDir, halfwayVec, u_lightColor, u_material, att);
+	}
+	else//nothing, just the model data
 	{
 		output = BlinPhong(norm, vec3(1.0f), vec3(1.0f),
 				cameraDir, lightDir, halfwayVec, u_lightColor, u_material, att);
