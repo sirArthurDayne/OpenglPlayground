@@ -39,16 +39,15 @@ void MayaCamera::UpdateCamera(GLFWwindow* win, float deltaTime)
 {
 	//parallax movement effect
 	KeyboardMovement(win, deltaTime);
-
+	double mx, my;
+	GetMousePosition(win, mx, my);
+	glm::vec2 mouseCurrent(mx, my);
+	glm::vec2 mouseDelta(mx - m_mousePosition.x, my - m_mousePosition.y);
+	m_mousePosition = mouseCurrent;
 	//rotating effect
 	if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
-		double mx, my;
-		GetMousePosition(win, mx, my);
-		glm::vec2 mouseCurrent(mx, my);
-		glm::vec2 mouseDelta(mx - m_mousePosition.x, my - m_mousePosition.y);
-		m_mousePosition = mouseCurrent;
-		MouseRotating(mouseDelta, deltaTime);
+			MouseRotating(mouseDelta, deltaTime);
 	}
 
 	//zoom effect 
@@ -61,12 +60,7 @@ void MayaCamera::UpdateCamera(GLFWwindow* win, float deltaTime)
 	//panning effect
 	if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 	{
-		double mx, my;
-		GetMousePosition(win, mx, my);
-		glm::vec2 mouseCurrent(mx, my);
-		glm::vec2 mouseDelta(mx - m_mousePosition.x, my - m_mousePosition.y);
-		m_mousePosition = mouseCurrent;
-		MousePanning(mouseDelta, deltaTime);
+			MousePanning(mouseDelta, deltaTime);
 	}
 
 }

@@ -23,7 +23,7 @@ namespace test
 		Mesh* lightCube;
 		Shader* m_fong_ligthing_shader, *m_lightSource_shader;
 
-	//	MayaCamera* FreeCamera;
+		MayaCamera* FreeCamera;
 		FPSCamera* FirstPersonCamera;
 		
 		glm::vec3 lightCubePos;
