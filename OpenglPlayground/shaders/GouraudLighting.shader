@@ -17,6 +17,7 @@ struct Material
 
 uniform Material u_material;
 uniform Material u_meshMaterial;
+uniform float u_hasMaterials;
 
 uniform sampler2D u_texture_diffuse_1;
 uniform sampler2D u_texture_specular_1;
@@ -32,6 +33,33 @@ uniform mat4 u_mvp;
 uniform mat4 u_view;
 
 out vec3 v_outputColor;
+
+vec3 BlinPhong(vec3 normal, vec3 diffuseColor, vec3 specularColor, vec3 cameraDirection, 
+	vec3 lightDirection, vec3 halfway, vec3 lightColor, Material mat, float attenuation)
+{
+	vec3 emissiveColor = u_colorBase;
+	
+	vec3 ambientFact = mat.ka * diffuseColor;
+	vec3 ambient = lightColor * ambientFact;
+	ambient *= attenuation;
+
+	vec3 diffuseFact = mat.kd * diffuseColor;
+	float diffuseIntensity = max(dot(normal,lightDirection), 0.0f);
+	vec3 diffuse = (diffuseFact * lightColor) * diffuseIntensity;
+	diffuse *= attenuation;
+
+	vec3 specularFact = mat.ks * specularColor;
+	float facing = dot(normal, lightDirection) > 0.0f ? 1.0f : 0.0f;
+	float spec = max(0.0f, sign(dot(normal, lightDirection))) * pow(max(0.0f, dot(cameraDirection, halfway)), mat.sh);
+	vec3 specular = (specularFact* spec * lightColor) *(diffuseFact * diffuseIntensity) * facing;
+	specular *= attenuation;
+
+	return  emissiveColor * (ambient + diffuse) + specular;
+}
+
+
+
+
 
 void main()
 {
@@ -62,24 +90,23 @@ void main()
 
 
 	//LIGHTING CALCULATIONS
-	vec3 emissiveColor = u_colorBase;
+	if (u_hasMaterials == 2.0f)//textures and materials
+	{
+		v_outputColor = BlinPhong(v_normal, texDiffuseColor.rgb, texSpecularColor.rgb,
+				cameraDir, lightDir, halfwayVec, u_lightColor, u_meshMaterial, att);
+	}
+	else if (u_hasMaterials == 1.0f)//only textures
+	{
+		v_outputColor = BlinPhong(v_normal, texDiffuseColor.rgb, texSpecularColor.rgb,
+				cameraDir, lightDir, halfwayVec, u_lightColor, u_material, att);
+	}
+	else//nothing, just the model data
+	{
+		v_outputColor = BlinPhong(v_normal, vec3(1.0f), vec3(1.0f),
+				cameraDir, lightDir, halfwayVec, u_lightColor, u_material, att);
+	}
+		
 
-	vec3 ambientFact = u_meshMaterial.ka * texDiffuseColor.rgb;
-	vec3 ambient = ambientFact * u_lightColor;
-	ambient *= att;
-
-	vec3 diffuseFact = u_meshMaterial.kd * texDiffuseColor.rgb;
-	float diffuseIntensity = max(dot(v_normal, lightDir), 0.0f);
-	vec3 diffuse = (diffuseFact * u_lightColor) * diffuseIntensity;
-	diffuse *= att;
-
-	vec3 specularFact = u_meshMaterial.ks * texSpecularColor.rgb;
-	float spec = max(0.0f, sign(dot(v_normal, lightDir))) * pow(max(0.0f, dot(cameraDir,halfwayVec)), u_meshMaterial.sh);
-	float facing = dot(v_normal, lightDir) > 0.0f ? 1.0f : 0.0f;
-	vec3 specular = (specularFact * spec * u_lightColor) * (diffuseFact * diffuseIntensity) * facing;
-	specular *= att;
-
-	v_outputColor = emissiveColor * (ambient + diffuse) + specular;
 }
 
 #shader fragment

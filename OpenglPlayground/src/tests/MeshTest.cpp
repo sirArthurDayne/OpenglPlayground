@@ -12,7 +12,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 		glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3((float)WIDTH /2.0f, (float)HEIGHT /2.0f, 0.0f))),
 	m_view(glm::mat4(1.0f)), m_ColorBase(glm::vec3(1.0f, 1.0f, 1.0f)),
 	m_lightPos(glm::vec3(0.0f,	1.0f, -1.0f)), m_lightColor(glm::vec3(1.0f)),
-	m_lightAtt(glm::vec3(1.0f, 0.045f,0.007f))
+	m_lightAtt(glm::vec3(1.0f, 0.0045f,0.0007f))
 {
 	//enable all features
 	glEnable(GL_DEPTH_TEST);
@@ -106,7 +106,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	//setup light object
 	m_lightCube = new Mesh(data, indices);
 	//setup model
-	m_MyModel = new Model("models/VideoShip.obj");
+	m_MyModel = new Model("models/Almeja/almeja.obj", true);
 	
 	//setup shaders and textures
 	m_fongLightShader = new Shader("shaders/FongLighting.shader");
