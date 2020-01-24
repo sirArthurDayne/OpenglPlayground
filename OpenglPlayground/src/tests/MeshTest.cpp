@@ -106,7 +106,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	//setup light object
 	m_lightCube = new Mesh(data, indices);
 	//setup model
-	m_MyModel = new Model("models/Almeja/almeja.obj", true);
+	m_MyModel = new Model("models/teapot.obj");
 	
 	//setup shaders and textures
 	m_fongLightShader = new Shader("shaders/FongLighting.shader");
@@ -231,13 +231,9 @@ void test::MeshTest::BindSelectedShader(Lighting& option)
 
 void test::MeshTest::UpdateScene(Shader* shader)
 {
-	//TODO: Send data to Mesh class and return ModelMatrix
-	glm::mat4 trans  = glm::translate(glm::mat4(1.0f), m_cubeTranslation);
-	glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
-	//glm::mat4 rotate = glm::mat4(1.0f);
-	glm::mat4 scale  = glm::scale(glm::mat4(1.0f), m_cubeScale);
-	glm::mat4 model  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
-	model *= trans * rotate * scale;
+	m_MyModel->UpdateModel(m_cubeTranslation, m_cubeScale, glm::vec3(.20f, .30f, .40f), glm::radians(10.0f) * float(glfwGetTime()));
+
+	glm::mat4 model = m_MyModel->GetModelMatrix();
 	
 	glm::mat4 proy = glm::perspective(glm::radians(m_FOV), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 	glm::mat4 mvp = proy * m_view * model;

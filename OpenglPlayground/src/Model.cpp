@@ -1,6 +1,8 @@
 ﻿#include "Model.h"
 #include <iostream>
 #include "glm.hpp"
+#include "gtc/matrix_transform.hpp"
+
 
 Model::Model(const std::string path, bool hasMaterials) :
 	m_path(path), m_hasMaterials(hasMaterials)
@@ -12,6 +14,8 @@ Model::Model(const std::string path, bool hasMaterials) :
 	
 	if (path!= "")
 		LoadModel();
+
+	m_modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.f));
 }
 
 Model::~Model()
@@ -222,6 +226,18 @@ void Model::DrawModel(Renderer& renderer, Shader* shader)
 {
 	for (auto& mesh : m_meshLoaded)
 		mesh.Draw(renderer, shader);
+}
+
+void Model::UpdateModel(const glm::vec3 traslation, const glm::vec3 scale, const glm::vec3 direction, const float angleRadians)
+{
+	glm::mat4 transMat  = glm::translate(glm::mat4(1.0f), traslation);
+	glm::mat4 rotateMat = glm::rotate(glm::mat4(1.0f), angleRadians, direction);
+	//glm::mat4 rotate = glm::mat4(1.0f);
+	glm::mat4 scaleMat  = glm::scale(glm::mat4(1.0f), scale);
+	
+	//glm::mat4 model  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
+
+	m_modelMatrix = transMat * rotateMat * scaleMat;
 }
 
 
