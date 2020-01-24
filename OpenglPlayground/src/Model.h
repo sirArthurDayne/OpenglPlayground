@@ -18,8 +18,6 @@ public:
 	void DrawModel(Renderer& renderer, Shader* shader);
 	
 	void UpdateModel(const glm::vec3 traslation, const glm::vec3 scale, const glm::vec3 direction, const float angleRadians);
-	void SetPosition(glm::vec3 pos) { m_localPosition = pos; }
-	glm::vec3 GetPosition(void) const { return m_localPosition; }
 	glm::mat4 GetModelMatrix(void) const { return m_modelMatrix; }
 private:
 	void LoadModel();
@@ -35,7 +33,5 @@ private:
 	std::string m_path, m_directory, m_fileName;
 	bool m_hasMaterials = false;
 
-	
-	glm::vec3 m_localPosition;
 	glm::mat4 m_modelMatrix;
 };
