@@ -35,7 +35,7 @@ void main()
 
 
 	//CONVERT TO RIGHT HAND SYSTEM
-	if (dot(-cross(v_normal, v_tangent), v_bitangent) < 0.0f)
+	if (dot(cross(v_normal, v_tangent), v_bitangent) < 0.0f)
 		v_tangent = -v_tangent;
 
 	//CALCULATE TBN MATRIX

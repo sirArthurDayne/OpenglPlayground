@@ -24,6 +24,7 @@
     <None Include="shaders\FongLighting.shader" />
     <None Include="shaders\GouraudLighting.shader" />
     <None Include="shaders\NormalMapLighting.shader" />
+    <None Include="shaders\Toon.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\IndexBuffer.cpp">

@@ -9,7 +9,7 @@ namespace test
 {
 	enum class Lighting
 	{
-		PHONG, GOURAUD, NORMAL_MAP
+		PHONG, GOURAUD, NORMAL_MAP, TOON
 	};
 	class MeshTest : public Test
 	{
@@ -27,7 +27,7 @@ namespace test
 		glm::vec3 m_lightPos, m_lightColor, m_lightAtt;
 		Camera m_MyCamera;
 		Mesh* m_lightCube;
-		Shader* m_fongLightShader, *m_lightSourceShader, *m_gouraudLightShader, *m_normalMapShader;
+		Shader* m_fongLightShader, *m_lightSourceShader, *m_gouraudLightShader, *m_normalMapShader, *m_toonShader;
 		glm::mat4 m_view;
 		float m_FOV = 45.0f;
 		glm::vec3 m_ColorBase;

@@ -113,6 +113,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	m_lightSourceShader = new Shader("shaders/LightSource.shader");
 	m_gouraudLightShader = new Shader("shaders/GouraudLighting.shader");
 	m_normalMapShader = new Shader("shaders/NormalMapLighting.shader");
+	m_toonShader = new Shader("shaders/Toon.shader");
 	
 	m_fongLightShader->Unbind();
 	m_lightSourceShader->Unbind();
@@ -122,7 +123,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 
 test::MeshTest::~MeshTest()
 {
-	delete m_fongLightShader, m_lightSourceShader, m_gouraudLightShader, m_normalMapShader;
+	delete m_fongLightShader, m_lightSourceShader, m_gouraudLightShader, m_normalMapShader, m_toonShader;
 	delete m_lightCube, m_MyModel;
 	//set default enviroment
 	glDisable(GL_DEPTH_TEST);
@@ -133,13 +134,14 @@ test::MeshTest::~MeshTest()
 void test::MeshTest::OnRenderer()
 {
 	Renderer renderer;
-	renderer.Clear(0.0f, 0.0, 0.0f);
+	renderer.Clear(0.30f, 0.30f, 0.30f);
 	//bind stuff
 	
 	Lighting lightState;
 	if (m_shaderActive == 0) lightState = Lighting::PHONG;
 	else if (m_shaderActive == 1) lightState = Lighting::GOURAUD;
-	else lightState = Lighting::NORMAL_MAP;
+	else if (m_shaderActive == 2) lightState = Lighting::NORMAL_MAP;
+	else if (m_shaderActive == 3) lightState = Lighting::TOON;
 	
 	BindSelectedShader(lightState);
 
@@ -193,6 +195,9 @@ void test::MeshTest::OnGuiRenderer()
 	ImGui::RadioButton("Gouraud", &m_shaderActive, 1);
 	ImGui::SameLine();
 	ImGui::RadioButton("NormalMap", &m_shaderActive, 2);
+	ImGui::SameLine();
+	ImGui::RadioButton("Toon", &m_shaderActive, 3);
+
 	ImGui::SliderFloat3("position", &m_lightPos.x, -10.0f, 10.0f);
 	ImGui::SliderFloat3("attenuation", &m_lightAtt.x, 0.0f, 1.0f);
 	ImGui::ColorEdit3("color", &m_lightColor.x);
@@ -216,6 +221,11 @@ void test::MeshTest::BindSelectedShader(Lighting& option)
 	{
 		m_normalMapShader->Bind();
 		UpdateScene(m_normalMapShader);
+	}
+	else if (option == Lighting::TOON)
+	{
+		m_toonShader->Bind();
+		UpdateScene(m_toonShader);
 	}
 }
 
