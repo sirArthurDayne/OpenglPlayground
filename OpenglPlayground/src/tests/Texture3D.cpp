@@ -141,8 +141,8 @@ glm::vec3(10.0f, -1.0f, 0.0f)
 	m_shader->SetUniform1i("u_texture0", 0);
 	m_shader->SetUniform1i("u_texture1", 1);
 	//TEXTURES
-	m_texture = new Texture("mosaic.png");
-	m_texture2 = new Texture("piratelogo.png");
+	m_texture = new Texture("textures/mosaic.png");
+	m_texture2 = new Texture("textures/piratelogo.png");
 
 	//UNBOUND EVERYTHING
 	m_VAO->Unbind();

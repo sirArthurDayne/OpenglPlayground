@@ -232,11 +232,8 @@ void Model::UpdateModel(const glm::vec3 traslation, const glm::vec3 scale, const
 {
 	glm::mat4 transMat  = glm::translate(glm::mat4(1.0f), traslation);
 	glm::mat4 rotateMat = glm::rotate(glm::mat4(1.0f), angleRadians, direction);
-	//glm::mat4 rotate = glm::mat4(1.0f);
 	glm::mat4 scaleMat  = glm::scale(glm::mat4(1.0f), scale);
 	
-	//glm::mat4 model  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
-
 	m_modelMatrix = transMat * rotateMat * scaleMat;
 }
 

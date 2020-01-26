@@ -106,7 +106,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	//setup light object
 	m_lightCube = new Mesh(data, indices);
 	//setup model
-	m_MyModel = new Model("models/teapot.obj");
+	m_MyModel = new Model("models/dragon.ply");
 	
 	//setup shaders and textures
 	m_fongLightShader = new Shader("shaders/FongLighting.shader");
@@ -119,6 +119,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	m_lightSourceShader->Unbind();
 	m_gouraudLightShader->Unbind();
 	m_normalMapShader->Unbind();
+	m_toonShader->Unbind();
 }
 
 test::MeshTest::~MeshTest()
@@ -179,7 +180,7 @@ void test::MeshTest::OnGuiRenderer()
 	ImGui::Begin("Model Inspector");
 	ImGui::SliderFloat("FOV", &m_FOV, 30.0f, 90.0f);
 	ImGui::SliderFloat3("cameraPosition", &m_cameraPos.x, -20.0f, 20.0f);
-	ImGui::SliderFloat3("scale", &m_cubeScale.x, .50f, 3.0f);
+	ImGui::SliderFloat3("scale", &m_cubeScale.x, .50f, 6.0f);
 	ImGui::SliderFloat3("translation", &m_cubeTranslation.x, -20.0f, 20.0f);
 	ImGui::ColorEdit3("Base color", &m_ColorBase.x);
 	ImGui::ColorEdit3("Ambient", &m_MyMaterials.ambient.x);
@@ -231,7 +232,7 @@ void test::MeshTest::BindSelectedShader(Lighting& option)
 
 void test::MeshTest::UpdateScene(Shader* shader)
 {
-	m_MyModel->UpdateModel(m_cubeTranslation, m_cubeScale, glm::vec3(.20f, .30f, .40f), glm::radians(10.0f) * float(glfwGetTime()));
+	m_MyModel->UpdateModel(m_cubeTranslation, m_cubeScale, glm::vec3(.20f, .30f, .40f), glm::radians(0.0f) * float(glfwGetTime()));
 
 	glm::mat4 model = m_MyModel->GetModelMatrix();
 	

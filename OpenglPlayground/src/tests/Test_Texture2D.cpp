@@ -56,8 +56,8 @@ test::Texture2D::Texture2D(GLFWwindow*& win): m_win(win),
 	m_shader->SetUniform1i("u_texture0", 0);
 	m_shader->SetUniform1i("u_texture1", 1);
 	//TEXTURES
-	m_texture = new Texture("fabric.png");
-	m_texture2 = new Texture("piratelogo.png");
+	m_texture = new Texture("textures/fabric.png");
+	m_texture2 = new Texture("textures/piratelogo.png");
 	
 	//UNBOUND EVERYTHING
 	m_VAO->Unbind();

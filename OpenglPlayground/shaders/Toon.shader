@@ -100,7 +100,7 @@ vec3 BlinPhong(vec3 normal, vec3 diffuseColor, vec3 specularColor, vec3 cameraDi
 	vec3 specular = (specularFact* spec * lightColor) *(diffuseFact * diffuseIntensity) * specularMask;
 	specular *= attenuation;
 
-	return  emissiveColor * (ambient + diffuse) + specular;
+	return  emissiveColor * (ambient + diffuse + specular);
 }
 void main()
 {

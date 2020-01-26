@@ -67,7 +67,7 @@ in vec3 v_normal;
 vec3 BlinPhong(vec3 normal, vec3 diffuseColor, vec3 specularColor, vec3 cameraDirection, 
 	vec3 lightDirection, vec3 halfway, vec3 lightColor, Material mat, float attenuation)
 {
-	vec3 emissiveColor = u_colorBase;
+	vec3 emissiveColor = lightColor;
 	
 	vec3 ambientFact = mat.ka * diffuseColor;
 	vec3 ambient = lightColor * ambientFact;
@@ -84,7 +84,7 @@ vec3 BlinPhong(vec3 normal, vec3 diffuseColor, vec3 specularColor, vec3 cameraDi
 	vec3 specular = (specularFact* spec * lightColor) *(diffuseFact * diffuseIntensity) * facing;
 	specular *= attenuation;
 
-	return  emissiveColor * (ambient + diffuse) + specular;
+	return emissiveColor * (ambient + diffuse + specular);
 }
 
 void main()
