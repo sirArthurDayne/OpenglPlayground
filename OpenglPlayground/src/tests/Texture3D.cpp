@@ -137,7 +137,7 @@ glm::vec3(10.0f, -1.0f, 0.0f)
 
 	m_IBO = new IndexBuffer(indices, sizeof(indices)/ sizeof(indices[0]));
 
-	m_shader = new Shader("shaders/Base.shader");
+	m_shader = new Shader("shaders/Base.glsl");
 	m_shader->SetUniform1i("u_texture0", 0);
 	m_shader->SetUniform1i("u_texture1", 1);
 	//TEXTURES

@@ -102,9 +102,9 @@ test::CameraTest::CameraTest(GLFWwindow*& win)
 	lightCube = new Mesh(data, indices);
 	TestModel = new Model("models/Nanosuit/nanosuit.obj", true);
 	
-	m_fong_ligthing_shader = new Shader("shaders/FongLighting.shader");
+	m_fong_ligthing_shader = new Shader("shaders/FongLighting.glsl");
 	m_fong_ligthing_shader->Unbind();
-	m_lightSource_shader = new Shader("shaders/LightSource.shader");
+	m_lightSource_shader = new Shader("shaders/LightSource.glsl");
 	m_lightSource_shader->Unbind();
 
 	FreeCamera = new MayaCamera(glm::vec3(0.0f,0.0f,15.0f), 45.0f);

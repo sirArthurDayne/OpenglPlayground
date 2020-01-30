@@ -106,14 +106,14 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	//setup light object
 	m_lightCube = new Mesh(data, indices);
 	//setup model
-	m_MyModel = new Model("models/dragon.ply");
+	m_MyModel = new Model("models/buda.ply");
 	
 	//setup shaders and textures
-	m_fongLightShader = new Shader("shaders/FongLighting.shader");
-	m_lightSourceShader = new Shader("shaders/LightSource.shader");
-	m_gouraudLightShader = new Shader("shaders/GouraudLighting.shader");
-	m_normalMapShader = new Shader("shaders/NormalMapLighting.shader");
-	m_toonShader = new Shader("shaders/Toon.shader");
+	m_fongLightShader = new Shader("shaders/FongLighting.glsl");
+	m_lightSourceShader = new Shader("shaders/LightSource.glsl");
+	m_gouraudLightShader = new Shader("shaders/GouraudLighting.glsl");
+	m_normalMapShader = new Shader("shaders/NormalMapLighting.glsl");
+	m_toonShader = new Shader("shaders/Toon.glsl");
 	
 	m_fongLightShader->Unbind();
 	m_lightSourceShader->Unbind();

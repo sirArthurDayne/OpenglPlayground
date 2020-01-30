@@ -52,7 +52,7 @@ test::Texture2D::Texture2D(GLFWwindow*& win): m_win(win),
 
 	//shader code HELL YEAH!
 	//c++17 structured binding	
-	m_shader = new Shader("shaders/Base.shader");
+	m_shader = new Shader("shaders/Base.glsl");
 	m_shader->SetUniform1i("u_texture0", 0);
 	m_shader->SetUniform1i("u_texture1", 1);
 	//TEXTURES
