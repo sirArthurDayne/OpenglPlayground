@@ -16,8 +16,8 @@ MayaCamera::MayaCamera(glm::vec3 position, float FOV)
 
 	m_distance = glm::distance(m_eyePosition, m_focalPoint);
 
-	m_rotationSpeed = 7.0f;
-	m_zoomSpeed = 5.0f;
+	m_rotationSpeed = 2.0f;
+	m_zoomSpeed = 3.0f;
 	m_cameraSpeed = 5.0f;
 	m_panSpeed = 0.0090f;
 	
@@ -37,32 +37,36 @@ MayaCamera::~MayaCamera()
 
 void MayaCamera::UpdateCamera(GLFWwindow* win, float deltaTime)
 {
-	//parallax movement effect
 	KeyboardMovement(win, deltaTime);
-	double mx, my;
-	GetMousePosition(win, mx, my);
-	glm::vec2 mouseCurrent(mx, my);
-	glm::vec2 mouseDelta(mx - m_mousePosition.x, my - m_mousePosition.y);
-	m_mousePosition = mouseCurrent;
-	//rotating effect
-	if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+
+	if (glfwGetKey(win, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
 	{
+		GLCALL(glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED));
+		double mx, my;
+		GetMousePosition(win, mx, my);
+		glm::vec2 mouseCurrent(mx, my);
+		glm::vec2 mouseDelta(mx - m_mousePosition.x, my - m_mousePosition.y);
+		m_mousePosition = mouseCurrent;
+		//rotating effect
+		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 			MouseRotating(mouseDelta, deltaTime);
+		//zoom effect 
+		if (glfwGetKey(win, GLFW_KEY_Z) == GLFW_PRESS)
+			m_zoomOffset -= 1.0f;
+		else if (glfwGetKey(win, GLFW_KEY_X) == GLFW_PRESS)
+			m_zoomOffset += 1.0f;
+		
+		CameraZooming(m_zoomOffset, deltaTime);
+		//panning effect
+		if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+		MousePanning(mouseDelta, deltaTime);
 	}
-
-	//zoom effect 
-	if (glfwGetKey(win, GLFW_KEY_Z) == GLFW_PRESS)
-		m_zoomOffset -= 1.0f;
-	else if (glfwGetKey(win, GLFW_KEY_X) == GLFW_PRESS)
-		m_zoomOffset += 1.0f;
-	CameraZooming(m_zoomOffset, deltaTime);
-
-	//panning effect
-	if (glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+	else
 	{
-			MousePanning(mouseDelta, deltaTime);
+		GLCALL(glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_NORMAL));
 	}
 
+	
 }
 glm::mat4 MayaCamera::GetViewMatrix(void)
 {
@@ -108,6 +112,8 @@ void MayaCamera::KeyboardMovement(GLFWwindow* win, float dt)
 	else if (glfwGetKey(win, GLFW_KEY_D) == GLFW_PRESS)
 		m_eyePosition += rightDir * speed;
 
+	//update distance to target
+	m_distance = glm::distance(m_eyePosition, m_focalPoint);
 }
 
 void MayaCamera::MouseRotating(glm::vec2 delta, float dt)
@@ -120,26 +126,38 @@ void MayaCamera::MouseRotating(glm::vec2 delta, float dt)
 	m_pitch += xOffset;
 	m_yaw += yOffset;
 
-	//limits to one full rotation
+	//limits to yaw to a rotation
 	if (glm::radians(m_yaw) > TWO_PI) m_yaw -= TWO_PI;
 	else if (glm::radians(m_yaw) < -TWO_PI) m_yaw += TWO_PI;
 
-	if (glm::radians(m_pitch) > TWO_PI) m_pitch -= TWO_PI;
-	else if (glm::radians(m_pitch) < -TWO_PI) m_pitch += TWO_PI;
+
+	//return the pitch to zero
+	if (glm::radians(m_pitch) > TWO_PI) m_pitch = TWO_PI;
+	else if (glm::radians(m_pitch) < -TWO_PI) m_pitch = TWO_PI;
 	
 	UpdateVectors();
 }
 
 
 void MayaCamera::CameraZooming(float yOffset, float dt)
-{
-	float speed = (m_zoomSpeed * m_zoomSpeed) * dt;
+{	
+	const float speed = (m_zoomSpeed * m_zoomSpeed) * dt;
+	
 	if (m_zoom >= 1.0f && m_zoom <= 90.0f)
 		m_zoom -= yOffset * speed;
 	if (m_zoom < 1.0f)
 		m_zoom = 1.0f;
 	if (m_zoom > 90.0f)
 		m_zoom = 90.0f;
+
+	m_distance -= yOffset * speed;
+	if (m_distance < 1.0f)
+	{
+		glm::quat qF = m_orientation * glm::quat(0.0f, 0.0f, 0.0f, -1.0f) * glm::conjugate(m_orientation);
+		glm::vec3 frontDir = { qF.x, qF.y, qF.z };
+		m_focalPoint += frontDir;
+		m_distance = 1.0f;
+	}
 	
 	m_zoomOffset = 0.0f;
 }
@@ -150,7 +168,7 @@ void MayaCamera::MousePanning(const glm::vec2 delta, float dt)
 	glm::vec3 frontDir = { qF.x, qF.y, qF.z };
 	glm::vec3 upDir = { 0.0f,1.0f,0.0f };
 	glm::vec3 rightDir = glm::normalize(glm::cross(frontDir, upDir));
-	float speed = m_panSpeed * dt;
+	const float speed = m_panSpeed * dt;
 	m_focalPoint += -rightDir * speed * m_distance * delta.x;
 	m_focalPoint += upDir * speed * m_distance * delta.y;
 

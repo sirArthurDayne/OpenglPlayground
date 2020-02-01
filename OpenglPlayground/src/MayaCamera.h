@@ -19,6 +19,7 @@ public:
 	glm::vec3 GetEyePosition(void) const { return m_eyePosition; }
 	glm::vec2 GetPY(void) const { return glm::vec2(m_pitch, m_yaw); }
 	float GetCameraFOV(void) const { return m_zoom; };
+	float GetDistance(void) const { return m_distance; }
 	
 	void SetCameraFOV(float zoom) { m_zoom = zoom; }
 private:

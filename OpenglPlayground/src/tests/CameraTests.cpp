@@ -195,10 +195,12 @@ void test::CameraTest::OnGuiRenderer()
 	glm::vec3 camera = FreeCamera->GetEyePosition();
 	glm::vec2 rotation = FreeCamera->GetPY();
 	float zoom = FreeCamera->GetCameraFOV();
-	ImGui::Begin("Camera");
+	float dis = FreeCamera->GetDistance();
+	ImGui::Begin("Free Camera");
 	ImGui::SliderFloat3("position", &camera.x, -20.0f,20.0f);
 	ImGui::SliderFloat2("pitch/yaw", &rotation.x, -20.0f,20.0f);
 	ImGui::SliderFloat("FOV", &zoom, 1.0f, 90.0f);
+	ImGui::SliderFloat("distance", &dis, 1.0f, 90.0f);
 	ImGui::End();
 }
 
