@@ -7,10 +7,6 @@
 
 namespace test
 {
-	enum class Lighting
-	{
-		PHONG, GOURAUD, NORMAL_MAP, TOON
-	};
 	class MeshTest : public Test
 	{
 	public:
@@ -19,7 +15,7 @@ namespace test
 		void OnRenderer() override;
 		void OnUserUpdate(float deltaTime) override;
 		void OnGuiRenderer() override;
-		void BindSelectedShader(Lighting& option);
+		void BindSelectedShader(LIGHT_MODELS& option);
 		void UpdateScene(Shader* shader);
 	private:
 		GLFWwindow*& m_win;

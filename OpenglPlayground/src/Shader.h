@@ -2,6 +2,15 @@
 #include"glm.hpp"
 #include<string>
 #include<unordered_map>
+
+
+	enum class LIGHT_MODELS
+	{
+		PHONG, GOURAUD, NORMAL_MAP, TOON
+	};
+
+
+
 class Shader
 {
 public:

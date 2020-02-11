@@ -46,30 +46,16 @@ struct Material
 	vec3 ks;
 	float sh;
 };
-
-
 uniform Material u_material;//user
 uniform Material u_meshMaterial;//model
 uniform float u_hasMaterials;
-
-#define POINT_LIGHT_SIZE 6
-struct PointLight
-{
-	vec3 origin;
-	vec3 color;
-	float phi;//inner cutoff
-	float gamma;//outer cutoff
-};
-uniform PointLight[POINT_LIGHT_SIZE] u_pointLights;
-
-
 
 uniform sampler2D u_texture_diffuse_1;
 uniform sampler2D u_texture_specular_1;
 
 uniform vec3 u_colorBase;
-//uniform vec3 u_lightPosition;
-//uniform vec3 u_lightColor;
+uniform vec3 u_lightPosition;
+uniform vec3 u_lightColor;
 uniform vec3 u_cameraPosition;
 uniform vec3 u_attConst;//x:kc, y:kl, z:kq
 
@@ -81,7 +67,7 @@ in vec3 v_normal;
 vec3 BlinPhong(vec3 normal, vec3 diffuseColor, vec3 specularColor, vec3 cameraDirection, 
 	vec3 lightDirection, vec3 halfway, vec3 lightColor, Material mat, float attenuation)
 {
-	vec3 emissiveColor = u_colorBase;
+	vec3 emissiveColor = lightColor;
 	
 	vec3 ambientFact = mat.ka * diffuseColor;
 	vec3 ambient = lightColor * ambientFact;
@@ -110,50 +96,32 @@ void main()
 	vec3 camera = u_cameraPosition;
 	vec3 cameraDir = normalize(camera - vec3(v_position));
 	
-	//POINT LIGHT CALCULATIONS
+	vec3 lightPos = u_lightPosition;
+	vec3 lightDir = normalize(lightPos - vec3(v_position));
+
+	float distance = length(lightPos - v_position.xyz);
+	float att = 1.0f / (u_attConst.x + u_attConst.y * distance + u_attConst.z * (distance * distance));
+	
+	vec3 halfwayVec = normalize(lightDir + cameraDir);
+
+	//LIGHT CALCULATIONS
 	vec3 output = vec3(0.0f);
-	for (int i = 0; i < POINT_LIGHT_SIZE; i++)
+	if (u_hasMaterials == 2.0f)//textures and materials
 	{
-		vec3 lightColor = u_pointLights[i].color;
-		vec3 lightPos = u_pointLights[i].origin;
-		vec3 lightDir = normalize(lightPos - vec3(v_position));
-		vec3 spotDir = normalize(-vec3(0.0f, -1.0f, 0.0f));
-		float theta = dot(lightDir, spotDir);
-		float cutOff = u_pointLights[i].phi;
-		float outerCutOff = u_pointLights[i].gamma;
-		//float epsilon = cutOff - outerCutOff;
-		//float intens = clamp((theta - outerCutOff) / epsilon, 0.0f, 1.0f);
-
-		float distance = length(lightPos - v_position.xyz);
-		float att = 1.0f / (u_attConst.x + u_attConst.y * distance + u_attConst.z * (distance * distance));
-		
-		vec3 halfwayVec = normalize(lightDir + cameraDir);
-
-		if (u_hasMaterials == 2.0f)//textures and materials
-		{
-			output += BlinPhong(norm, texDiffuseColor.rgb, texSpecularColor.rgb,
-					cameraDir, lightDir, halfwayVec, lightColor, u_meshMaterial, att);
-		}
-		else if (u_hasMaterials == 1.0f)//only textures
-		{
-			output += BlinPhong(norm, texDiffuseColor.rgb, texSpecularColor.rgb,
-					cameraDir, lightDir, halfwayVec, lightColor, u_material, att);
-		}
-		else//nothing, just the model data
-		{
-			Material material = u_material;
-			material.sh *= 256.0f;
-			if (theta < cutOff)//inside cone	
-			{
-				output += BlinPhong(norm, vec3(1.0f), vec3(1.0f),
-					cameraDir, lightDir, halfwayVec, lightColor, material, att);
-			}
-			else {output += material.ka * lightColor;}
-
-		}
-			
+		output = BlinPhong(norm, texDiffuseColor.rgb, texSpecularColor.rgb,
+				cameraDir, lightDir, halfwayVec, u_lightColor, u_meshMaterial, att);
 	}
+	else if (u_hasMaterials == 1.0f)//only textures
+	{
+		output = BlinPhong(norm, texDiffuseColor.rgb, texSpecularColor.rgb,
+				cameraDir, lightDir, halfwayVec, u_lightColor, u_material, att);
+	}
+	else//nothing, just the model data
+	{
+		output = BlinPhong(norm, vec3(1.0f), vec3(1.0f),
+				cameraDir, lightDir, halfwayVec, u_lightColor, u_material, att);
+	}
+		
 	color = vec4(output, 1.0f);
 }
-
 

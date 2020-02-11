@@ -188,5 +188,7 @@
     <None Include="shaders\LightSource.glsl" />
     <None Include="shaders\NormalMapLighting.glsl" />
     <None Include="shaders\Toon.glsl" />
+    <None Include="shaders\SpotLight_BlinPhong.glsl" />
+    <None Include="shaders\PhongLighting.glsl" />
   </ItemGroup>
 </Project>

@@ -109,7 +109,7 @@ test::MeshTest::MeshTest(GLFWwindow*& win) :
 	m_MyModel = new Model("models/buda.ply");
 	
 	//setup shaders and textures
-	m_fongLightShader = new Shader("shaders/FongLighting.glsl");
+	m_fongLightShader = new Shader("shaders/PhongLighting.glsl");
 	m_lightSourceShader = new Shader("shaders/LightSource.glsl");
 	m_gouraudLightShader = new Shader("shaders/GouraudLighting.glsl");
 	m_normalMapShader = new Shader("shaders/NormalMapLighting.glsl");
@@ -138,11 +138,11 @@ void test::MeshTest::OnRenderer()
 	renderer.Clear(0.30f, 0.30f, 0.30f);
 	//bind stuff
 	
-	Lighting lightState;
-	if (m_shaderActive == 0) lightState = Lighting::PHONG;
-	else if (m_shaderActive == 1) lightState = Lighting::GOURAUD;
-	else if (m_shaderActive == 2) lightState = Lighting::NORMAL_MAP;
-	else if (m_shaderActive == 3) lightState = Lighting::TOON;
+	LIGHT_MODELS lightState;
+	if (m_shaderActive == 0) lightState = LIGHT_MODELS::PHONG;
+	else if (m_shaderActive == 1) lightState = LIGHT_MODELS::GOURAUD;
+	else if (m_shaderActive == 2) lightState = LIGHT_MODELS::NORMAL_MAP;
+	else if (m_shaderActive == 3) lightState = LIGHT_MODELS::TOON;
 	
 	BindSelectedShader(lightState);
 
@@ -205,25 +205,25 @@ void test::MeshTest::OnGuiRenderer()
 	ImGui::End();
 }
 
-void test::MeshTest::BindSelectedShader(Lighting& option)
+void test::MeshTest::BindSelectedShader(LIGHT_MODELS& option)
 {
-	if (option == Lighting::PHONG)
+	if (option == LIGHT_MODELS::PHONG)
 	{
 		m_fongLightShader->Bind();
 		UpdateScene(m_fongLightShader);
 			
 	}
-	else if (option == Lighting::GOURAUD)
+	else if (option == LIGHT_MODELS::GOURAUD)
 	{
 		m_gouraudLightShader->Bind();
 		UpdateScene(m_gouraudLightShader);
 	}
-	else if (option == Lighting::NORMAL_MAP)
+	else if (option == LIGHT_MODELS::NORMAL_MAP)
 	{
 		m_normalMapShader->Bind();
 		UpdateScene(m_normalMapShader);
 	}
-	else if (option == Lighting::TOON)
+	else if (option == LIGHT_MODELS::TOON)
 	{
 		m_toonShader->Bind();
 		UpdateScene(m_toonShader);

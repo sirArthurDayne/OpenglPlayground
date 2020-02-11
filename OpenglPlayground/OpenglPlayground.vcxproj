@@ -217,6 +217,8 @@
     <None Include="shaders\GouraudLighting.glsl" />
     <None Include="shaders\LightSource.glsl" />
     <None Include="shaders\NormalMapLighting.glsl" />
+    <None Include="shaders\PhongLighting.glsl" />
+    <None Include="shaders\SpotLight_BlinPhong.glsl" />
     <None Include="shaders\Toon.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

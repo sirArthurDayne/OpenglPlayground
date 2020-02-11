@@ -7,7 +7,6 @@
 
 namespace test
 {
-	
 	class CameraTest : public Test
 	{
 	public:
@@ -16,19 +15,33 @@ namespace test
 		void OnRenderer() override;
 		void OnUserUpdate(float deltaTime) override;
 		void OnGuiRenderer() override;
-		void UpdateScene();
+		void BindSelectedShader(LIGHT_MODELS& option);
+		void UpdateScene(Shader* shader);
 	private:
 		GLFWwindow* &m_win;
-		Model* TestModel;
+
+		
+		Model* m_TestModel;
+		Model* m_ConeModel;
 		Mesh* lightCube;
-		Shader* m_fong_ligthing_shader, *m_lightSource_shader;
+
+		std::vector<Shader> m_lightModelShaders;
+		int m_shaderActive = 0;
 
 		MayaCamera* FreeCamera;
 		FPSCamera* FirstPersonCamera;
 		
-		glm::vec3 lightCubePos;
-		glm::vec3 att;
+		std::vector<glm::vec3> lightCubePositions, lightCubeColors;
+		float cube_offset = 0.0f;
+		float inneRadius = 12.5f;
+		float outerRadius = inneRadius + 5.0f;
+		
 		glm::mat4 m_viewMatrix;
+		Material m_MyMaterials;
+		Material m_lightMaterials;
+		
+		glm::vec3 att;
+
 		
 	};
 

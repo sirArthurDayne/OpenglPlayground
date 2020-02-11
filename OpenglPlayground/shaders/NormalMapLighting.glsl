@@ -145,8 +145,10 @@ void main()
 	}
 	else//nothing, just the model data
 	{
+		Material material = u_material;
+		material.sh *= 256.0f;
 		output = BlinPhong(normalTS, vec3(1.0f), vec3(1.0f),
-				cameraDirectionTS, lightDirectionTS, halfwayTS, u_lightColor, u_material, att);
+				cameraDirectionTS, lightDirectionTS, halfwayTS, u_lightColor, material, att);
 	}
 
 	color = vec4(output, 1.0f);
