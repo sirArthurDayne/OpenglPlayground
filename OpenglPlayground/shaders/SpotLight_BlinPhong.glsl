@@ -68,8 +68,6 @@ uniform sampler2D u_texture_diffuse_1;
 uniform sampler2D u_texture_specular_1;
 
 uniform vec3 u_colorBase;
-//uniform vec3 u_lightPosition;
-//uniform vec3 u_lightColor;
 uniform vec3 u_cameraPosition;
 uniform vec3 u_attConst;//x:kc, y:kl, z:kq
 
@@ -79,7 +77,7 @@ in vec3 v_normal;
 
 
 vec3 BlinPhong(vec3 normal, vec3 diffuseColor, vec3 specularColor, vec3 cameraDirection, 
-	vec3 lightDirection, vec3 halfway, vec3 lightColor, Material mat, float attenuation)
+	vec3 lightDirection, vec3 halfway, vec3 lightColor, Material mat, float attenuation, float spotIntensity)
 {
 	vec3 emissiveColor = u_colorBase;
 	
@@ -90,12 +88,14 @@ vec3 BlinPhong(vec3 normal, vec3 diffuseColor, vec3 specularColor, vec3 cameraDi
 	vec3 diffuseFact = mat.kd * diffuseColor;
 	float diffuseIntensity = max(dot(normal,lightDirection), 0.0f);
 	vec3 diffuse = (diffuseFact * lightColor) * diffuseIntensity;
+	diffuse *= spotIntensity;
 	diffuse *= attenuation;
 
 	vec3 specularFact = mat.ks * specularColor;
 	float facing = dot(normal, lightDirection) > 0.0f ? 1.0f : 0.0f;
 	float spec = max(0.0f, sign(dot(normal, lightDirection))) * pow(max(0.0f, dot(cameraDirection, halfway)), mat.sh);
 	vec3 specular = (specularFact* spec * lightColor) *(diffuseFact * diffuseIntensity) * facing;
+	specular *= spotIntensity;
 	specular *= attenuation;
 
 	return emissiveColor * (ambient + diffuse + specular);
@@ -121,8 +121,8 @@ void main()
 		float theta = dot(lightDir, spotDir);
 		float cutOff = u_pointLights[i].phi;
 		float outerCutOff = u_pointLights[i].gamma;
-		//float epsilon = cutOff - outerCutOff;
-		//float intens = clamp((theta - outerCutOff) / epsilon, 0.0f, 1.0f);
+		float epsilon = cutOff - outerCutOff;
+		float intens = clamp((theta - outerCutOff) / epsilon, 0.0f, 1.0f);
 
 		float distance = length(lightPos - v_position.xyz);
 		float att = 1.0f / (u_attConst.x + u_attConst.y * distance + u_attConst.z * (distance * distance));
@@ -132,12 +132,12 @@ void main()
 		if (u_hasMaterials == 2.0f)//textures and materials
 		{
 			output += BlinPhong(norm, texDiffuseColor.rgb, texSpecularColor.rgb,
-					cameraDir, lightDir, halfwayVec, lightColor, u_meshMaterial, att);
+					cameraDir, lightDir, halfwayVec, lightColor, u_meshMaterial, att, intens);
 		}
 		else if (u_hasMaterials == 1.0f)//only textures
 		{
 			output += BlinPhong(norm, texDiffuseColor.rgb, texSpecularColor.rgb,
-					cameraDir, lightDir, halfwayVec, lightColor, u_material, att);
+					cameraDir, lightDir, halfwayVec, lightColor, u_material, att, intens);
 		}
 		else//nothing, just the model data
 		{
@@ -146,7 +146,7 @@ void main()
 			if (theta < cutOff)//inside cone	
 			{
 				output += BlinPhong(norm, vec3(1.0f), vec3(1.0f),
-					cameraDir, lightDir, halfwayVec, lightColor, material, att);
+					cameraDir, lightDir, halfwayVec, lightColor, material, att, intens);
 			}
 			else {output += material.ka * lightColor;}
 

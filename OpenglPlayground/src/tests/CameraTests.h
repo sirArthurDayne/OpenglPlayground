@@ -33,8 +33,8 @@ namespace test
 		
 		std::vector<glm::vec3> lightCubePositions, lightCubeColors;
 		float cube_offset = 0.0f;
-		float inneRadius = 12.5f;
-		float outerRadius = inneRadius + 5.0f;
+		float inneRadius = glm::radians(12.5f);
+		float outerRadius = glm::radians(24.f);
 		
 		glm::mat4 m_viewMatrix;
 		Material m_MyMaterials;

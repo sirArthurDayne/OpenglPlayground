@@ -122,24 +122,13 @@ test::CameraTest::CameraTest(GLFWwindow*& win)
 	//setup cameras 
 	FreeCamera = new MayaCamera(glm::vec3(0.0f, 0.0f, 15.0f), 45.0f);
 	FirstPersonCamera = new FPSCamera(glm::vec3(0.0f, 0.0f, 15.0f), 45.0f);
-
-	//setup cube pos and colors
-	auto random = [](int min, int max)
-	{
-		static bool seeded = false;
-		if (!seeded)
-		{
-			std::srand(time_t(NULL));
-			seeded = true;
-		}
-		return min + std::rand() % ((max + 1)- min);
-	};
 	
+	//positions	
 	for (int i = 0; i < 6; i++)
 	{
 		float angle = i * 20.0f;
 		const float offset = 5.0f;
-		const float distance = 7.0f;
+		const float distance = 4.40f;
 		glm::vec3 position(sin(angle) * distance + offset, 5.0f, cos(angle) * distance + offset);
 		lightCubePositions.push_back(position);
 	}
@@ -193,7 +182,7 @@ void test::CameraTest::OnRenderer()
 	{
 		glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,-2.0f,0.0f));
 		glm::mat4 rotate = glm::mat4(1.0f);
-		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(20.0f,0.10f,20.0f));
+		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(20.0f,0.001f,20.0f));
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
 		model *= trans * rotate * scale;
 		glm::mat4 proy = glm::perspective(glm::radians(FreeCamera->GetCameraFOV()), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
@@ -250,7 +239,8 @@ void test::CameraTest::OnGuiRenderer()
 	ImGui::ColorEdit3("Specular", &m_MyMaterials.specular.x);
 	ImGui::SliderFloat("shininess", &m_MyMaterials.shininess, .0f, 1.0f);
 	ImGui::SliderFloat("cube distance", &cube_offset, -30.0f, 30.0f);
-	ImGui::SliderAngle("spot radius", &inneRadius, 5.0f, 20.0f);
+	ImGui::SliderAngle("spot inner radius", &inneRadius, 5.0f, 20.0f);
+	ImGui::SliderAngle("outer radius", &outerRadius, inneRadius, 30.0f);
 	ImGui::End();
 
 	ImGui::Begin("Shading Inspector");
@@ -262,9 +252,6 @@ void test::CameraTest::OnGuiRenderer()
 	ImGui::SameLine();
 	ImGui::RadioButton("Toon", &m_shaderActive, 3);
 	ImGui::End();
-
-
-	outerRadius = inneRadius + 5.0f;
 }
 
 void test::CameraTest::BindSelectedShader(LIGHT_MODELS& option)
@@ -295,8 +282,8 @@ void test::CameraTest::BindSelectedShader(LIGHT_MODELS& option)
 void test::CameraTest::UpdateScene(Shader* shader)
 {
 	glm::mat4 trans  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
-	//glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
-	glm::mat4 rotate = glm::mat4(1.0f);
+	glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(10.0f) * float(glfwGetTime()), glm::vec3(.20f, 0.30f, .40f));
+	//glm::mat4 rotate = glm::mat4(1.0f);
 	glm::mat4 scale  = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f));
 	glm::mat4 model  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
 	model *= trans * rotate * scale;
